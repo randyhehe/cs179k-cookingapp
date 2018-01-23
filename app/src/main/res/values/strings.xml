@@ -1,3 +1,23 @@
 <resources>
     <string name="app_name">Cookpad</string>
+
+    <string name="login.email">Email</string>
+    <string name="login.password">Password</string>
+    <string name="login.login">Login</string>
+    <string name="login.username">Username</string>
+    <string name="login.no_account">Don\'t have an account?</string>
+    <string name="login.signup">Sign up.</string>
+    <string name="login.empty_email">Your email cannot be empty.</string>
+    <string name="login.empty_password">Your password cannot be empty.</string>
+
+    <string name="signup.username">Username</string>
+    <string name="signup.email">Email</string>
+    <string name="signup.password">Password</string>
+    <string name="signup.signup">Sign Up</string>
+    <string name="signup.have_account">Already have an account?</string>
+    <string name="signup.signin">Sign in.</string>
+    <string name="signup.empty_email">Your email cannot be empty.</string>
+    <string name="signup.empty_password">Your password cannot be empty.</string>
+    <string name="signup.invalid_username">Your username must be at least 6 characters long and can only contain alphanumeric characters.</string>
+
 </resources>
