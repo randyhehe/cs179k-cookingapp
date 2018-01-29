@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/relLayout1"
+        android:padding="20dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profilePhoto"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="23dp"
+            android:src="@drawable/the_legend" />
+
+        <!--TO-DO: Make text clickable and go to upload photo activity-->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/changeProfilePhoto"
+            android:text="Change Profile Photo"
+            android:textSize="15sp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/profilePhoto"
+            android:layout_marginTop="5dp"
+            android:textColor="@color/colorLinkBlue"/>
+
+
+        <!--Edit Name field-->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/relLayout2"
+            android:layout_below="@id/changeProfilePhoto"
+            android:layout_marginTop="20dp"
+            android:padding="10dp"
+            android:background="@color/cardview_light_background">
+            
+            <TextView
+                android:layout_width="60dp"
+                android:layout_height="35dp"
+                android:text="Name"
+                />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:id="@+id/editName"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="70dp"
+                android:background="@null"
+                android:inputType="textNoSuggestions"/>
+
+
+        </RelativeLayout>
+
+        <!--Edit username field-->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/relLayout3"
+            android:layout_below="@id/relLayout2"
+            android:layout_marginTop="5dp"
+            android:padding="10dp"
+            android:background="@color/cardview_light_background">
+
+            <TextView
+                android:layout_width="66dp"
+                android:layout_height="35dp"
+                android:text="Username"
+                />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:id="@+id/editUsername"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="70dp"
+                android:background="@null"
+                android:inputType="textNoSuggestions"/>
+
+
+        </RelativeLayout>
+
+        <!--Edit bio field-->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/relLayout4"
+            android:layout_below="@id/relLayout3"
+            android:layout_marginTop="5dp"
+            android:padding="10dp"
+            android:background="@color/cardview_light_background">
+
+            <TextView
+                android:layout_width="66dp"
+                android:layout_height="35dp"
+                android:text="Bio"
+                />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:id="@+id/editBio"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="70dp"
+                android:background="@null"
+                android:inputType="textNoSuggestions"/>
+
+
+        </RelativeLayout>
+
+        <!--Edit email field-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/relLayout4"
+            android:text="Private Information"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:id="@+id/textView1"
+            android:layout_marginTop="20dp"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/relLayout6"
+            android:layout_below="@id/textView1"
+            android:layout_marginTop="10dp"
+            android:padding="10dp"
+            android:background="@color/cardview_light_background">
+
+            <TextView
+                android:layout_width="66dp"
+                android:layout_height="35dp"
+                android:text="Email"
+                />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:id="@+id/editEmail"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="70dp"
+                android:background="@null"
+                android:inputType="textNoSuggestions"/>
+
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+
+</ScrollView>
+</merge>
