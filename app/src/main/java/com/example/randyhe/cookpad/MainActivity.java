@@ -26,8 +26,7 @@ public class MainActivity extends AppCompatActivity {
         btnSignout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mAuth.signOut();
-                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                startActivity(new Intent(MainActivity.this, HomeActivity.class));
             }
         });
     }
