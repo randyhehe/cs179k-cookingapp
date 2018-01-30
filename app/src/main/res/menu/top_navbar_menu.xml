@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/createRecipe"
+        android:title="Create recipe"/>
+    <item
+        android:id="@+id/accountSettings"
+        android:title="Account settings"/>
+    <item
+        android:id="@+id/LogOut"
+        android:title="Logout"/>
+</menu>
