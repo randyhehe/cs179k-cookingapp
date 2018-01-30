@@ -25,4 +25,13 @@
         app:layout_constraintTop_toTopOf="parent">
     </Button>
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="Profile"
+        android:id="@+id/profile_btn"
+        app:layout_constraintTop_toBottomOf="@+id/sign_out_btn"
+        tools:layout_editor_absoluteX="136dp" />
+
 </android.support.constraint.ConstraintLayout>

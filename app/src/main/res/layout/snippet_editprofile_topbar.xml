@@ -13,19 +13,42 @@
             android:layout_height="wrap_content"
             android:id="@+id/editProfileToolbar">
 
-            <RelativeLayout
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/backButton"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_action_name"
+                    app:layout_constraintStart_toStartOf="parent" />
+
                 <TextView
+                    android:id="@+id/tvEditProfile"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="nicholas.cage"
-                    android:textSize="20sp"
+                    android:text="Edit Profile"
                     android:textColor="@android:color/black"
-                    android:layout_marginStart="20dp"
-                    android:id="@+id/profileUsername"/>
-            </RelativeLayout>
+                    android:textSize="20sp"
+                    app:layout_constraintEnd_toStartOf="@+id/textView"
+                    app:layout_constraintStart_toEndOf="@+id/backButton"
+                    tools:layout_editor_absoluteY="2dp" />
+
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:text="Done"
+                    android:textColor="@color/colorGray"
+                    android:textSize="20sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    tools:layout_editor_absoluteY="0dp" />
+            </android.support.constraint.ConstraintLayout>
 
 
         </android.support.v7.widget.Toolbar>

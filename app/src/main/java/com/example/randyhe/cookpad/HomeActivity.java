@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -41,6 +42,19 @@ public class HomeActivity extends AppCompatActivity
                 optionsMenu.getMenuInflater().inflate(R.menu.top_navbar_menu,optionsMenu.getMenu());
                 optionsMenu.show();
 
+                optionsMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item)
+                    {
+                        if(item.getTitle().toString().equals("Logout"))
+                        {
+                            Toast.makeText(c,"You have been logged out.",Toast.LENGTH_SHORT).show();
+                            mAuth.signOut();
+                            startActivity(new Intent(c, LoginActivity.class));
+                        }
+                        return true;
+                    }
+                });
             }
         });
 

@@ -19,7 +19,7 @@
             android:layout_height="100dp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="23dp"
+            android:layout_marginTop="15dp"
             android:src="@drawable/the_legend" />
 
         <!--TO-DO: Make text clickable and go to upload photo activity-->
