@@ -98,7 +98,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void signin() {
-        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+        startActivity(new Intent(LoginActivity.this, HomeActivity.class));
     }
 
     // Reformat the default sign in errors from Firebase Firestore

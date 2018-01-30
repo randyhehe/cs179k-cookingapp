@@ -38,10 +38,10 @@
         android:layout_marginLeft="50dp"
         android:layout_marginRight="30dp"
         android:layout_below="@id/profile_layout"
-        android:paddingBottom="15dp"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp"
-        android:paddingTop="15dp"
+        android:paddingBottom="5dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="5dp"
         android:background="@drawable/rounded_border"
         android:clickable="true">
 
@@ -62,7 +62,7 @@
                     app:layout_constraintDimensionRatio="1:1"
                     android:src="@drawable/paitan"
                     android:scaleType="fitXY"
-                    android:padding="5dp"
+                    android:padding="10dp"
                     />
 
             </android.support.constraint.ConstraintLayout>
@@ -70,7 +70,9 @@
             <ImageView
                 android:src="@drawable/rounded_pic_edges"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:padding="5dp"
+                />
 
         </FrameLayout>
 
@@ -81,6 +83,8 @@
             android:layout_alignLeft="@+id/recipePoster"
             android:layout_alignStart="@+id/recipePoster"
             android:layout_below="@+id/roundedPic"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:textStyle="bold"
             android:text="Tori Paitan Ramen"
             android:textColor="#000000"
@@ -94,7 +98,9 @@
             android:layout_alignParentStart="true"
             android:layout_below="@+id/recipeTitle"
             android:text="by Jeremy"
-            android:textSize="12sp"/>
+            android:textSize="12sp"
+            android:paddingLeft="5dp"
+            android:paddingStart="5dp"/>
 
         <TextView
             android:id="@+id/recipeDesc"
@@ -103,7 +109,7 @@
             android:layout_alignLeft="@+id/recipeTitle"
             android:layout_alignStart="@+id/recipeTitle"
             android:layout_below="@+id/recipePoster"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="2dp"
             android:text="This is a simple eorijgoerigjeorig fokwepofkwpeofkwpeofkorog  oerkeorgkerogk"
             tools:textSize="14sp"
             android:ellipsize="end"
@@ -119,7 +125,7 @@
             android:layout_marginTop="8dp"
             android:textColor="#000000"
             android:text="Rating: 3/5"
-            tools:textSize="18sp" />
+            tools:textSize="15sp" />
 
         <ImageButton
             android:id="@+id/bookmarkButton"
@@ -128,11 +134,11 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@+id/recipeRatingText"
-
-            android:layout_marginTop="2dp"
-            android:src="@drawable/bookmark"
-            android:scaleType="fitXY"
+            android:layout_marginEnd="17dp"
+            android:layout_marginRight="17dp"
+            android:background="@color/fui_transparent"
             android:padding="0dp"
-            android:background="@color/fui_transparent"/>
+            android:scaleType="fitXY"
+            android:src="@drawable/bookmark" />
     </RelativeLayout>
 </RelativeLayout>

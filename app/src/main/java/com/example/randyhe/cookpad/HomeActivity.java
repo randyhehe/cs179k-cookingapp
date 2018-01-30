@@ -3,10 +3,23 @@ package com.example.randyhe.cookpad;
 import android.content.Context;
 import android.content.Intent;
 import android.media.Image;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.AttributeSet;
+import android.util.SparseArray;
+import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -18,12 +31,17 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Asus on 1/28/2018.
  */
 
 public class HomeActivity extends AppCompatActivity
 {
+
     final private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseUser currentUser;
 
@@ -31,7 +49,7 @@ public class HomeActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         final Context c = this;
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_feed);
+        setContentView(R.layout.activity_home);
 
         final ImageButton topOptionsButton = (ImageButton) findViewById(R.id.options);
 
@@ -58,42 +76,54 @@ public class HomeActivity extends AppCompatActivity
             }
         });
 
-        LinearLayout feed = (LinearLayout) findViewById(R.id.recipesScrollView);
+        BottomNavigationView bottomNavigationView = (BottomNavigationView)
+                findViewById(R.id.navigation);
 
-        View a = getLayoutInflater().inflate(R.layout.feed_recipe, null);
+        final CustomViewPager viewPager = (CustomViewPager) findViewById(R.id.frame_layout);
+        final ViewPagerAdapter adapter = new ViewPagerAdapter (getSupportFragmentManager());
+        adapter.addFragment(new feedFragment(), "feed");
+        //adapter.addFragment(new profileFragment(), "profile");
+        viewPager.setAdapter(adapter);
 
-        TextView recipeName = (TextView) a.findViewById(R.id.recipeTitle);
-        TextView recipeDesc = (TextView) a.findViewById(R.id.recipeDesc);
-        TextView recipePoster = (TextView) a.findViewById(R.id.recipePoster);
-        TextView notificationDesc = (TextView) a.findViewById(R.id.notificationDesc);
-        ImageView recipePic = (ImageView) a.findViewById(R.id.foodPic);
-        final ImageButton bookmark = (ImageButton) a.findViewById(R.id.bookmarkButton);
+        //final FragmentManager fm = getSupportFragmentManager();
 
-        recipeName.setText("Eggs");
-        recipeDesc.setText("This is how to boil an egg.");
-        recipePoster.setText("by Melissa");
-        notificationDesc.setText("Baldo bookmarked this recipe: ");
-        recipePic.setImageResource(R.drawable.eggs);
-        bookmark.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(bookmark.getDrawable().getConstantState().equals(getResources().getDrawable(R.drawable.bookmarked).getConstantState()))
-                {
-                    bookmark.setImageResource(R.drawable.bookmark);
-                    Toast.makeText(c,"Recipe has been unbookmarked.",Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
-                    bookmark.setImageResource(R.drawable.bookmarked);
-                    Toast.makeText(c,"Recipe has been bookmarked!",Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        bottomNavigationView.setOnNavigationItemSelectedListener
+                (new BottomNavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        Fragment selectedFragment = null;
+                        switch (item.getItemId()) {
+                            case R.id.feed:
+                                //selectedFragment = feedFragment.newInstance();
+                                viewPager.setCurrentItem(0,false);
+                                break;
+                            case R.id.profile:
+                                //selectedFragment = profileFragment.newInstance();
+                                if(!adapter.containsFragment("profile"))
+                                {
+                                    Toast.makeText(c,"No profile",Toast.LENGTH_SHORT).show();
+                                    adapter.addFragment(new profileFragment(), "profile");
+                                    viewPager.setAdapter(adapter);
+                                }
+                                viewPager.setCurrentItem(1,false);
+                                break;
+//                            case R.id.explore:
+//                                selectedFragment = ItemThreeFragment.newInstance();
+//                                break;
+                        }
 
-        View b = getLayoutInflater().inflate(R.layout.feed_recipe, null);
+//                        Toast.makeText(c,Integer.toString(fm.getBackStackEntryCount()),Toast.LENGTH_SHORT).show();
+//                        FragmentTransaction transaction = fm.beginTransaction();
+//                        transaction.replace(R.id.frame_layout, selectedFragment);
+//                        transaction.commit();
+                        return true;
+                    }
+                });
 
-        feed.addView(a);
-        feed.addView(b);
+        //Manually displaying the first fragment - one time only
+//        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//        transaction.replace(R.id.frame_layout, feedFragment.newInstance());
+//        transaction.commit();
     }
 
     @Override
