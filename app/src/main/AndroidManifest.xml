@@ -29,5 +29,13 @@
             android:name=".HomeActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+        <activity android:name=".EditProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
+        <activity android:name=".ProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
     </application>
 </manifest>
