@@ -34,6 +34,7 @@ public class SignupActivity extends AppCompatActivity {
     private EditText etUsername;
     private EditText etEmail;
     private EditText etPassword;
+    private EditText etConfirmPassword;
     private TextView tvError;
     private Button btnSignup;
     private TextView tvSignin;
@@ -68,6 +69,7 @@ public class SignupActivity extends AppCompatActivity {
         tvError = findViewById(R.id.signup_error);
         btnSignup = findViewById(R.id.btn_signup);
         tvSignin = findViewById(R.id.link_signin);
+        etConfirmPassword = findViewById(R.id.input_confirmpassword);
     }
 
     private void setupSigninLink() {
@@ -110,7 +112,10 @@ public class SignupActivity extends AppCompatActivity {
         btnSignup.setOnClickListener(signupListener);
     }
 
-    // Checks validity of username field and makes sure email and password is not empty before being verified by Firebase servers (or crash)
+    /*
+     * Checks validity of username field and makes sure both password fields match.
+     * Ensures email and password is not empty before being further verified by Firebase servers (or crash)
+     */
     private boolean validSignupPrecheck() {
         if (!validUsername(etUsername)) {
             tvError.setText(getResources().getString(R.string.signup_invalid_username));
@@ -122,6 +127,11 @@ public class SignupActivity extends AppCompatActivity {
             return false;
         } else if (empty(etPassword)) {
             tvError.setText(getResources().getString(R.string.signup_empty_password));
+            tvError.setVisibility(View.VISIBLE);
+            return false;
+        } else if (empty(etConfirmPassword)
+                || !etPassword.getText().toString().equals(etConfirmPassword.getText().toString())) {
+            tvError.setText(getResources().getString(R.string.signup_invalid_confirmpassword));
             tvError.setVisibility(View.VISIBLE);
             return false;
         } else {

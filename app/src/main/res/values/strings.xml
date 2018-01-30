@@ -13,11 +13,13 @@
     <string name="signup.username">Username</string>
     <string name="signup.email">Email</string>
     <string name="signup.password">Password</string>
+    <string name="signup.confirm_password">Confirm Password</string>
     <string name="signup.signup">Sign Up</string>
     <string name="signup.have_account">Already have an account?</string>
     <string name="signup.signin">Sign in.</string>
     <string name="signup.empty_email">Your email cannot be empty.</string>
     <string name="signup.empty_password">Your password cannot be empty.</string>
+    <string name="signup.invalid_confirmpassword">Passwords do not match.</string>
     <string name="signup.invalid_username">Your username must be at least 6 characters long and can only contain alphanumeric characters.</string>
 
     <string name="navBar.profile">Profile</string>
