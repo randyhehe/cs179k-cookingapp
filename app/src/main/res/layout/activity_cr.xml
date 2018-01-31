@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5"
+    tools:context="com.example.randyhe.cookpad.CreateRecipe">
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/mainphoto_btn"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:contentDescription="Upload a photo of your recipe!"
+                app:srcCompat="@android:drawable/ic_menu_camera" />
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="3dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/recipe_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#00000000"
+                    android:gravity="center_horizontal"
+                    android:hint="Recipe Title"
+                    android:inputType="textMultiLine"
+                    android:maxLength="50"
+                    android:scrollHorizontally="false"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                    android:textColor="@color/colorGray" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:layout_marginTop="5dp">
+
+                <EditText
+                    android:id="@+id/recipe_desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#00000000"
+                    android:gravity="center_horizontal"
+                    android:hint="Tell us about this recipe!"
+                    android:inputType="textMultiLine"
+                    android:maxLength="300"
+                    android:scrollHorizontally="false"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+            </android.support.design.widget.TextInputLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/ing_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_alignParentLeft="true"
+                    android:background="#00000000"
+                    android:textColor="@color/colorGray"
+                    android:text="Ingredients"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+
+                <EditText
+                    android:id="@+id/servings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="15dp"
+                    android:textColor="@color/colorGray"
+                    android:maxLength="15"
+                    android:background="@color/colorTransparent"
+                    android:hint="2 servings"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+            </RelativeLayout>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/cr_ingr"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical">
+                <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    xmlns:tools="http://schemas.android.com/tools"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <EditText
+                        android:id="@+id/textout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="1 tablespoon sugar"
+                        android:background="#00000000"
+                        android:maxLength="60"
+                        android:layout_marginBottom="5dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:layout_toLeftOf="@id/remove"/>
+                </RelativeLayout>
+                <LinearLayout
+                    android:id="@+id/ing_cont"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_marginBottom="5dp"
+                    android:orientation="vertical">
+                </LinearLayout>
+            </LinearLayout>
+            <Button
+                android:id="@+id/adding"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="+ Add Ingredient"
+                android:background="#00000000"
+                android:textColor="@color/colorGray"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/mth_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_alignParentLeft="true"
+                    android:background="#00000000"
+                    android:textColor="@color/colorGray"
+                    android:text="Method"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+
+                <EditText
+                    android:id="@+id/time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="15dp"
+                    android:textColor="@color/colorGray"
+                    android:maxLength="15"
+                    android:background="@color/colorTransparent"
+                    android:hint="30 mins"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+            </RelativeLayout>
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/cr_ingr"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                >
+
+                <ImageButton
+                    android:id="@+id/addphoto"
+                    android:layout_width="110dp"
+                    android:layout_height="100dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    app:srcCompat="@android:drawable/ic_menu_camera" />
+
+                <TextView
+                    android:id="@+id/num"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginBottom="5dp"
+                    android:background="#696969"
+                    android:inputType="number"
+                    android:text="1"
+                    android:textColor="#FFFFFF"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+                <EditText
+                    android:id="@+id/stepout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@+id/addphoto"
+                    android:layout_below="@+id/num"
+                    android:background="#00000000"
+                    android:maxLength="500"
+                    android:inputType="textMultiLine"
+                    android:hint="Write instruction"/>
+
+
+            </RelativeLayout>
+            <LinearLayout
+                android:id="@+id/mthd_cont"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:showDividers="middle"
+                android:divider="@drawable/cr_divider"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginTop="15dp"
+                android:orientation="vertical">
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/addmethod"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="+ Add Method"
+                android:background="#00000000"
+                android:textColor="@color/colorGray"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="2dp"
+                android:background="#00000000"
+                android:textColor="@color/colorGray"
+                android:text="Tags"
+                android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="15dp">
+
+                <EditText
+                    android:id="@+id/textin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_toLeftOf="@+id/add"
+                    android:hint="breakfast, pasta, italian, etc."
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+                <Button
+                    android:id="@+id/add"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="15dp"
+                    android:background="#00000000"
+                    android:text="+ Add tag"
+                    android:textColor="@color/colorGray"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+            </RelativeLayout>
+            <LinearLayout
+                android:id="@+id/container"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/cr_ingr"
+                android:visibility="gone"
+                android:orientation="vertical">
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp"
+                android:background="@android:color/darker_gray"/>
+
+            <Button
+                android:id="@+id/pub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:text="Publish"/>
+
+        </LinearLayout>
+
+
+
+    </ScrollView>
+
+
+</android.support.constraint.ConstraintLayout>

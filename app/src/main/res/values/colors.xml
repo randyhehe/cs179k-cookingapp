@@ -7,5 +7,7 @@
     <color name="colorGray">#959495</color>
     <color name="colorErrorRed">#ff4444</color>
     <color name="colorLinkBlue">#4095ea</color>
+    <color name="colorLightPink">#ffd0d7</color>
+    <color name="colorTransparent">#00000000</color>
 
 </resources>

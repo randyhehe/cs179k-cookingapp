@@ -15,7 +15,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvUID;
     private Button btnSignout;
     private FirebaseUser currentUser;
-    private Button btnProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,17 +26,11 @@ public class MainActivity extends AppCompatActivity {
         btnSignout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, HomeActivity.class));
+                mAuth.signOut();
+                startActivity(new Intent(MainActivity.this, LoginActivity.class));
             }
         });
 
-        btnProfile = findViewById(R.id.profile_btn);
-        btnProfile.setOnClickListener( new View.OnClickListener() {
-                                           @Override
-                                           public void onClick(View view) {
-                                               startActivity(new Intent(MainActivity.this, ProfileActivity.class));
-                                           }
-        });
     }
 
     @Override

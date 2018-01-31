@@ -70,6 +70,10 @@ public class HomeActivity extends AppCompatActivity
                             mAuth.signOut();
                             startActivity(new Intent(c, LoginActivity.class));
                         }
+                        if(item.getTitle().toString().equals("Create recipe"))
+                        {
+                            startActivity(new Intent(c, CreateRecipe.class));
+                        }
                         return true;
                     }
                 });
