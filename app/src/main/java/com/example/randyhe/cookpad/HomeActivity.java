@@ -105,7 +105,6 @@ public class HomeActivity extends AppCompatActivity
                                 //selectedFragment = profileFragment.newInstance();
                                 if(!adapter.containsFragment("profile"))
                                 {
-                                    Toast.makeText(c,"No profile",Toast.LENGTH_SHORT).show();
                                     adapter.addFragment(new profileFragment(), "profile");
                                     viewPager.setAdapter(adapter);
                                 }
