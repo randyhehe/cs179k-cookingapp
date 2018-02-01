@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.randyhe.cookpad.Individual_Recipe"
+    >
+
+    <RelativeLayout
+        android:id="@+id/main_block"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <ImageView
+            android:id="@+id/paddingPic"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/white_rectangle"
+            />
+
+        <ImageView
+            android:id="@+id/main_image"
+            android:layout_width="fill_parent"
+            android:layout_height="250dp"
+            android:scaleType="centerCrop"
+            android:layout_below="@+id/paddingPic"
+            />
+
+        <TextView
+            android:id="@+id/main_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/main_image"
+            android:paddingLeft="20dp"
+            android:paddingTop="20dp"
+            android:textColor="#006600"
+            android:textSize="25dp" />
+
+        <TextView
+            android:id="@+id/main_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/main_title"
+            android:paddingLeft="20dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:textColor="#006600"
+            android:textSize="15dp" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/avatar"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_centerVertical="true"
+            android:layout_below="@+id/main_description"
+            android:paddingLeft="20dp"
+            />
+
+        <TextView
+            android:id="@+id/main_name"
+            android:layout_width="225dp"
+            android:layout_height="70dp"
+            android:layout_below="@id/main_description"
+            android:layout_toRightOf="@+id/avatar"
+            android:gravity="center_vertical"
+            android:paddingLeft="20dp"
+            android:textColor="#006600"
+            android:textSize="15dp"
+
+            />
+
+        <Button
+            android:id="@+id/follow_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/main_description"
+            android:layout_toRightOf="@+id/main_name"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="15dp"
+            />
+
+        <TextView
+            android:id="@+id/ingredients_title"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:layout_below="@+id/avatar"
+            android:textSize="20dp"
+            android:paddingLeft="20dp"
+
+            android:gravity="center_vertical"
+
+            />
+
+        <TextView
+            android:id="@+id/num_feeds"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:textSize="15dp"
+            android:gravity="right|center_vertical"
+            android:layout_below="@+id/avatar"
+            android:layout_toRightOf="@+id/ingredients_title"
+            android:layout_alignParentRight="true"
+            android:paddingRight="40dp"
+            />
+
+        <LinearLayout
+            android:id="@+id/ingredients"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ingredients_title"
+            android:orientation="vertical">
+
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/method_title"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:layout_below="@+id/ingredients"
+            android:textSize="20dp"
+            android:paddingLeft="20dp"
+            android:gravity="center_vertical"
+
+            />
+
+        <TextView
+            android:id="@+id/cook_time"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:textSize="15dp"
+            android:gravity="right|center_vertical"
+            android:layout_below="@+id/ingredients"
+            android:layout_toRightOf="@+id/method_title"
+            android:layout_alignParentRight="true"
+            android:paddingRight="40dp"
+            />
+
+    </RelativeLayout>
+
+
+
+</RelativeLayout>
