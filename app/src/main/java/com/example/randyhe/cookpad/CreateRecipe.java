@@ -1,18 +1,12 @@
 package com.example.randyhe.cookpad;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -27,10 +21,7 @@ import com.vansuita.pickimage.bundle.PickSetup;
 import com.vansuita.pickimage.dialog.PickImageDialog;
 import com.vansuita.pickimage.listeners.IPickResult;
 
-
 public class CreateRecipe extends AppCompatActivity {
-    private ProgressDialog progressDialog;
-
 
     //tags
     EditText textIn;
@@ -48,42 +39,65 @@ public class CreateRecipe extends AppCompatActivity {
     LinearLayout ingCont;
 
     //publish
-    Button publish;
+    Button submitButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cr);
 
-        final ImageButton ibMainPhoto = findViewById(R.id.mainphoto_btn);
-        final LinearLayout llMainPhotoOptions = findViewById(R.id.mainphoto_options);
-        final LinearLayout llMainPhotoEdit = findViewById(R.id.mainphoto_edit);
-        final ImageButton ibMainPhotoDelete = findViewById(R.id.mainphoto_delete);
-        ibMainPhoto.setOnClickListener(new View.OnClickListener() {
+        // both editing and creating recipe share this code
+        setupIngredients();
+        setupMethods();
+        setupTags();
+        setupInitialImages();
+
+        // publishing and editing logic differs here (mostly for data submission)
+        boolean isEdit = editOrCreate();
+        if (isEdit) {
+            setupEdit();
+        } else {
+            setupPublish();
+        }
+    }
+
+    // returns true if editing an existing recipe, false if creating a new recipe
+    private boolean editOrCreate() {
+        Bundle extras = getIntent().getExtras();
+        return extras != null && extras.getBoolean("EDIT", false);
+    }
+
+    private void setupEdit() {
+        // populate existing data into the appropriate fields
+
+        // set submit button to update the current entry
+        submitButton = findViewById(R.id.pub);
+        submitButton.setText("Edit");
+        submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                chooseImage(ibMainPhoto, llMainPhotoOptions, llMainPhotoEdit, ibMainPhotoDelete);
+
             }
         });
+    }
 
-        final ImageButton ibFirstPhoto = findViewById(R.id.addphoto);
-        final LinearLayout llFirstPhotoOptions = findViewById(R.id.photo_options);
-        final LinearLayout llFirstPhotoEdit = findViewById(R.id.photo_edit);
-        final ImageButton ibFirstPhotoDelete = findViewById(R.id.photo_delete);
+    private void setupPublish() {
+        //stuff for publish
+        submitButton = findViewById(R.id.pub);
 
-        ibFirstPhoto.setOnClickListener(new View.OnClickListener() {
+        submitButton.setOnClickListener(new View.OnClickListener(){
+
             @Override
-            public void onClick(View view) {
-                chooseImage(ibFirstPhoto, llFirstPhotoOptions, llFirstPhotoEdit, ibFirstPhotoDelete);
-            }
-        });
+            public void onClick(View arg0) {
+                //upload to DB
+            }});
+    }
 
-        //stuff for ingredients
-        ingAdd = (Button)findViewById(R.id.adding);
-        ingCont = (LinearLayout)findViewById(R.id.ing_cont);
+    private void setupIngredients() {
+        ingAdd = findViewById(R.id.adding);
+        ingCont = findViewById(R.id.ing_cont);
 
         ingAdd.setOnClickListener(new View.OnClickListener(){
-
             @Override
             public void onClick(View arg0) {
                 LayoutInflater layoutInflater =
@@ -99,12 +113,55 @@ public class CreateRecipe extends AppCompatActivity {
                     }});
 
                 ingCont.addView(addView);
-            }});
+        }});
+    }
 
-        //stuff for tags
-        textIn = (EditText)findViewById(R.id.textin);
-        buttonAdd = (Button)findViewById(R.id.add);
-        container = (LinearLayout)findViewById(R.id.container);
+    private void setupMethods() {
+        addMethod = (Button)findViewById(R.id.addmethod);
+        methods = (LinearLayout)findViewById(R.id.mthd_cont);
+
+        addMethod.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View arg0) {
+                final int stepNum = ++number;
+
+                LayoutInflater layoutInflater =
+                        (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                final View addView = layoutInflater.inflate(R.layout.activity_cr_method, null);
+
+                TextView tvStepNum = (TextView)addView.findViewById(R.id.num);
+                tvStepNum.setText(Integer.toString(stepNum));
+
+                // image handlers
+                final ImageButton ibStepPhoto = addView.findViewById(R.id.addphoto);
+                final LinearLayout llPhotoOptions = addView.findViewById(R.id.photo_options);
+                final LinearLayout llFirstPhotoEdit = addView.findViewById(R.id.photo_edit);
+                final ImageButton ibPhotoDelete = addView.findViewById(R.id.photo_delete);
+                ibStepPhoto.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        chooseImage(ibStepPhoto, llPhotoOptions, llFirstPhotoEdit, ibPhotoDelete);
+                    }
+                });
+
+                Button method_Remove = (Button)addView.findViewById(R.id.remove_mth);
+                method_Remove.setOnClickListener(new View.OnClickListener(){
+
+                    @Override
+                    public void onClick(View v) {
+                        --number;
+                        ((LinearLayout)addView.getParent()).removeView(addView);
+                    }});
+
+                methods.addView(addView);
+            }});
+    }
+
+    private void setupTags() {
+        textIn = findViewById(R.id.textin);
+        buttonAdd = findViewById(R.id.add);
+        container = findViewById(R.id.container);
 
         buttonAdd.setOnClickListener(new View.OnClickListener(){
 
@@ -133,56 +190,29 @@ public class CreateRecipe extends AppCompatActivity {
 
                 container.addView(addView);
             }});
+    }
 
-        //stuff for methods
-        addMethod = (Button)findViewById(R.id.addmethod);
-        methods = (LinearLayout)findViewById(R.id.mthd_cont);
-
-        addMethod.setOnClickListener(new View.OnClickListener(){
-
+    private void setupInitialImages() {
+        final ImageButton ibMainPhoto = findViewById(R.id.mainphoto_btn);
+        final LinearLayout llMainPhotoOptions = findViewById(R.id.mainphoto_options);
+        final LinearLayout llMainPhotoEdit = findViewById(R.id.mainphoto_edit);
+        final ImageButton ibMainPhotoDelete = findViewById(R.id.mainphoto_delete);
+        ibMainPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View arg0) {
-                final int stepNum = ++number;
-
-                LayoutInflater layoutInflater =
-                        (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                final View addView = layoutInflater.inflate(R.layout.activity_cr_method, null);
-
-                TextView tvStepNum = (TextView)addView.findViewById(R.id.num);
-                tvStepNum.setText(Integer.toString(stepNum));
-
-                final ImageButton ibStepPhoto = addView.findViewById(R.id.addphoto);
-                final LinearLayout llPhotoOptions = addView.findViewById(R.id.photo_options);
-                final LinearLayout llFirstPhotoEdit = addView.findViewById(R.id.photo_edit);
-                final ImageButton ibPhotoDelete = addView.findViewById(R.id.photo_delete);
-                ibStepPhoto.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        chooseImage(ibStepPhoto, llPhotoOptions, llFirstPhotoEdit, ibPhotoDelete);
-                    }
-                });
-
-                Button method_Remove = (Button)addView.findViewById(R.id.remove_mth);
-                method_Remove.setOnClickListener(new View.OnClickListener(){
-
-                    @Override
-                    public void onClick(View v) {
-                        --number;
-                        ((LinearLayout)addView.getParent()).removeView(addView);
-                    }});
-
-                methods.addView(addView);
-            }});
-
-        //stuff for publish
-        publish = (Button)findViewById(R.id.pub);
-
-        publish.setOnClickListener(new View.OnClickListener(){
-
+            public void onClick(View view) {
+                chooseImage(ibMainPhoto, llMainPhotoOptions, llMainPhotoEdit, ibMainPhotoDelete);
+            }
+        });
+        final ImageButton ibFirstPhoto = findViewById(R.id.addphoto);
+        final LinearLayout llFirstPhotoOptions = findViewById(R.id.photo_options);
+        final LinearLayout llFirstPhotoEdit = findViewById(R.id.photo_edit);
+        final ImageButton ibFirstPhotoDelete = findViewById(R.id.photo_delete);
+        ibFirstPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View arg0) {
-                //upload to DB
-            }});
+            public void onClick(View view) {
+                chooseImage(ibFirstPhoto, llFirstPhotoOptions, llFirstPhotoEdit, ibFirstPhotoDelete);
+            }
+        });
     }
 
     private void expandImage(final ImageButton imageButton) {

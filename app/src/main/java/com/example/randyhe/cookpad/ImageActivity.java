@@ -35,7 +35,6 @@ public class ImageActivity extends AppCompatActivity {
             finish();
             return true;
         }
-
         return false;
     }
 }

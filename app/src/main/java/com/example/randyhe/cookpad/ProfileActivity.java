@@ -17,7 +17,6 @@ import android.widget.Toast;
 
 public class ProfileActivity extends AppCompatActivity {
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,16 +29,6 @@ public class ProfileActivity extends AppCompatActivity {
                 startActivity(new Intent(ProfileActivity.this, EditProfileActivity.class));
             }
         });
-//        Toast.makeText(ProfileActivity.this, "test", Toast.LENGTH_LONG);
-//
-//        RelativeLayout layout = findViewById(R.id.relLayout1);
-//        layout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Toast.makeText(ProfileActivity.this, "test", Toast.LENGTH_LONG);
-//            }
-//        });
-
     }
 
 

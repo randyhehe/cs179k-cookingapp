@@ -7,12 +7,10 @@ package com.example.randyhe.cookpad;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 public class profileFragment extends Fragment {
     public static profileFragment newInstance() {
@@ -38,7 +36,9 @@ public class profileFragment extends Fragment {
         recipeItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getContext(), CreateRecipe.class));
+                Intent intent = new Intent(getContext(), CreateRecipe.class);
+                intent.putExtra("EDIT", true);
+                startActivity(intent);
             }
         });
         return view;
