@@ -16,7 +16,62 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
+            android:adjustViewBounds="true"
+            android:padding="0dp"
+            android:background="@color/colorLightGray"
             android:src="@android:drawable/ic_menu_camera" />
+
+        <LinearLayout
+            android:id="@+id/photo_options"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:orientation="horizontal"
+            android:layout_alignBottom="@id/addphoto"
+            android:layout_alignRight="@id/addphoto"
+            android:layout_alignEnd="@id/addphoto"
+            android:layout_marginRight="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
+            android:background="#33000000"
+            android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/photo_edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
+
+                        <ImageButton
+                            android:layout_marginLeft="3dp"
+                            android:layout_width="30dp"
+                            android:layout_height="match_parent"
+                            android:src="@android:drawable/ic_menu_camera"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:includeFontPadding="false"
+                            android:text="Edit"
+                            android:textColor="@android:color/white"
+                            android:layout_marginTop="-40dp"
+                            android:layout_marginBottom="-40dp"
+                            android:paddingRight="5dp"
+                            android:paddingEnd="5dp"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_marginRight="5dp"
+                    android:layout_height="match_parent"
+                    android:layout_width="2dp"
+                    android:background="@color/colorLightGray"/>
+
+                <ImageButton
+                    android:background="@android:color/transparent"
+                    android:id="@+id/photo_delete"
+                    android:layout_width="30dp"
+                    android:layout_height="match_parent"
+                    android:src="@android:drawable/ic_menu_delete"/>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/num"

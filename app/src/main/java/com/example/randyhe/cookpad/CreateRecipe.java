@@ -1,8 +1,18 @@
 package com.example.randyhe.cookpad;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -10,8 +20,17 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.vansuita.pickimage.bean.PickResult;
+import com.vansuita.pickimage.bundle.PickSetup;
+import com.vansuita.pickimage.dialog.PickImageDialog;
+import com.vansuita.pickimage.listeners.IPickResult;
+
 
 public class CreateRecipe extends AppCompatActivity {
+    private ProgressDialog progressDialog;
+
 
     //tags
     EditText textIn;
@@ -35,6 +54,29 @@ public class CreateRecipe extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cr);
+
+        final ImageButton ibMainPhoto = findViewById(R.id.mainphoto_btn);
+        final LinearLayout llMainPhotoOptions = findViewById(R.id.mainphoto_options);
+        final LinearLayout llMainPhotoEdit = findViewById(R.id.mainphoto_edit);
+        final ImageButton ibMainPhotoDelete = findViewById(R.id.mainphoto_delete);
+        ibMainPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseImage(ibMainPhoto, llMainPhotoOptions, llMainPhotoEdit, ibMainPhotoDelete);
+            }
+        });
+
+        final ImageButton ibFirstPhoto = findViewById(R.id.addphoto);
+        final LinearLayout llFirstPhotoOptions = findViewById(R.id.photo_options);
+        final LinearLayout llFirstPhotoEdit = findViewById(R.id.photo_edit);
+        final ImageButton ibFirstPhotoDelete = findViewById(R.id.photo_delete);
+
+        ibFirstPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseImage(ibFirstPhoto, llFirstPhotoOptions, llFirstPhotoEdit, ibFirstPhotoDelete);
+            }
+        });
 
         //stuff for ingredients
         ingAdd = (Button)findViewById(R.id.adding);
@@ -100,13 +142,25 @@ public class CreateRecipe extends AppCompatActivity {
 
             @Override
             public void onClick(View arg0) {
-                ++number;
+                final int stepNum = ++number;
+
                 LayoutInflater layoutInflater =
                         (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 final View addView = layoutInflater.inflate(R.layout.activity_cr_method, null);
-                TextView stepNum = (TextView)addView.findViewById(R.id.num);
-                stepNum.setText(Integer.toString(number));
 
+                TextView tvStepNum = (TextView)addView.findViewById(R.id.num);
+                tvStepNum.setText(Integer.toString(stepNum));
+
+                final ImageButton ibStepPhoto = addView.findViewById(R.id.addphoto);
+                final LinearLayout llPhotoOptions = addView.findViewById(R.id.photo_options);
+                final LinearLayout llFirstPhotoEdit = addView.findViewById(R.id.photo_edit);
+                final ImageButton ibPhotoDelete = addView.findViewById(R.id.photo_delete);
+                ibStepPhoto.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        chooseImage(ibStepPhoto, llPhotoOptions, llFirstPhotoEdit, ibPhotoDelete);
+                    }
+                });
 
                 Button method_Remove = (Button)addView.findViewById(R.id.remove_mth);
                 method_Remove.setOnClickListener(new View.OnClickListener(){
@@ -129,7 +183,61 @@ public class CreateRecipe extends AppCompatActivity {
             public void onClick(View arg0) {
                 //upload to DB
             }});
+    }
 
+    private void expandImage(final ImageButton imageButton) {
+        Intent intent = new Intent(this, ImageActivity.class);
+        intent.putExtra("BitmapUri", (Uri) imageButton.getTag());
+        startActivity(intent);
+    }
 
+    private void chooseImage(final ImageButton imageButton, final LinearLayout photoOptions, final LinearLayout photoEdit, final ImageButton imageDelete) {
+        PickImageDialog.build(new PickSetup()).setOnPickResult(new IPickResult() {
+            @Override
+            public void onPickResult(PickResult pickResult) {
+                if (pickResult.getError() == null) {
+                    photoOptions.setVisibility(View.VISIBLE);
+
+                    imageButton.setImageURI(pickResult.getUri());
+                    imageButton.setTag(pickResult.getUri());
+                    imageButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            expandImage(imageButton);
+                        }
+                    });
+
+                    photoEdit.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            chooseImage(imageButton, photoOptions, photoEdit, imageDelete);
+                        }
+                    });
+
+                    imageDelete.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            new AlertDialog.Builder(view.getContext())
+                            .setMessage("Are you sure you want to delete this image?")
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int button) {
+                                    photoOptions.setVisibility(View.GONE);
+                                    imageButton.setImageResource(android.R.drawable.ic_menu_camera);
+                                    imageButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            chooseImage(imageButton, photoOptions, photoEdit, imageDelete);
+                                        }
+                                    });
+                                }
+                            }).setNegativeButton(android.R.string.no, null).show();
+                        }
+                    });
+                } else {
+                    Toast.makeText(getApplicationContext(), pickResult.getError().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        }).show(getSupportFragmentManager());
     }
 }
