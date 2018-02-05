@@ -13,4 +13,8 @@
         android:id="@+id/explore"
         android:icon="@drawable/logo"
         android:title="@string/navBar.explore"/>
+
+    <item android:id="@+id/bookmark"
+        android:icon="@drawable/logo"
+        android:title="Bookmarks" />
 </menu>

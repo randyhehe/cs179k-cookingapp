@@ -84,66 +84,54 @@
                 <include layout="@layout/snippet_profile_top" />
             </RelativeLayout>
 
-            <RelativeLayout
-                android:id="@+id/tabContainer"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/relLayout7"
-                android:layout_weight="1">
-
-                <android.support.design.widget.TabLayout
-                    android:id="@+id/tabLayout"
-                    app:tabMode="fixed"
-                    app:tabGravity="fill"
-                    app:tabIndicatorColor="@color/colorLightPink"
-                    app:tabSelectedTextColor="@color/colorAccent"
-                    app:tabTextColor="@android:color/black"
-                    android:layout_below="@id/relLayout7"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-
-                <android.support.v4.view.ViewPager
-                    xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp"
-                    android:layout_below="@id/tabLayout"
-                    android:id="@+id/profileViewPager"
-                    />
-            </RelativeLayout>
-
-
-            <!--<LinearLayout-->
-                <!--android:layout_below="@id/relLayout7"-->
+            <!--<RelativeLayout-->
+                <!--android:id="@+id/tabContainer"-->
                 <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:id="@+id/profileRecipeFeed"-->
-                <!--android:orientation="vertical">-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_below="@id/relLayout7"-->
+                <!--android:layout_weight="1">-->
 
-                <!--<android.support.v7.widget.SearchView-->
+                <!--<android.support.design.widget.TabLayout-->
+                    <!--android:id="@+id/tabLayout"-->
+                    <!--app:tabMode="fixed"-->
+                    <!--app:tabGravity="fill"-->
+                    <!--app:tabIndicatorColor="@color/colorLightPink"-->
+                    <!--app:tabSelectedTextColor="@color/colorAccent"-->
+                    <!--app:tabTextColor="@android:color/black"-->
                     <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:id="@+id/profileRecipeSearch"/>-->
+                    <!--android:layout_height="wrap_content"/>-->
 
-                <!--<TextView-->
-                    <!--android:id="@+id/defaultText"-->
+                <!--<android.support.v4.view.ViewPager-->
+                    <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
                     <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:padding="20dp"-->
-                    <!--android:gravity="center"-->
-                    <!--android:text="No recipes to show"-->
-                    <!--android:textSize="18sp"-->
-                    <!--android:textStyle="bold"-->
+                    <!--android:layout_height="300dp"-->
+                    <!--android:layout_below="@id/tabLayout"-->
+                    <!--android:id="@+id/profileViewPager"-->
                     <!--/>-->
+            <!--</RelativeLayout>-->
 
-                <!--&lt;!&ndash;<include layout="@layout/layout_profile_recipebutton" />&ndash;&gt;-->
+            <LinearLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/profileRecipeFeed"
+                android:orientation="vertical"
+                android:layout_below="@id/relLayout7">
 
-                <!--&lt;!&ndash;<include layout="@layout/layout_profile_recipebutton"/>&ndash;&gt;-->
+                <android.support.v7.widget.SearchView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/profileRecipeSearch"/>
 
-                <!--&lt;!&ndash;<include layout="@layout/layout_profile_recipebutton" />&ndash;&gt;-->
+                <!--<include layout="@layout/layout_profile_recipebutton" />-->
 
-                <!--&lt;!&ndash;<include layout="@layout/layout_profile_recipebutton" />&ndash;&gt;-->
+                <!--<include layout="@layout/layout_profile_recipebutton"/>-->
 
-            <!--</LinearLayout>-->
+                <!--<include layout="@layout/layout_profile_recipebutton" />-->
+
+                <!--<include layout="@layout/layout_profile_recipebutton" />-->
+
+            </LinearLayout>
 
         </RelativeLayout>
     </RelativeLayout>
