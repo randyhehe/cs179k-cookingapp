@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".3"
+            android:id="@+id/constraint1">
+
+            <ImageView
+                android:id="@+id/recipePic1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="1:1"
+                android:src="@drawable/paitan"
+                android:scaleType="fitXY"
+                android:paddingLeft="2dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                />
+
+        </android.support.constraint.ConstraintLayout>
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".3"
+            android:id="@+id/constraint2">
+
+            <ImageView
+                android:id="@+id/recipePic2"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="1:1"
+                android:src="@drawable/paitan"
+                android:scaleType="fitXY"
+                android:padding="2dp"
+                />
+
+        </android.support.constraint.ConstraintLayout>
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".3"
+            android:id="@+id/constraint3">
+
+            <ImageView
+                android:id="@+id/recipePic3"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="1:1"
+                android:src="@drawable/paitan"
+                android:scaleType="fitXY"
+                android:paddingRight="2dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                />
+
+        </android.support.constraint.ConstraintLayout>
+
+</LinearLayout>

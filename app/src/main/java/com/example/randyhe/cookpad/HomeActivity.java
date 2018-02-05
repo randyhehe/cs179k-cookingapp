@@ -113,9 +113,15 @@ public class HomeActivity extends AppCompatActivity
                                 }
                                 viewPager.setCurrentItem(1,false);
                                 break;
-//                            case R.id.explore:
-//                                selectedFragment = ItemThreeFragment.newInstance();
-//                                break;
+                            case R.id.explore:
+                                //selectedFragment = profileFragment.newInstance();
+                                if(!adapter.containsFragment("explore"))
+                                {
+                                    adapter.addFragment(new exploreFragment(), "explore");
+                                    viewPager.setAdapter(adapter);
+                                }
+                                viewPager.setCurrentItem(2,false);
+                                break;
                         }
 
 //                        Toast.makeText(c,Integer.toString(fm.getBackStackEntryCount()),Toast.LENGTH_SHORT).show();
