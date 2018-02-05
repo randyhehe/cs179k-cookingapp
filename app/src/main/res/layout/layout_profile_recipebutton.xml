@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android">
 
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -69,6 +66,7 @@
             android:textStyle="bold"
             android:textColor="@color/colorAccent"
             android:id="@+id/recipeName"
+            android:clickable="true"
             />
 
         <!--Cook time and number of servings-->
@@ -124,4 +122,3 @@
         </LinearLayout>
     </RelativeLayout>
 </android.support.constraint.ConstraintLayout>
-</merge>

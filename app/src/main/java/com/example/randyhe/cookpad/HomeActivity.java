@@ -74,6 +74,9 @@ public class HomeActivity extends AppCompatActivity
                         {
                             startActivity(new Intent(c, CreateRecipe.class));
                         }
+                        if(item.getTitle().toString().equals("Account settings")) {
+                            startActivity(new Intent(c, ProfileActivity.class));
+                        }
                         return true;
                     }
                 });
