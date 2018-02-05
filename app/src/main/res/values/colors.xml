@@ -9,5 +9,6 @@
     <color name="colorLinkBlue">#4095ea</color>
     <color name="colorLightPink">#ffd0d7</color>
     <color name="colorTransparent">#00000000</color>
+    <color name="colorLightGray">#d7d7d7</color>
 
 </resources>
