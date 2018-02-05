@@ -30,7 +30,7 @@ public class profileFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_profile, container, false);
+        View view = inflater.inflate(R.layout.layout_center_profile, container, false);
 
         RelativeLayout recipeItem = view.findViewById(R.id.relLayout1);
         recipeItem.setOnClickListener(new View.OnClickListener() {
