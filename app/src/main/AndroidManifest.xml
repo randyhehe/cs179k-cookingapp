@@ -4,6 +4,10 @@
     package="com.example.randyhe.cookpad"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -43,6 +47,12 @@
             android:name=".CreateRecipe"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+
+        <activity android:name=".ImageActivity"
+            android:theme="@style/AppTheme"
+            android:label="">
+        </activity>
+
         <activity
             android:name=".Individual_Recipe"
             android:theme="@style/AppTheme.NoActionBar">
