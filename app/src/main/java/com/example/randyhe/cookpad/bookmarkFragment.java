@@ -16,10 +16,10 @@ import android.widget.TextView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ProfileBookmarkFragment extends Fragment {
+public class bookmarkFragment extends Fragment {
 
-    public static ProfileBookmarkFragment newInstance() {
-        ProfileBookmarkFragment fragment = new ProfileBookmarkFragment();
+    public static bookmarkFragment newInstance() {
+        bookmarkFragment fragment = new bookmarkFragment();
         return fragment;
     }
 
@@ -33,13 +33,13 @@ public class ProfileBookmarkFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.layout_profile_recipefeed, container, false);
+        return inflater.inflate(R.layout.layout_bookmarkfeed, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState)
     {
-        LinearLayout feed = (LinearLayout) getView().findViewById(R.id.profileRecipeFeed);
+        LinearLayout feed = (LinearLayout) getView().findViewById(R.id.bookmarkFeed);
 
         View a = getLayoutInflater().inflate(R.layout.layout_profile_recipebutton, null);
 
@@ -66,6 +66,8 @@ public class ProfileBookmarkFragment extends Fragment {
             }
         });
         feed.addView(a);
+
+        View b = getLayoutInflater().inflate(R.layout.layout_profile_recipebutton, null);
 
     }
 
