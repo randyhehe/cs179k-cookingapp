@@ -35,8 +35,10 @@
             android:name=".HomeActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
-        <activity android:name=".EditProfileActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+        <activity
+            android:name=".EditProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize">
 
         </activity>
         <activity android:name=".ProfileActivity"
