@@ -1,12 +1,15 @@
 package com.example.randyhe.cookpad;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -16,27 +19,57 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.vansuita.pickimage.bean.PickResult;
 import com.vansuita.pickimage.bundle.PickSetup;
 import com.vansuita.pickimage.dialog.PickImageDialog;
 import com.vansuita.pickimage.listeners.IPickResult;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 public class CreateRecipe extends AppCompatActivity {
+
+    // publish and uploading
+    private FirebaseFirestore fbFirestore;
+    private FirebaseAuth fbAuth;
+    private FirebaseUser fbUser;
+    private FirebaseStorage fbStorage;
+    private StorageReference storageReference;
+    private ProgressDialog progressDialog;
+    int numMethodImages;
+
+    private View rootView;
 
     //tags
     EditText textIn;
     Button buttonAdd;
     LinearLayout container;
-    int count = 0;
+    int tagNumber = 0;
 
     //methods
     Button addMethod;
     LinearLayout methods;
-    int number = 1;
+    int methodNumber = 1;
 
     //ingredients
     Button ingAdd;
     LinearLayout ingCont;
+    int ingrNumber = 1;
 
     //publish
     Button submitButton;
@@ -44,7 +77,9 @@ public class CreateRecipe extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cr);
+
+        rootView = LayoutInflater.from(this).inflate(R.layout.activity_cr, null);
+        setContentView(rootView);
 
         // both editing and creating recipe share this code
         setupIngredients();
@@ -52,12 +87,30 @@ public class CreateRecipe extends AppCompatActivity {
         setupTags();
         setupInitialImages();
 
+        // setup firebase
+        FirebaseApp.initializeApp(this);
+        fbFirestore = FirebaseFirestore.getInstance();
+        fbAuth = FirebaseAuth.getInstance();
+        fbStorage = FirebaseStorage.getInstance();
+        storageReference = fbStorage.getReference();
+
         // publishing and editing logic differs here (mostly for data submission)
         boolean isEdit = editOrCreate();
         if (isEdit) {
             setupEdit();
         } else {
             setupPublish();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        fbUser = fbAuth.getCurrentUser();
+        if (fbUser == null) { // not signed in
+            startActivity(new Intent(CreateRecipe.this, LoginActivity.class));
+        } else {
+            // logged in
         }
     }
 
@@ -84,54 +137,69 @@ public class CreateRecipe extends AppCompatActivity {
     private void setupPublish() {
         //stuff for publish
         submitButton = findViewById(R.id.pub);
-
-        submitButton.setOnClickListener(new View.OnClickListener(){
-
+        submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                //upload to DB
-            }});
+                Recipe recipe = getRecipe();
+                publishRecipe(recipe);
+            }
+        });
     }
 
     private void setupIngredients() {
         ingAdd = findViewById(R.id.adding);
         ingCont = findViewById(R.id.ing_cont);
 
-        ingAdd.setOnClickListener(new View.OnClickListener(){
+        ingAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
+                final int initialIngrNum = ++ingrNumber;
+
                 LayoutInflater layoutInflater =
                         (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 final View addView = layoutInflater.inflate(R.layout.activity_cr_row, null);
+                addView.setTag("ingr" + initialIngrNum);
 
-                Button ingRemove = (Button)addView.findViewById(R.id.remove);
-                ingRemove.setOnClickListener(new View.OnClickListener(){
+                Button ingRemove = (Button) addView.findViewById(R.id.remove);
+                ingRemove.setOnClickListener(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
-                        ((LinearLayout)addView.getParent()).removeView(addView);
-                    }});
+                        String tag = (String) addView.getTag();
+                        int currIngr = Integer.parseInt(tag.substring(4));
+                        for (int i = currIngr + 1; i <= ingrNumber; i++) {
+                            final View currView = rootView.findViewWithTag("ingr" + i);
+
+                            int newIngrNum = i - 1;
+                            currView.setTag("ingr" + newIngrNum);
+                        }
+                        ingrNumber--;
+                        ((LinearLayout) addView.getParent()).removeView(addView);
+                    }
+                });
 
                 ingCont.addView(addView);
-        }});
+            }
+        });
     }
 
     private void setupMethods() {
-        addMethod = (Button)findViewById(R.id.addmethod);
-        methods = (LinearLayout)findViewById(R.id.mthd_cont);
+        addMethod = (Button) findViewById(R.id.addmethod);
+        methods = (LinearLayout) findViewById(R.id.mthd_cont);
 
-        addMethod.setOnClickListener(new View.OnClickListener(){
+        addMethod.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
-                final int stepNum = ++number;
+                final int initialStepNum = ++methodNumber;
 
                 LayoutInflater layoutInflater =
                         (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 final View addView = layoutInflater.inflate(R.layout.activity_cr_method, null);
+                addView.setTag("method" + initialStepNum);
 
-                TextView tvStepNum = (TextView)addView.findViewById(R.id.num);
-                tvStepNum.setText(Integer.toString(stepNum));
+                final TextView tvStepNum = (TextView) addView.findViewById(R.id.num);
+                tvStepNum.setText(Integer.toString(initialStepNum));
 
                 // image handlers
                 final ImageButton ibStepPhoto = addView.findViewById(R.id.addphoto);
@@ -145,17 +213,28 @@ public class CreateRecipe extends AppCompatActivity {
                     }
                 });
 
-                Button method_Remove = (Button)addView.findViewById(R.id.remove_mth);
-                method_Remove.setOnClickListener(new View.OnClickListener(){
+                Button method_Remove = (Button) addView.findViewById(R.id.remove_mth);
+                method_Remove.setOnClickListener(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
-                        --number;
-                        ((LinearLayout)addView.getParent()).removeView(addView);
-                    }});
+                        int currStep = Integer.parseInt(tvStepNum.getText().toString());
 
+                        for (int i = currStep + 1; i <= methodNumber; i++) {
+                            final View currView = rootView.findViewWithTag("method" + i);
+                            final TextView stepNum = currView.findViewById(R.id.num);
+
+                            int newStepNum = i - 1;
+                            stepNum.setText(Integer.toString(newStepNum));
+                            currView.setTag("method" + newStepNum);
+                        }
+                        methodNumber--;
+                        ((LinearLayout) addView.getParent()).removeView(addView);
+                    }
+                });
                 methods.addView(addView);
-            }});
+            }
+        });
     }
 
     private void setupTags() {
@@ -163,33 +242,43 @@ public class CreateRecipe extends AppCompatActivity {
         buttonAdd = findViewById(R.id.add);
         container = findViewById(R.id.container);
 
-        buttonAdd.setOnClickListener(new View.OnClickListener(){
+        buttonAdd.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
-                ++count;
+                ++tagNumber;
                 LayoutInflater layoutInflater =
                         (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 final View addView = layoutInflater.inflate(R.layout.activity_cr_row, null);
-                TextView textOut = (TextView)addView.findViewById(R.id.textout);
+                addView.setTag("tag" + tagNumber);
+
+                TextView textOut = (TextView) addView.findViewById(R.id.textout);
                 textOut.setText(textIn.getText().toString());
                 textIn.setText("");
                 container.setVisibility(View.VISIBLE);
-                Button buttonRemove = (Button)addView.findViewById(R.id.remove);
-                buttonRemove.setOnClickListener(new View.OnClickListener(){
+                Button buttonRemove = (Button) addView.findViewById(R.id.remove);
+                buttonRemove.setOnClickListener(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
-                        --count;
-                        if (count <= 0)
-                        {
+                        String tag = (String) addView.getTag();
+                        int currTag = Integer.parseInt(tag.substring(3));
+                        for (int i = currTag + 1; i <= tagNumber; i++) {
+                            final View currView = rootView.findViewWithTag("tag" + i);
+                            int newTagNum = i - 1;
+                            currView.setTag("tag" + newTagNum);
+                        }
+                        tagNumber--;
+                        if (tagNumber <= 0) {
                             container.setVisibility(View.GONE);
                         }
-                        ((LinearLayout)addView.getParent()).removeView(addView);
-                    }});
+                        ((LinearLayout) addView.getParent()).removeView(addView);
+                    }
+                });
 
                 container.addView(addView);
-            }});
+            }
+        });
     }
 
     private void setupInitialImages() {
@@ -248,20 +337,21 @@ public class CreateRecipe extends AppCompatActivity {
                         @Override
                         public void onClick(View view) {
                             new AlertDialog.Builder(view.getContext())
-                            .setMessage("Are you sure you want to delete this image?")
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int button) {
-                                    photoOptions.setVisibility(View.GONE);
-                                    imageButton.setImageResource(android.R.drawable.ic_menu_camera);
-                                    imageButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            chooseImage(imageButton, photoOptions, photoEdit, imageDelete);
+                                    .setMessage("Are you sure you want to delete this image?")
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int button) {
+                                            photoOptions.setVisibility(View.GONE);
+                                            imageButton.setTag(null);
+                                            imageButton.setImageResource(android.R.drawable.ic_menu_camera);
+                                            imageButton.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+                                                    chooseImage(imageButton, photoOptions, photoEdit, imageDelete);
+                                                }
+                                            });
                                         }
-                                    });
-                                }
-                            }).setNegativeButton(android.R.string.no, null).show();
+                                    }).setNegativeButton(android.R.string.no, null).show();
                         }
                     });
                 } else {
@@ -269,5 +359,143 @@ public class CreateRecipe extends AppCompatActivity {
                 }
             }
         }).show(getSupportFragmentManager());
+    }
+
+    // create recipe object from the current fields
+    private Recipe getRecipe() {
+        // get methods
+        String recipeTitle = ((EditText) findViewById(R.id.recipe_title)).getText().toString();
+        String recipeDesc = ((EditText) findViewById(R.id.recipe_desc)).getText().toString();
+        Uri mainPhotoUri = (Uri) (findViewById(R.id.mainphoto_btn).getTag());
+
+        List<Method> methods = new ArrayList<>();
+        for (int i = 1; i <= methodNumber; i++) {
+            final String tag = "method" + i;
+            final View currView = rootView.findViewWithTag(tag);
+            final EditText currIns = currView.findViewById(R.id.stepout);
+
+            final ImageButton currImg = currView.findViewById(R.id.addphoto);
+            final Uri imageUri = (Uri) currImg.getTag();
+
+            Method method = new Method(currIns.getText().toString(), imageUri);
+            methods.add(method);
+//            Log.d("method:", currIns.getText().toString());
+        }
+
+        List<String> ingrs = new ArrayList<>();
+        for (int i = 1; i <= ingrNumber; i++) {
+            String tag = "ingr" + i;
+            final View currView = rootView.findViewWithTag(tag);
+            final EditText currIng = currView.findViewById(R.id.textout);
+            ingrs.add(currIng.getText().toString());
+//            Log.d("ingr:", currIng.getText().toString());
+        }
+
+        List<String> tags = new ArrayList<>();
+        for (int i = 1; i <= tagNumber; i++) {
+            String tag = "tag" + i;
+            final View currView = rootView.findViewWithTag(tag);
+            final EditText currTag = currView.findViewById(R.id.textout);
+            tags.add(currTag.getText().toString());
+//            Log.d("tag:", currTag.getText().toString());
+        }
+
+        return new Recipe(mainPhotoUri, fbUser.getUid(), recipeTitle, recipeDesc, ingrs, methods, tags);
+    }
+
+    private void publishRecipe(final Recipe recipe) {
+        progressDialog = ProgressDialog.show(CreateRecipe.this, null, "Creating Recipe...");
+
+        final UUID recipeId = UUID.randomUUID();
+        final DocumentReference userDoc = fbFirestore.collection("users").document(fbUser.getUid());
+        final DocumentReference recipesDoc = fbFirestore.collection("recipes").document(recipeId.toString());
+
+        final OnSuccessListener<Void> finishStorage = new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), "Successfully created recipe!", Toast.LENGTH_LONG).show();
+                finish();
+            }
+        };
+
+        final OnSuccessListener<Void> storeImagesAndRecipeDoc = new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+
+                numMethodImages = 0;
+                for (int i = 0; i < recipe.methods.size(); i++) {
+                    Method currMethod = recipe.methods.get(i);
+                    if (currMethod.photoUri != null) numMethodImages++;
+                }
+
+                if (numMethodImages == 0) { // no method images, process main image then store updated recipe doc.
+                    if (recipe.mainPhotoUri != null) {
+                        String firebaseStorageFilePath = "images/" + UUID.randomUUID().toString();
+                        recipe.mainPhotoStoragePath = firebaseStorageFilePath;
+
+                        StorageReference ref = storageReference.child(firebaseStorageFilePath);
+                        ref.putFile(recipe.mainPhotoUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                recipesDoc.set(recipe).addOnSuccessListener(finishStorage);
+                            }
+                        });
+                    } else {
+                        recipesDoc.set(recipe).addOnSuccessListener(finishStorage);
+                    }
+                } else { // contains method images, process all method images, then main image, then store updated recipe doc.
+                    for (int i = 0; i < recipe.methods.size(); i++) {
+                        Method currMethod = recipe.methods.get(i);
+                        if (currMethod.photoUri == null) continue; // skip if no image attached by user
+
+                        String firebaseStorageFilePath = "images/" + UUID.randomUUID().toString();
+                        currMethod.storagePath = firebaseStorageFilePath;
+
+                        StorageReference ref = storageReference.child(firebaseStorageFilePath);
+                        ref.putFile(currMethod.photoUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                if (--numMethodImages == 0) {
+                                    if (recipe.mainPhotoUri != null) {
+                                        String firebaseStorageFilePath = "images/" + UUID.randomUUID().toString();
+                                        recipe.mainPhotoStoragePath = firebaseStorageFilePath;
+
+                                        StorageReference ref = storageReference.child(firebaseStorageFilePath);
+                                        ref.putFile(recipe.mainPhotoUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                            @Override
+                                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                recipesDoc.set(recipe).addOnSuccessListener(finishStorage);
+                                            }
+                                        });
+                                    } else {
+                                        recipesDoc.set(recipe).addOnSuccessListener(finishStorage);
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        };
+
+        final OnCompleteListener<DocumentSnapshot> storeRecipeIdInUser = new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final DocumentSnapshot document = task.getResult();
+                    final Map<String, Object> docData = document.getData();
+                    final Map<String, Boolean> recipes = (docData.get("recipes") != null) ? (HashMap<String, Boolean>) docData.get("recipes") : new HashMap<String, Boolean>();
+                    recipes.put(recipeId.toString(), true);
+                    userDoc.update("recipes", recipes).addOnSuccessListener(storeImagesAndRecipeDoc);
+                } else {
+                    /* Else possible errors below
+                    // !task.isSucessful(): document failed with exception: task.getException()
+                    // task.getResult() == null: document does not exist
+                    */
+                }
+            }
+        };
+        userDoc.get().addOnCompleteListener(storeRecipeIdInUser);
     }
 }
