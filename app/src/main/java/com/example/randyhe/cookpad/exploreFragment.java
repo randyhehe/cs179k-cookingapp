@@ -5,8 +5,10 @@ package com.example.randyhe.cookpad;
  */
 
 import android.content.Context;
-        import android.os.Bundle;
-        import android.support.annotation.Nullable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
         import android.support.v4.app.Fragment;
         import android.view.LayoutInflater;
         import android.view.View;
@@ -23,7 +25,14 @@ import android.content.Context;
         import android.widget.TextView;
         import android.widget.Toast;
 
-        import org.w3c.dom.Text;
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import org.w3c.dom.Text;
 
 public class exploreFragment extends Fragment {
     public static feedFragment newInstance() {
@@ -46,10 +55,33 @@ public class exploreFragment extends Fragment {
 
         View a = getLayoutInflater().inflate(R.layout.explore_recipe, null);
 
-        feed.addView(a);
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("howls.jpg");
+//
+//        storageReference.child("Yubaba'sBathhouse.png").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+//            @Override
+//            public void onSuccess(Uri uri) {
+//                // Got the download URL for 'users/me/profile.png'
+//                Toast.makeText(c,"Got the pic",Toast.LENGTH_SHORT).show();
+//            }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception exception) {
+//                // File not found
+//            }
+//        });
 
-        View b = getLayoutInflater().inflate(R.layout.explore_recipe, null);
-        feed.addView(b);
+// ImageView in your Activity
+        ImageView imageView = (ImageView) a.findViewById(R.id.recipePic1);
+
+            Glide.with(c /* context */)
+                    .using(new FirebaseImageLoader())
+                    .load(storageReference)
+                    .into(imageView);
+// Load the image using Glide
+
+
+
+        feed.addView(a);
 
     }
 
