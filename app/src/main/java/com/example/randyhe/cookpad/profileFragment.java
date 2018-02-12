@@ -157,12 +157,14 @@ public class profileFragment extends Fragment {
                         TextView recipeBio = (TextView) a.findViewById(R.id.recipeBio);
                         ImageView recipePic = (ImageView) a.findViewById(R.id.imageView);
 
-                        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(document.getString("mainPhotoStoragePath"));
+                        if( document.getString("mainPhotoStoragePath") != null ) {
+                            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(document.getString("mainPhotoStoragePath"));
 
-                        Glide.with(getActivity() /* context */)
-                                .using(new FirebaseImageLoader())
-                                .load(storageReference)
-                                .into(recipePic);
+                            Glide.with(getActivity() /* context */)
+                                    .using(new FirebaseImageLoader())
+                                    .load(storageReference)
+                                    .into(recipePic);
+                        }
 
                         userPic.setImageResource(R.drawable.kermit_cooking);
                         username.setText(user);
