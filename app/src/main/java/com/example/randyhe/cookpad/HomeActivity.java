@@ -33,7 +33,11 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
+
+import static org.xmlpull.v1.XmlPullParser.TYPES;
 
 /**
  * Created by Asus on 1/28/2018.
@@ -94,43 +98,49 @@ public class HomeActivity extends AppCompatActivity
 
         //final FragmentManager fm = getSupportFragmentManager();
 
+        final Vector<String> fragments = new Vector<String>();
+        fragments.add("feed");
+
         bottomNavigationView.setOnNavigationItemSelectedListener
                 (new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        Fragment selectedFragment = null;
+                        Toast.makeText(c,Integer.toString(fragments.size()),Toast.LENGTH_SHORT).show();
                         switch (item.getItemId()) {
                             case R.id.feed:
                                 //selectedFragment = feedFragment.newInstance();
-                                viewPager.setCurrentItem(0,false);
+                                viewPager.setCurrentItem(fragments.indexOf("feed"),false);
                                 break;
                             case R.id.profile:
                                 //selectedFragment = profileFragment.newInstance();
                                 if(!adapter.containsFragment("profile"))
                                 {
+                                    fragments.add("profile");
                                     adapter.addFragment(new profileFragment(), "profile");
                                     viewPager.setAdapter(adapter);
                                 }
-                                viewPager.setCurrentItem(1,false);
+                                viewPager.setCurrentItem(fragments.indexOf("profile"),false);
                                 break;
                             case R.id.explore:
                                 //selectedFragment = profileFragment.newInstance();
                                 if(!adapter.containsFragment("explore"))
                                 {
+                                    fragments.add("explore");
                                     adapter.addFragment(new exploreFragment(), "explore");
                                     viewPager.setAdapter(adapter);
                                 }
-                                viewPager.setCurrentItem(2,false);
+                                viewPager.setCurrentItem(fragments.indexOf("explore"),false);
                                 break;
 //                            case R.id.explore:
 //                                selectedFragment = ItemThreeFragment.newInstance();
 //                                break;
                             case R.id.bookmark:
                                 if(!adapter.containsFragment("bookmark")) {
+                                    fragments.add("bookmark");
                                     adapter.addFragment(new bookmarkFragment(), "bookmark");
                                     viewPager.setAdapter(adapter);
                                 }
-                                viewPager.setCurrentItem(2, false);
+                                viewPager.setCurrentItem(fragments.indexOf("bookmark"), false);
                                 break;
                         }
 

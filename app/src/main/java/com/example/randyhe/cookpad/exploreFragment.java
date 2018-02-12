@@ -43,6 +43,7 @@ import com.google.firebase.storage.StorageReference;
 import org.w3c.dom.Text;
 
 import static android.content.ContentValues.TAG;
+import static com.google.android.gms.internal.zzbco.NULL;
 
 public class exploreFragment extends Fragment {
 
@@ -77,28 +78,31 @@ public class exploreFragment extends Fragment {
                             int i = 0;
                             for (DocumentSnapshot document : task.getResult()) {
                                 String image = document.getString("mainPhotoStoragePath");
-                                if(i == 0)
+                                if(image != null)
                                 {
-                                    StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(image);
+                                    if(i == 0)
+                                    {
+                                        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(image);
 
-                                    ImageView imageView = (ImageView) a.findViewById(R.id.recipePic1);
+                                        ImageView imageView = (ImageView) a.findViewById(R.id.recipePic1);
 
-                                    Glide.with(c /* context */)
-                                            .using(new FirebaseImageLoader())
-                                            .load(storageReference)
-                                            .into(imageView);
-                                    i++;
-                                }
-                                else
-                                {
-                                    StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(image);
+                                        Glide.with(c /* context */)
+                                                .using(new FirebaseImageLoader())
+                                                .load(storageReference)
+                                                .into(imageView);
+                                        i++;
+                                    }
+                                    else if(i == 1)
+                                    {
+                                        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(image);
 
-                                    ImageView imageView = (ImageView) a.findViewById(R.id.recipePic2);
+                                        ImageView imageView = (ImageView) a.findViewById(R.id.recipePic2);
 
-                                    Glide.with(c /* context */)
-                                            .using(new FirebaseImageLoader())
-                                            .load(storageReference)
-                                            .into(imageView);
+                                        Glide.with(c /* context */)
+                                                .using(new FirebaseImageLoader())
+                                                .load(storageReference)
+                                                .into(imageView);
+                                    }
                                 }
                             }
                         } else {
