@@ -32,7 +32,8 @@
             android:layout_centerHorizontal="true"
             android:layout_below="@id/editProfilePhoto"
             android:layout_marginTop="5dp"
-            android:textColor="@color/colorLinkBlue"/>
+            android:textColor="@color/colorLinkBlue"
+            android:clickable="true"/>
 
 
         <!--Edit Name field-->
@@ -56,7 +57,7 @@
                 android:layout_height="35dp"
                 android:id="@+id/editName"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="70dp"
+                android:layout_marginStart="80dp"
                 android:background="@null"
                 android:inputType="textNoSuggestions"/>
 
@@ -84,7 +85,7 @@
                 android:layout_height="35dp"
                 android:id="@+id/editUsername"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="70dp"
+                android:layout_marginStart="80dp"
                 android:background="@null"
                 android:inputType="textNoSuggestions"/>
 
@@ -109,12 +110,13 @@
 
             <EditText
                 android:layout_width="match_parent"
-                android:layout_height="35dp"
+                android:layout_height="70dp"
                 android:id="@+id/editBio"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="70dp"
+                android:layout_marginStart="80dp"
                 android:background="@null"
-                android:inputType="textNoSuggestions"/>
+                android:inputType="textMultiLine"
+                android:maxLines="3"/>
 
 
         </RelativeLayout>
@@ -151,12 +153,25 @@
                 android:layout_height="35dp"
                 android:id="@+id/editEmail"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="70dp"
+                android:layout_marginStart="80dp"
                 android:background="@null"
                 android:inputType="textNoSuggestions"/>
 
 
         </RelativeLayout>
+
+        <TextView
+            android:id="@+id/confirmChanges"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Save Changes"
+            android:layout_below="@id/relLayout6"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:padding="10dp"
+            android:background="@drawable/button_grey_background"
+            android:textColor="@color/colorAccent"
+            android:clickable="true"/>
 
     </RelativeLayout>
 

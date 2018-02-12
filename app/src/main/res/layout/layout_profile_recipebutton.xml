@@ -37,7 +37,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:layout_marginTop="3dp"
-                android:text="nicholas.cage"
                 android:textColor="@color/colorGray"
                 android:textSize="12sp"
                 android:id="@+id/username"/>
@@ -48,7 +47,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Boiled Eggs"
             android:layout_below="@id/linLayout1"
             android:layout_marginTop="3dp"
             android:layout_marginStart="10dp"
@@ -107,7 +105,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/recipeBio"
                 android:textSize="10sp"
-                android:text="Eggs? eggs. Nothing better than boiled eggs. It is the fuel needed to steal the Declaration of Independence. "/>
+                />
         </LinearLayout>
     </RelativeLayout>
     <!--Recipe image-->

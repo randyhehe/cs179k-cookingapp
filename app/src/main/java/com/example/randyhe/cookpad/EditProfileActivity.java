@@ -3,7 +3,6 @@ package com.example.randyhe.cookpad;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,12 +39,6 @@ public class EditProfileActivity extends AppCompatActivity {
     private EditText etBio;
     private EditText etEmail;
     private TextView confirmBtn;
-
-    private String name;
-    private String username;
-    private String bio;
-    private String email;
-    private Map<String, Object> data;
     private User user;
 
     @Override
@@ -52,7 +46,7 @@ public class EditProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editprofile);
         setupViews();
-//        Toast.makeText(this, "" + currentFirebaseUser.getUid(), Toast.LENGTH_LONG).show();
+        setUpSaveChanges();
         loadData();
     }
 
@@ -63,6 +57,40 @@ public class EditProfileActivity extends AppCompatActivity {
         etBio = findViewById(R.id.editBio);
         etEmail = findViewById(R.id.editEmail);
         confirmBtn = findViewById(R.id.confirmChanges);
+    }
+
+    private void setUpSaveChanges() {
+        View.OnClickListener saveChangesListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                storeChanges(currentFirebaseUser);
+                startActivity(new Intent(EditProfileActivity.this, HomeActivity.class));
+            }
+        };
+        confirmBtn.setOnClickListener(saveChangesListener);
+    }
+
+    private void storeChanges(FirebaseUser user) {
+        DocumentReference docRef = db.collection("users").document(user.getUid());
+//        Stores updates
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("name", etName.getText().toString());
+        updates.put("username", etUsername.getText().toString());
+        updates.put("email", etEmail.getText().toString());
+        updates.put("bio", etBio.getText().toString());
+
+        docRef.update(updates).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "DocumentSnapshot successfully updated!");
+            }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(TAG, "Error updating document", e);
+            }
+        });
     }
 
     private void loadData() {
