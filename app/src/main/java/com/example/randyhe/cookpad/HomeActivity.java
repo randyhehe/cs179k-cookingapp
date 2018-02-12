@@ -14,6 +14,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -117,7 +118,8 @@ public class HomeActivity extends AppCompatActivity
                                 {
                                     fragments.add("profile");
                                     adapter.addFragment(new profileFragment(), "profile");
-                                    viewPager.setAdapter(adapter);
+                                    adapter.notifyDataSetChanged();
+//                                    viewPager.setAdapter(adapter);
                                 }
                                 viewPager.setCurrentItem(fragments.indexOf("profile"),false);
                                 break;
@@ -127,7 +129,8 @@ public class HomeActivity extends AppCompatActivity
                                 {
                                     fragments.add("explore");
                                     adapter.addFragment(new exploreFragment(), "explore");
-                                    viewPager.setAdapter(adapter);
+                                    adapter.notifyDataSetChanged();
+//                                    viewPager.setAdapter(adapter);
                                 }
                                 viewPager.setCurrentItem(fragments.indexOf("explore"),false);
                                 break;
@@ -138,7 +141,8 @@ public class HomeActivity extends AppCompatActivity
                                 if(!adapter.containsFragment("bookmark")) {
                                     fragments.add("bookmark");
                                     adapter.addFragment(new bookmarkFragment(), "bookmark");
-                                    viewPager.setAdapter(adapter);
+                                    adapter.notifyDataSetChanged();
+//                                    viewPager.setAdapter(adapter);
                                 }
                                 viewPager.setCurrentItem(fragments.indexOf("bookmark"), false);
                                 break;

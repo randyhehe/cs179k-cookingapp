@@ -129,9 +129,18 @@ public class profileFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState)
     {
+        super.onViewCreated(view, savedInstanceState);
+        Log.d("test", "onviewcreated for profile");
         getData();
 
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Toast.makeText(getContext(), "Profile Fragment paused", Toast.LENGTH_LONG).show();
+    }
+
 
     private void loadRecipeList(List<String> rList, final String user) {
         final LinearLayout feed = (LinearLayout) getView().findViewById(R.id.profileRecipeFeed);
@@ -157,12 +166,13 @@ public class profileFragment extends Fragment {
                         TextView recipeBio = (TextView) a.findViewById(R.id.recipeBio);
                         ImageView recipePic = (ImageView) a.findViewById(R.id.imageView);
 
-                        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(document.getString("mainPhotoStoragePath"));
-
-                        Glide.with(getActivity() /* context */)
-                                .using(new FirebaseImageLoader())
-                                .load(storageReference)
-                                .into(recipePic);
+                        if (document.getString("mainPhotoStoragePath") != null) {
+                            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(document.getString("mainPhotoStoragePath"));
+                            Glide.with(getActivity() /* context */)
+                                    .using(new FirebaseImageLoader())
+                                    .load(storageReference)
+                                    .into(recipePic);
+                        }
 
                         userPic.setImageResource(R.drawable.kermit_cooking);
                         username.setText(user);
@@ -176,6 +186,7 @@ public class profileFragment extends Fragment {
                             public void onClick(View v) {
                                 Intent intent = new Intent(getActivity(), CreateRecipe.class);
                                 intent.putExtra("EDIT", true);
+                                intent.putExtra("ID", "665f0975-eace-466e-964e-ce18e5a427be");
                                 startActivity(intent);
                             }
                         });

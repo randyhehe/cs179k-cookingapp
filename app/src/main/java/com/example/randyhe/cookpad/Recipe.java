@@ -22,6 +22,8 @@ public class Recipe {
     public List<String> tags;
     public List<String> reviews;
 
+    public Recipe() {} // Needed for Firebase
+
     public Recipe(Uri mainPhotoUri, String userId, String title, String description, List<String> ingrs, List<Method> methods, List<String> tags) {
         this.mainPhotoUri = mainPhotoUri;
         this.mainPhotoStoragePath = null;
