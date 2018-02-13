@@ -49,7 +49,7 @@
 
         </activity>
         <activity
-            android:name=".CreateRecipe"
+            android:name=".ManageRecipe"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 

@@ -4,9 +4,7 @@ package com.example.randyhe.cookpad;
  * Created by Asus on 1/30/2018.
  */
 
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,9 +30,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -120,27 +114,16 @@ public class profileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.layout_center_profile, container, false);
-
-        setupViews(view);
-        setupEditProfileBtn(view);
         return view;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState)
     {
-        super.onViewCreated(view, savedInstanceState);
-        Log.d("test", "onviewcreated for profile");
+        setupViews(view);
+        setupEditProfileBtn(view);
         getData();
-
     }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Toast.makeText(getContext(), "Profile Fragment paused", Toast.LENGTH_LONG).show();
-    }
-
 
     private void loadRecipeList(List<String> rList, final String user) {
         final LinearLayout feed = (LinearLayout) getView().findViewById(R.id.profileRecipeFeed);
@@ -177,14 +160,14 @@ public class profileFragment extends Fragment {
                         userPic.setImageResource(R.drawable.kermit_cooking);
                         username.setText(user);
                         recipeName.setText(document.getString("title"));
-                        recipeBio.setText(document.getString("desciption"));
+                        recipeBio.setText(document.getString("description"));
                         feed.addView(a);
 
                         //  TO-DO: Open Edit recipe
                         recipeName.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Intent intent = new Intent(getActivity(), CreateRecipe.class);
+                                Intent intent = new Intent(getActivity(), ManageRecipe.class);
                                 intent.putExtra("EDIT", true);
                                 intent.putExtra("ID", "665f0975-eace-466e-964e-ce18e5a427be");
                                 startActivity(intent);

@@ -1,80 +1,38 @@
 package com.example.randyhe.cookpad;
 
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.util.SparseArray;
-import android.view.ViewGroup;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
+class ViewPagerAdapter extends SmartFragmentStatePagerAdapter {
+    private static int NUM_ITEMS = 4;
 
-/**
- * Created by Asus on 1/30/2018.
- * https://stackoverflow.com/questions/42781409/restoring-fragment-state-when-changing-fragments-through-bottom-navigation-bar
- * Credit: Code mainly from Harsh Ganatra
- */
-
-class ViewPagerAdapter extends FragmentPagerAdapter {
-    private final SparseArray<WeakReference<Fragment>> instantiatedFragments = new SparseArray<>();
-    private final List<Fragment> mFragmentList = new ArrayList<>();
-    private final List<String> mFragmentTitleList = new ArrayList<>();
-
-    ViewPagerAdapter(FragmentManager manager) {
-        super(manager);
-    }
-
-    public boolean containsFragment(String title)
-    {
-        if(mFragmentTitleList.contains(title))
-        {
-            return true;
-        }
-        else return false;
-    }
-
-    @Override
-    public Fragment getItem(int position) {
-        return mFragmentList.get(position);
+    public ViewPagerAdapter(FragmentManager fragmentManager) {
+        super(fragmentManager);
     }
 
     @Override
     public int getCount() {
-        return mFragmentList.size();
-    }
-
-    void addFragment(Fragment fragment, String title) {
-        mFragmentList.add(fragment);
-        mFragmentTitleList.add(title);
+        return NUM_ITEMS;
     }
 
     @Override
-    public Object instantiateItem(ViewGroup container, int position) {
-        final Fragment fragment = (Fragment) super.instantiateItem(container, position);
-        instantiatedFragments.put(position, new WeakReference<>(fragment));
-        return fragment;
-    }
-
-    @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
-        instantiatedFragments.remove(position);
-        super.destroyItem(container, position, object);
-    }
-
-    @Nullable
-    Fragment getFragment(final int position) {
-        final WeakReference<Fragment> wr = instantiatedFragments.get(position);
-        if (wr != null) {
-            return wr.get();
-        } else {
-            return null;
+    public Fragment getItem(int position) {
+        switch (position) {
+            case 0:
+                return feedFragment.newInstance();
+            case 1:
+                return profileFragment.newInstance();
+            case 2:
+                return exploreFragment.newInstance();
+            case 3:
+                return bookmarkFragment.newInstance();
+            default:
+                return null;
         }
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return mFragmentTitleList.get(position);
+        return "Page " + position;
     }
 }

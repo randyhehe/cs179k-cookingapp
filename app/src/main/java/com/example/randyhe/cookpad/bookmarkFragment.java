@@ -39,8 +39,6 @@ public class bookmarkFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState)
     {
-        super.onViewCreated(view, savedInstanceState);
-
         LinearLayout feed = (LinearLayout) getView().findViewById(R.id.bookmarkFeed);
 
         View a = getLayoutInflater().inflate(R.layout.layout_profile_recipebutton, null);
@@ -70,7 +68,6 @@ public class bookmarkFragment extends Fragment {
         feed.addView(a);
 
         View b = getLayoutInflater().inflate(R.layout.layout_profile_recipebutton, null);
-
     }
 
 }
