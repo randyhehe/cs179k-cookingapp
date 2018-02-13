@@ -135,12 +135,6 @@ public class profileFragment extends Fragment {
 
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        Toast.makeText(getContext(), "Profile Fragment paused", Toast.LENGTH_LONG).show();
-    }
-
 
     private void loadRecipeList(List<String> rList, final String user) {
         final LinearLayout feed = (LinearLayout) getView().findViewById(R.id.profileRecipeFeed);
@@ -169,7 +163,6 @@ public class profileFragment extends Fragment {
                         if (document.getString("mainPhotoStoragePath") != null) {
                             StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(document.getString("mainPhotoStoragePath"));
                             Glide.with(getActivity() /* context */)
-                                    .using(new FirebaseImageLoader())
                                     .load(storageReference)
                                     .into(recipePic);
                         }

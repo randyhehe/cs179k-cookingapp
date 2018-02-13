@@ -106,7 +106,7 @@ public class HomeActivity extends AppCompatActivity
                 (new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        Toast.makeText(c,Integer.toString(fragments.size()),Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(c,Integer.toString(fragments.size()),Toast.LENGTH_SHORT).show();
                         switch (item.getItemId()) {
                             case R.id.feed:
                                 //selectedFragment = feedFragment.newInstance();
