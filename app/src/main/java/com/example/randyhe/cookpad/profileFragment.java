@@ -149,8 +149,9 @@ public class profileFragment extends Fragment {
                         TextView recipeBio = (TextView) a.findViewById(R.id.recipeBio);
                         ImageView recipePic = (ImageView) a.findViewById(R.id.imageView);
 
-                        if (document.getString("mainPhotoStoragePath") != null) {
+                        if( document.getString("mainPhotoStoragePath") != null ) {
                             StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(document.getString("mainPhotoStoragePath"));
+
                             Glide.with(getActivity() /* context */)
                                     .using(new FirebaseImageLoader())
                                     .load(storageReference)
