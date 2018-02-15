@@ -376,7 +376,6 @@ public class CreateRecipe extends AppCompatActivity {
             imageButton.setTag(uri); // only set the uri tag if uploaded/took image from phone
         } else { // use url instead
             Glide.with(CreateRecipe.this)
-                    .using(new FirebaseImageLoader())
                     .load(storageReference.child(url))
                     .into(imageButton);
         }

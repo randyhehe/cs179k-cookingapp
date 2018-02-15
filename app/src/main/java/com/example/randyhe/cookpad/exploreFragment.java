@@ -14,6 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -64,6 +66,7 @@ public class exploreFragment extends Fragment {
                             g.setAdapter(gia);
                             for (DocumentSnapshot document : task.getResult()) {
                                 String image = document.getString("imagePath");
+                                //Toast.makeText(c,image,Toast.LENGTH_SHORT).show();
                                 StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(image);
                                 imgUrls.add(image);
                                 g.setAdapter(gia);
