@@ -42,19 +42,19 @@ public class User {
         if(recipes != null) {
             return new ArrayList<String>(this.recipes.keySet());
         }
-        return null;
+        return new ArrayList<String>();
     }
     public List<String> getFollowers() {
         if(followers != null ) {
             return new ArrayList<String>(this.followers.keySet());
         }
-        return null;
+        return new ArrayList<String>();
     }
     public List<String> getFollowing() {
         if(following != null) {
             return new ArrayList<String>(this.following.keySet());
         }
-        return null;
+        return new ArrayList<String>();
     }
     public int getNumFollowers() {
         if(this.followers == null) { return 0; }
