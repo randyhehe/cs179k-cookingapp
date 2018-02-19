@@ -404,7 +404,6 @@ public class ManageRecipe extends AppCompatActivity {
         } else { // use url instead
 
             Glide.with(ManageRecipe.this)
-                    .using(new FirebaseImageLoader())
                     .load(storageReference.child(url))
                     .into(imageButton);
         }

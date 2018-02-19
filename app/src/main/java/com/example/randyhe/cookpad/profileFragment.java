@@ -6,6 +6,7 @@ package com.example.randyhe.cookpad;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -78,9 +79,30 @@ public class profileFragment extends Fragment {
         });
     }
 
+    public void setupTopInfo(View view) {
+        tvNumFollowers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), FollowActivity.class);
+                intent.putExtra("ID", currentFirebaseUser.getUid());
+                startActivity(intent);
+            }
+        });
+
+        tvNumFollowing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), FollowActivity.class);
+                intent.putExtra("ID", currentFirebaseUser.getUid());
+                startActivity(intent);
+            }
+        });
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Override
@@ -122,11 +144,12 @@ public class profileFragment extends Fragment {
     {
         setupViews(view);
         setupEditProfileBtn(view);
+        setupTopInfo(view);
         getData();
 
     }
 
-    private void loadRecipeList(List<String> rList, final String user) {
+    private void loadRecipeList(final List<String> rList, final String user) {
         final LinearLayout feed = (LinearLayout) getView().findViewById(R.id.profileRecipeFeed);
 
         for(int i = 0; i < rList.size(); i++) {
@@ -138,8 +161,8 @@ public class profileFragment extends Fragment {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if(task.isSuccessful()) {
-                        Log.d(TAG, t);
-                        Log.d(TAG, "DocumentSnapshot data: " + task.getResult().getData());
+//                        Log.d(TAG, t);
+//                        Log.d(TAG, "DocumentSnapshot data: " + task.getResult().getData());
                         DocumentSnapshot document = task.getResult();
 //                        Recipe r = document.toObject(Recipe.class);
                         CircleImageView userPic = (CircleImageView) a.findViewById(R.id.userPic);
@@ -170,7 +193,7 @@ public class profileFragment extends Fragment {
                             public void onClick(View v) {
                                 Intent intent = new Intent(getActivity(), ManageRecipe.class);
                                 intent.putExtra("EDIT", true);
-                                intent.putExtra("ID", "665f0975-eace-466e-964e-ce18e5a427be");
+                                intent.putExtra("ID", t);
                                 startActivity(intent);
                             }
                         });
