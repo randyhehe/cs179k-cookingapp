@@ -26,4 +26,6 @@
     <string name="navBar.feed">Feed</string>
     <string name="navBar.explore">Explore</string>
 
+    <string name="indiv.reviewhint">Type your comment here</string>
+
 </resources>

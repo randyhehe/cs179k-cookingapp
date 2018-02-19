@@ -13,20 +13,13 @@
         android:layout_height="match_parent"
         >
 
-        <ImageView
-            android:id="@+id/paddingPic"
-            android:layout_width="fill_parent"
-            android:layout_height="50dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/white_rectangle"
-            />
+
 
         <ImageView
             android:id="@+id/main_image"
             android:layout_width="fill_parent"
             android:layout_height="250dp"
-            android:scaleType="centerCrop"
-            android:layout_below="@+id/paddingPic"
+            android:scaleType="fitXY"
             />
 
         <TextView
@@ -50,12 +43,35 @@
             android:textColor="#006600"
             android:textSize="15dp" />
 
+        <LinearLayout
+            android:id="@+id/avg_stars"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/main_description"
+            android:paddingLeft="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Average: "
+                android:textColor="#000000"/>
+
+            <RatingBar
+                android:id="@+id/avg_stars_disp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize=".5"
+                style="?android:attr/ratingBarStyleSmall" />
+
+        </LinearLayout>
+
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/avatar"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_centerVertical="true"
-            android:layout_below="@+id/main_description"
+            android:layout_below="@+id/avg_stars"
             android:paddingLeft="20dp"
             />
 
@@ -63,7 +79,7 @@
             android:id="@+id/main_name"
             android:layout_width="225dp"
             android:layout_height="70dp"
-            android:layout_below="@id/main_description"
+            android:layout_below="@id/avg_stars"
             android:layout_toRightOf="@+id/avatar"
             android:gravity="center_vertical"
             android:paddingLeft="20dp"
@@ -76,7 +92,7 @@
             android:id="@+id/follow_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/main_description"
+            android:layout_below="@id/avg_stars"
             android:layout_toRightOf="@+id/main_name"
             android:layout_centerVertical="true"
             android:layout_marginTop="15dp"
@@ -89,7 +105,7 @@
             android:layout_below="@+id/avatar"
             android:textSize="20dp"
             android:paddingLeft="20dp"
-
+            android:textColor="#000000"
             android:gravity="center_vertical"
 
             />
@@ -108,10 +124,16 @@
 
         <LinearLayout
             android:id="@+id/ingredients"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_below="@+id/ingredients_title"
-            android:orientation="vertical">
+            android:paddingLeft="10dp"
+            android:orientation="vertical"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/cr_ingr">
 
 
         </LinearLayout>
@@ -122,6 +144,7 @@
             android:layout_height="50dp"
             android:layout_below="@+id/ingredients"
             android:textSize="20dp"
+            android:textColor="#000000"
             android:paddingLeft="20dp"
             android:gravity="center_vertical"
 
@@ -139,8 +162,120 @@
             android:paddingRight="40dp"
             />
 
+        <LinearLayout
+            android:id="@+id/methods"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/method_title"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="20dp"
+            >
+
+
+        </LinearLayout>
+
     </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/review_new"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingTop="20dp"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true"
+        android:layout_below="@id/main_block">
+
+
+        <TextView
+            android:id="@+id/add_rev_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:textColor="#000000"
+            android:paddingBottom="10dp"/>
+
+
+        <RatingBar
+            android:id="@+id/stars_input"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/add_rev_text"
+            android:layout_centerHorizontal="true"
+            android:numStars="5"
+            android:stepSize=".5"
+            style="?android:attr/ratingBarStyleIndicator"
+            android:isIndicator="false"/>
+
+
+        <EditText
+            android:id="@+id/review_text_input"
+            android:layout_width="350dp"
+            android:layout_height="100dp"
+            android:hint="@string/indiv.reviewhint"
+            android:inputType="textMultiLine"
+            android:maxLength="240"
+            android:layout_centerHorizontal="true"
+            android:paddingLeft="20dp"
+            android:layout_below="@+id/stars_input"
+            />
+
+        <Button
+            android:id="@+id/review_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/review_text_input"
+            android:text="Submit"
+            android:layout_centerInParent="true"
+            />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rev"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/review_new">
+
+        <TextView
+            android:id="@+id/review_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:textColor="#000000"
+            android:paddingLeft="20dp"
+            android:gravity="center_vertical"/>
+
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/reviews"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rev"
+        android:orientation="vertical">
+
+
+    </LinearLayout>
+
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/reviews">
+
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/white_rectangle"
+            />
+
+    </RelativeLayout>
 
 
 </RelativeLayout>

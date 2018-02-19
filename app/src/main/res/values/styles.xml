@@ -25,6 +25,12 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <style name="reviewStarBar" parent="@android:style/Widget.RatingBar">
+        <item name="android:progressDrawable">@drawable/reviewstar</item>
+        <item name="android:minHeight">22dip</item>
+        <item name="android:minWidth">22dip</item>
+
+    </style>
 
 
 </resources>

@@ -20,6 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:fitsSystemWindows="false"
+        android:layout_alignParentBottom="true"
         android:background="#ffffff">
     </android.support.v7.widget.Toolbar>
 
