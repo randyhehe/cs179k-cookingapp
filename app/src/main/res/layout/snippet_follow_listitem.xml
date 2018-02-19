@@ -26,7 +26,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:id="@+id/linLayout1"
-        android:layout_weight="70"
+        android:layout_weight="65"
         android:layout_marginTop="15dp">
 
         <TextView
@@ -36,7 +36,8 @@
             android:textSize="18sp"
             android:text="nicholas.cage"
             android:textColor="@android:color/black"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:clickable="true"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -69,11 +70,11 @@
     <Button
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="30"
+        android:layout_weight="36"
         android:layout_marginTop="10dp"
         android:layout_marginRight="5dp"
         android:id="@+id/followBtn"
-        android:text="Follow"/>
+        android:text="Following"/>
 
 
 </LinearLayout>

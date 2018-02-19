@@ -1,6 +1,8 @@
 package com.example.randyhe.cookpad;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -52,11 +54,14 @@ public class FollowActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_followlist);
         final LinearLayout feed = (LinearLayout) findViewById(R.id.followfeed);
-//
-//        View followItem = getLayoutInflater().inflate(R.layout.snippet_follow_listitem, null);
-//        feed.addView(followItem);
 
-        loadList(feed);
+        String user = getIntent().getExtras().getString("ID");
+        if(getIntent().getExtras().getBoolean("Followers")) {
+            loadFollowersList(user, feed);
+        }
+        else {
+            loadFollowingList(user, feed);
+        }
     }
 
 
@@ -68,55 +73,243 @@ public class FollowActivity extends AppCompatActivity {
         followBtn = (Button) view.findViewById(R.id.followBtn);
     }
 
-    private void loadList(final LinearLayout feed) {
-        String user = getIntent().getExtras().getString("ID");
+    private void loadFollowersList(final String user, final LinearLayout feed) {
         DocumentReference docRef = db.collection("users").document(user);
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot != null) {
-                    Map<String, Object> data = documentSnapshot.getData();
-
-                    List<HashMap<String, Object>> followers = (ArrayList<HashMap<String, Object>>) data.get("followers");
-
-                    for(int i = 0; i < followers.size(); i++) {
-                        loadItem( (String) followers.get(i).get("uID"), feed);
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()) {
+                    Log.d(TAG, "DocumentSnapshot data: " + task.getResult().getData());
+                    DocumentSnapshot document = task.getResult();
+                    User user = document.toObject(User.class);
+                    List<String> followers = user.getFollowers();
+                    if(followers != null ) {
+                        for (int i = 0; i < followers.size(); i++) {
+                            loadItem(followers.get(i), feed, false);
+                        }
                     }
+
                 } else {
-                    /* Document doesn't exist */
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
+    }
+
+    private void loadFollowingList(final String user, final LinearLayout feed) {
+        DocumentReference docRef = db.collection("users").document(user);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    User user = document.toObject(User.class);
+                    List<String> following = user.getFollowing();
+                    if(following != null) {
+                        for (int i = 0; i < following.size(); i++) {
+                            loadItem(following.get(i), feed, true);
+                        }
+                    }
+                }
+                else {
+                    // Not successful
+                }
+
+            }
+        });
+    }
+
+    private void loadItem(final String userId, final LinearLayout feed, final Boolean isFollowing) {
+        DocumentReference docRef = db.collection("users").document(userId);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()) {
+                    Log.d(TAG, "DocumentSnapshot data: " + task.getResult().getData());
+                    DocumentSnapshot document = task.getResult();
+                    User user = document.toObject(User.class);
+
+                    int recipesNum = user.getNumRecipes();
+                    int followersNum = user.getNumFollowers();
+                    View followItem = getLayoutInflater().inflate(R.layout.snippet_follow_listitem, null);
+                    setupViews(followItem);
+
+                    tvUsername.setText(user.getUsername());
+                    tvRecipeNum.setText(String.valueOf(recipesNum) + " recipes");
+                    tvFollowersNum.setText(String.valueOf(followersNum) + " followers");
+
+                    tvUsername.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(FollowActivity.this, ProfileActivity.class);
+                            intent.putExtra("ID", userId);
+                            startActivity(intent);
+                        }
+                    });
+
+                    setupBtn(userId, currentFirebaseUser.getUid());
+                    feed.addView(followItem);
+
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
                 }
             }
         });
     }
 
-    private void loadItem(String userId, final LinearLayout feed) {
-        DocumentReference docRef = db.collection("users").document(userId);
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+    private void setupBtn(final String profileUID, final String currentUID) {
+        // Does not setup a button if it's your own profile
+        if(profileUID.equals(currentUID)) {
+            followBtn.setVisibility(View.GONE);
+            return;
+        }
+
+        DocumentReference docRef = db.collection("users").document(currentUID);
+        final Boolean[] isFollowingBool = {false};
+        final OnCompleteListener<DocumentSnapshot> isFollowing = new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot != null) {
-                    Map<String, Object> data = documentSnapshot.getData();
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final DocumentSnapshot document = task.getResult();
+                    final Map<String, Object> docData = document.getData();
+                    if(docData.get("following") == null) {
+                        followBtn.setText("Follow");
+                        setupFollowBtn(profileUID, currentUID);
+                    }
+                    else {
+                        final Map<String, Boolean> followersList = (HashMap<String, Boolean>) docData.get("following");
 
-                    List<HashMap<String, Object>> followers = (ArrayList<HashMap<String, Object>>) data.get("followers");
-                    List<HashMap<String, Object>> recipes = (ArrayList<HashMap<String, Object>>) data.get("recipes");
-                    int followersNum = followers.size();
-                    int recipesNum = recipes.size();
-
-                    View followItem = getLayoutInflater().inflate(R.layout.snippet_follow_listitem, null);
-                    setupViews(followItem);
-
-                    tvUsername.setText((String) data.get("username"));
-                    tvRecipeNum.setText(String.valueOf(recipesNum) + " recipes");
-                    tvFollowersNum.setText(String.valueOf(followersNum) + " followers");
-                    followBtn.setText("Following");
-
-                    feed.addView(followItem);
-
+                        if (followersList.containsKey(profileUID)) {
+                            followBtn.setText("Following");
+                            setupUnfollowBtn(profileUID, currentUID);
+                        } else {
+                            followBtn.setText("Follow");
+                            setupFollowBtn(profileUID, currentUID);
+                        }
+                    }
                 } else {
-                    /* Document doesn't exist */
+                    /* Else possible errors below
+                    // !task.isSucessful(): document failed with exception: task.getException()
+                    // task.getResult() == null: document does not exist
+                    */
                 }
             }
+        };
+        docRef.get().addOnCompleteListener(isFollowing);
+    }
+
+    private void setupFollowBtn(final String profileUID, final String currentUID) {
+        followBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                followAction(profileUID, currentUID);
+                followBtn.setText("Following");
+                setupUnfollowBtn(profileUID, currentUID);
+            }
         });
+    }
+
+    private void setupUnfollowBtn(final String profileUID, final String currentUID) {
+        followBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                unfollowAction(profileUID, currentUID);
+                followBtn.setText("Follow");
+                setupFollowBtn(profileUID, currentUID);
+            }
+        });
+    }
+
+    private void followAction(final String profileUID, final String currentUID) {
+        final DocumentReference currUserDoc = db.collection("users").document(currentUID);
+
+        // Add profile's UID into current user's Following table
+        final OnCompleteListener<DocumentSnapshot> storeFollowingInCurrentUser = new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final DocumentSnapshot document = task.getResult();
+                    final Map<String, Object> docData = document.getData();
+                    final Map<String, Boolean> followingList = (docData.get("following") != null) ? (HashMap<String, Boolean>) docData.get("following") : new HashMap<String, Boolean>();
+                    followingList.put(profileUID, true);
+                    currUserDoc.update("following", followingList);
+                } else {
+                    /* Else possible errors below
+                    // !task.isSucessful(): document failed with exception: task.getException()
+                    // task.getResult() == null: document does not exist
+                    */
+                }
+            }
+        };
+        currUserDoc.get().addOnCompleteListener(storeFollowingInCurrentUser);
+
+        // Add current user into profile user's Followers table
+        final DocumentReference profileUserDoc = db.collection("users").document(profileUID);
+        final OnCompleteListener<DocumentSnapshot> storeFollowersinProfileUser= new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final DocumentSnapshot document = task.getResult();
+                    final Map<String, Object> docData = document.getData();
+                    final Map<String, Boolean> followersList = (docData.get("followers") != null) ? (HashMap<String, Boolean>) docData.get("followers") : new HashMap<String, Boolean>();
+                    followersList.put(currentUID, true);
+                    profileUserDoc.update("followers", followersList);
+                    tvFollowersNum.setText(Integer.toString(followersList.size()) + " followers");
+                } else {
+                    /* Else possible errors below
+                    // !task.isSucessful(): document failed with exception: task.getException()
+                    // task.getResult() == null: document does not exist
+                    */
+                }
+            }
+        };
+        profileUserDoc.get().addOnCompleteListener(storeFollowersinProfileUser);
+    }
+
+    private void unfollowAction(final String profileUID, final String currentUID) {
+        // Remove profile's UID from current user's following table
+        final DocumentReference currUserDoc = db.collection("users").document(currentUID);
+        final OnCompleteListener<DocumentSnapshot> storeUnfollowInCurrentUser = new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final DocumentSnapshot document = task.getResult();
+                    final Map<String, Object> docData = document.getData();
+                    final Map<String, Boolean> followingList = (docData.get("following") != null) ? (HashMap<String, Boolean>) docData.get("following") : new HashMap<String, Boolean>();
+                    followingList.remove(profileUID, true);
+                    currUserDoc.update("following", followingList);
+                } else {
+                    /* Else possible errors below
+                    // !task.isSucessful(): document failed with exception: task.getException()
+                    // task.getResult() == null: document does not exist
+                    */
+                }
+            }
+        };
+        currUserDoc.get().addOnCompleteListener(storeUnfollowInCurrentUser);
+
+        // Remove current user's UID from profile user's followers table
+        final DocumentReference profileUserDoc = db.collection("users").document(profileUID);
+        final OnCompleteListener<DocumentSnapshot> storeFollowersinProfileUser= new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final DocumentSnapshot document = task.getResult();
+                    final Map<String, Object> docData = document.getData();
+                    final Map<String, Boolean> followersList = (docData.get("followers") != null) ? (HashMap<String, Boolean>) docData.get("followers") : new HashMap<String, Boolean>();
+                    followersList.remove(currentUID);
+                    profileUserDoc.update("followers", followersList);
+                    tvFollowersNum.setText(Integer.toString(followersList.size()) + " followers");
+                } else {
+                    /* Else possible errors below
+                    // !task.isSucessful(): document failed with exception: task.getException()
+                    // task.getResult() == null: document does not exist
+                    */
+                }
+            }
+        };
+        profileUserDoc.get().addOnCompleteListener(storeFollowersinProfileUser);
     }
 
 }

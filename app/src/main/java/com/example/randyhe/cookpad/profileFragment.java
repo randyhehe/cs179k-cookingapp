@@ -9,11 +9,13 @@ import android.os.Bundle;
 import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -64,6 +66,13 @@ public class profileFragment extends Fragment {
         tvNumFollowers = (TextView) view.findViewById(R.id.textViewFollowers);
         tvNumFollowing = (TextView) view.findViewById(R.id.textViewFollowing);
         profileImg = (CircleImageView) view.findViewById(R.id.profileImg);
+
+        // Removes Follow button
+        ConstraintLayout profileTop = (ConstraintLayout) view.findViewById(R.id.constraintLayout1);
+
+        Button followBtn = (Button) view.findViewById(R.id.follow);
+        followBtn.setVisibility(View.GONE);
+        profileTop.removeView(followBtn);
     }
 
     public void setupEditProfileBtn(View view) {
@@ -85,6 +94,7 @@ public class profileFragment extends Fragment {
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), FollowActivity.class);
                 intent.putExtra("ID", currentFirebaseUser.getUid());
+                intent.putExtra("Followers", true);
                 startActivity(intent);
             }
         });
@@ -94,6 +104,7 @@ public class profileFragment extends Fragment {
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), FollowActivity.class);
                 intent.putExtra("ID", currentFirebaseUser.getUid());
+                intent.putExtra("Followers", false);
                 startActivity(intent);
             }
         });
@@ -123,6 +134,8 @@ public class profileFragment extends Fragment {
                     tvProfileName.setText(user.getUsername());
                     tvNumRecipes.setText(Integer.toString(recipes.size()));
                     tvProfileBio.setText(user.getBio());
+                    tvNumFollowers.setText(Integer.toString(user.getNumFollowers()));
+                    tvNumFollowing.setText(Integer.toString(user.getNumFollowing()));
                     loadRecipeList(recipes, user.getUsername());
 
                 } else {

@@ -1,18 +1,10 @@
 package com.example.randyhe.cookpad;
 
-import android.content.Context;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -31,10 +23,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import android.content.Intent;
-import android.support.v7.widget.Toolbar;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -56,26 +48,122 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView tvNumRecipes;
     private TextView tvNumFollowers;
     private TextView tvNumFollowing;
-    private List<String> recipeList;
+    private Button followButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_center_profile);
 
-        ConstraintLayout profileTop = (ConstraintLayout) findViewById(R.id.constraintLayout1);
+        String user = getIntent().getExtras().getString("ID");
+//        String user = "eqCQpG2FgNcVire6kuB41YsWjQ42";
+        setupViews();
+        setupBtn(user, currentFirebaseUser.getUid());
+        getData(user);
+        setupTopInfo(user);
+    }
 
+    private Boolean isFollowing(final String profileUID, final String currentUID) {
+        DocumentReference docRef = db.collection("users").document(currentUID);
+        final Boolean[] isFollowingBool = {false};
+        final OnCompleteListener<DocumentSnapshot> isFollowing = new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final DocumentSnapshot document = task.getResult();
+                    final Map<String, Object> docData = document.getData();
+                    if(docData.get("following") == null) {
+                        isFollowingBool[0] = false;
+                    }
+                    else {
+                        final Map<String, Boolean> followersList = (HashMap<String, Boolean>) docData.get("following");
+
+                        if (followersList.containsKey(profileUID)) {
+                            isFollowingBool[0] = true;
+                        } else {
+                            isFollowingBool[0] = false;
+                        }
+                    }
+                } else {
+                    /* Else possible errors below
+                    // !task.isSucessful(): document failed with exception: task.getException()
+                    // task.getResult() == null: document does not exist
+                    */
+                }
+            }
+        };
+        docRef.get().addOnCompleteListener(isFollowing);
+        return isFollowingBool[0];
+    }
+
+    private void setupBtn(final String profileUID, final String currentUID) {
+        // Removes edit profile button from layout, leaving just the follow button
+        ConstraintLayout profileTop = (ConstraintLayout) findViewById(R.id.constraintLayout1);
 
         TextView tvEditProfile = findViewById(R.id.editProfileButton);
         tvEditProfile.setVisibility(View.GONE);
         profileTop.removeView(tvEditProfile);
 
-//        String user = getIntent().getExtras().getString("ID");
-        String user = "cC2zis0WonNTANJjODvSINuSpZr1";
-        setupViews();
-        getData(user);
-        setupTopInfo();
+        if(profileUID.equals(currentUID)) {
+            followButton.setVisibility(View.GONE);
+            return;
+        }
 
+        // Sets up follow button
+        DocumentReference docRef = db.collection("users").document(currentUID);
+        final Boolean[] isFollowingBool = {false};
+        final OnCompleteListener<DocumentSnapshot> isFollowing = new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final DocumentSnapshot document = task.getResult();
+                    final Map<String, Object> docData = document.getData();
+                    if(docData.get("following") == null) {
+                        followButton.setText("Follow");
+                        setupFollowBtn(profileUID, currentUID);
+                    }
+                    else {
+                        final Map<String, Boolean> followersList = (HashMap<String, Boolean>) docData.get("following");
+
+                        if (followersList.containsKey(profileUID)) {
+                            followButton.setText("Following");
+                            setupUnfollowBtn(profileUID, currentUID);
+                        } else {
+                            followButton.setText("Follow");
+                            setupFollowBtn(profileUID, currentUID);
+                        }
+                    }
+                } else {
+                    /* Else possible errors below
+                    // !task.isSucessful(): document failed with exception: task.getException()
+                    // task.getResult() == null: document does not exist
+                    */
+                }
+            }
+        };
+        docRef.get().addOnCompleteListener(isFollowing);
+    }
+
+    private void setupFollowBtn(final String profileUID, final String currentUID) {
+        followButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                followAction(profileUID, currentUID);
+                followButton.setText("Following");
+                setupUnfollowBtn(profileUID, currentUID);
+            }
+        });
+    }
+
+    private void setupUnfollowBtn(final String profileUID, final String currentUID) {
+        followButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                unfollowAction(profileUID, currentUID);
+                followButton.setText("Follow");
+                setupFollowBtn(profileUID, currentUID);
+            }
+        });
     }
 
     private void setupViews() {
@@ -85,14 +173,16 @@ public class ProfileActivity extends AppCompatActivity {
         tvNumFollowers = (TextView) findViewById(R.id.textViewFollowers);
         tvNumFollowing = (TextView) findViewById(R.id.textViewFollowing);
         profileImg = (CircleImageView) findViewById(R.id.profileImg);
+        followButton = (Button) findViewById(R.id.follow);
     }
 
-    private void setupTopInfo() {
+    private void setupTopInfo(final String profileUID) {
         tvNumFollowers.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ProfileActivity.this, FollowActivity.class);
-                intent.putExtra("ID", currentFirebaseUser.getUid());
+                intent.putExtra("ID", profileUID);
+                intent.putExtra("Followers", true);
                 startActivity(intent);
             }
         });
@@ -101,7 +191,8 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ProfileActivity.this, FollowActivity.class);
-                intent.putExtra("ID", currentFirebaseUser.getUid());
+                intent.putExtra("ID", profileUID);
+                intent.putExtra("Followers", false);
                 startActivity(intent);
             }
         });
@@ -120,6 +211,8 @@ public class ProfileActivity extends AppCompatActivity {
                     tvProfileName.setText(user.getUsername());
                     tvNumRecipes.setText(Integer.toString(recipes.size()));
                     tvProfileBio.setText(user.getBio());
+                    tvNumFollowers.setText(Integer.toString(user.getNumFollowers()));
+                    tvNumFollowing.setText(Integer.toString(user.getNumFollowing()));
                     loadRecipeList(recipes, user.getUsername());
 
                 } else {
@@ -182,6 +275,97 @@ public class ProfileActivity extends AppCompatActivity {
             });
 
         }
+    }
+
+    private void followAction(final String profileUID, final String currentUID) {
+        final DocumentReference currUserDoc = db.collection("users").document(currentUID);
+
+        // Add profile's UID into current user's Following table
+        final OnCompleteListener<DocumentSnapshot> storeFollowingInCurrentUser = new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final DocumentSnapshot document = task.getResult();
+                    final Map<String, Object> docData = document.getData();
+                    final Map<String, Boolean> followingList = (docData.get("following") != null) ? (HashMap<String, Boolean>) docData.get("following") : new HashMap<String, Boolean>();
+                    followingList.put(profileUID, true);
+                    currUserDoc.update("following", followingList);
+                } else {
+                    /* Else possible errors below
+                    // !task.isSucessful(): document failed with exception: task.getException()
+                    // task.getResult() == null: document does not exist
+                    */
+                }
+            }
+        };
+        currUserDoc.get().addOnCompleteListener(storeFollowingInCurrentUser);
+
+        // Add current user into profile user's Followers table
+        final DocumentReference profileUserDoc = db.collection("users").document(profileUID);
+        final OnCompleteListener<DocumentSnapshot> storeFollowersinProfileUser= new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final DocumentSnapshot document = task.getResult();
+                    final Map<String, Object> docData = document.getData();
+                    final Map<String, Boolean> followersList = (docData.get("followers") != null) ? (HashMap<String, Boolean>) docData.get("followers") : new HashMap<String, Boolean>();
+                    followersList.put(currentUID, true);
+                    profileUserDoc.update("followers", followersList);
+                    tvNumFollowers.setText(Integer.toString(followersList.size()));
+                } else {
+                    /* Else possible errors below
+                    // !task.isSucessful(): document failed with exception: task.getException()
+                    // task.getResult() == null: document does not exist
+                    */
+                }
+            }
+        };
+        profileUserDoc.get().addOnCompleteListener(storeFollowersinProfileUser);
+    }
+
+    private void unfollowAction(final String profileUID, final String currentUID) {
+        // Remove profile's UID from current user's following table
+        final DocumentReference currUserDoc = db.collection("users").document(currentUID);
+        final OnCompleteListener<DocumentSnapshot> storeUnfollowInCurrentUser = new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final DocumentSnapshot document = task.getResult();
+                    final Map<String, Object> docData = document.getData();
+                    final Map<String, Boolean> followingList = (docData.get("following") != null) ? (HashMap<String, Boolean>) docData.get("following") : new HashMap<String, Boolean>();
+                    followingList.remove(profileUID, true);
+                    currUserDoc.update("following", followingList);
+                } else {
+                    /* Else possible errors below
+                    // !task.isSucessful(): document failed with exception: task.getException()
+                    // task.getResult() == null: document does not exist
+                    */
+                }
+            }
+        };
+        currUserDoc.get().addOnCompleteListener(storeUnfollowInCurrentUser);
+
+        // Remove current user's UID from profile user's followers table
+        final DocumentReference profileUserDoc = db.collection("users").document(profileUID);
+        final OnCompleteListener<DocumentSnapshot> storeFollowersinProfileUser= new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final DocumentSnapshot document = task.getResult();
+                    final Map<String, Object> docData = document.getData();
+                    final Map<String, Boolean> followersList = (docData.get("followers") != null) ? (HashMap<String, Boolean>) docData.get("followers") : new HashMap<String, Boolean>();
+                    followersList.remove(currentUID);
+                    profileUserDoc.update("followers", followersList);
+                    tvNumFollowers.setText(Integer.toString(followersList.size()));
+                } else {
+                    /* Else possible errors below
+                    // !task.isSucessful(): document failed with exception: task.getException()
+                    // task.getResult() == null: document does not exist
+                    */
+                }
+            }
+        };
+        profileUserDoc.get().addOnCompleteListener(storeFollowersinProfileUser);
     }
 
 }
