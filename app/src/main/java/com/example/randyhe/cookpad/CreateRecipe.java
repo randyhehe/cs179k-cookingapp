@@ -19,6 +19,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -43,6 +45,9 @@ import java.util.Map;
 import java.util.UUID;
 
 public class CreateRecipe extends AppCompatActivity {
+    private String TAG = "CreateRecipe.java";
+
+    private View rootView;
 
     // publish and uploading
     private FirebaseFirestore fbFirestore;
@@ -51,9 +56,7 @@ public class CreateRecipe extends AppCompatActivity {
     private FirebaseStorage fbStorage;
     private StorageReference storageReference;
     private ProgressDialog progressDialog;
-    int numMethodImages;
-
-    private View rootView;
+    private int numMethodImages;
 
     //tags
     EditText textIn;
@@ -62,13 +65,10 @@ public class CreateRecipe extends AppCompatActivity {
     int tagNumber = 0;
 
     //methods
-    Button addMethod;
-    LinearLayout methods;
     int methodNumber = 1;
 
     //ingredients
     Button ingAdd;
-    LinearLayout ingCont;
     int ingrNumber = 1;
 
     //publish
@@ -122,6 +122,52 @@ public class CreateRecipe extends AppCompatActivity {
 
     private void setupEdit() {
         // populate existing data into the appropriate fields
+        String recipeId = getIntent().getExtras().getString("ID");
+        DocumentReference dr = fbFirestore.collection("recipes").document(recipeId);
+        dr.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot != null) {
+                    Map<String, Object> data = documentSnapshot.getData();
+                    List<String> list = (ArrayList<String>)data.get("reviews");
+
+                    // mainphoto
+                    final ImageButton ibMainPhoto = findViewById(R.id.mainphoto_btn);
+                    final LinearLayout llMainPhotoOptions = findViewById(R.id.mainphoto_options);
+                    final LinearLayout llMainPhotoEdit = findViewById(R.id.mainphoto_edit);
+                    final ImageButton ibMainPhotoDelete = findViewById(R.id.mainphoto_delete);
+                    if (data.get("mainPhotoStoragePath") != null) {
+                        setImage(ibMainPhoto, llMainPhotoOptions, llMainPhotoEdit, ibMainPhotoDelete, null, (String) data.get("mainPhotoStoragePath"));
+                    }
+
+                    // title
+                    EditText etTitle = findViewById(R.id.recipe_title);
+                    etTitle.setText((String) data.get("title"));
+
+                    // description
+                    EditText etDescription = findViewById(R.id.recipe_desc);
+                    etDescription.setText((String) data.get("description"));
+
+                    // ingredients
+                    List<String> ingrs = (ArrayList<String>) data.get("ingrs");
+                    if (ingrs.size() > 0) {
+                        // fill in the first one
+                        EditText etFirstIngr = findViewById(R.id.textout);
+                        etFirstIngr.setText(ingrs.get(0));
+
+                        for (int i = 1; i < ingrs.size(); i++) {
+                            addIngr(ingrs.get(i));
+                        }
+                    }
+
+
+
+                    Log.d("test", data.toString());
+                } else {
+                    // no such document
+                }
+            }
+        });
 
         // set submit button to update the current entry
         submitButton = findViewById(R.id.pub);
@@ -148,91 +194,101 @@ public class CreateRecipe extends AppCompatActivity {
 
     private void setupIngredients() {
         ingAdd = findViewById(R.id.adding);
-        ingCont = findViewById(R.id.ing_cont);
-
         ingAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                final int initialIngrNum = ++ingrNumber;
-
-                LayoutInflater layoutInflater =
-                        (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                final View addView = layoutInflater.inflate(R.layout.activity_cr_row, null);
-                addView.setTag("ingr" + initialIngrNum);
-
-                Button ingRemove = (Button) addView.findViewById(R.id.remove);
-                ingRemove.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        String tag = (String) addView.getTag();
-                        int currIngr = Integer.parseInt(tag.substring(4));
-                        for (int i = currIngr + 1; i <= ingrNumber; i++) {
-                            final View currView = rootView.findViewWithTag("ingr" + i);
-
-                            int newIngrNum = i - 1;
-                            currView.setTag("ingr" + newIngrNum);
-                        }
-                        ingrNumber--;
-                        ((LinearLayout) addView.getParent()).removeView(addView);
-                    }
-                });
-
-                ingCont.addView(addView);
+                addIngr("");
             }
         });
     }
 
-    private void setupMethods() {
-        addMethod = (Button) findViewById(R.id.addmethod);
-        methods = (LinearLayout) findViewById(R.id.mthd_cont);
+    private void addIngr(String ingr) {
+        LinearLayout ingCont = findViewById(R.id.ing_cont);
+        final int initialIngrNum = ++ingrNumber;
 
-        addMethod.setOnClickListener(new View.OnClickListener() {
+        LayoutInflater layoutInflator = (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View addView = layoutInflator.inflate(R.layout.activity_cr_row, null);
+        addView.setTag("ingr" + initialIngrNum);
+
+        final EditText etIngr = addView.findViewById(R.id.textout);
+        etIngr.setText(ingr);
+
+        Button ingRemove = addView.findViewById(R.id.remove);
+        ingRemove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String tag = (String) addView.getTag();
+                int currIngr = Integer.parseInt(tag.substring(4));
+                for (int i = currIngr + 1; i <= ingrNumber; i++) {
+                    final View currView = rootView.findViewWithTag("ingr" + i);
+
+                    int newIngrNum = i - 1;
+                    currView.setTag("ingr" + newIngrNum);
+                }
+                ingrNumber--;
+                ((LinearLayout) addView.getParent()).removeView(addView);
+            }
+        });
+        ingCont.addView(addView);
+    }
+
+    private void addMethod(Method method) {
+        LinearLayout methods = findViewById(R.id.mthd_cont);
+        final int initialStepNum = ++methodNumber;
+
+        LayoutInflater layoutInflater =
+                (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View addView = layoutInflater.inflate(R.layout.activity_cr_method, null);
+        addView.setTag("method" + initialStepNum);
+
+        final TextView tvStepNum = (TextView) addView.findViewById(R.id.num);
+        tvStepNum.setText(Integer.toString(initialStepNum));
+
+        // image handlers
+        final ImageButton ibStepPhoto = addView.findViewById(R.id.addphoto);
+        final LinearLayout llPhotoOptions = addView.findViewById(R.id.photo_options);
+        final LinearLayout llFirstPhotoEdit = addView.findViewById(R.id.photo_edit);
+        final ImageButton ibPhotoDelete = addView.findViewById(R.id.photo_delete);
+        ibStepPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseImage(ibStepPhoto, llPhotoOptions, llFirstPhotoEdit, ibPhotoDelete);
+            }
+        });
+
+        Button method_Remove = addView.findViewById(R.id.remove_mth);
+        method_Remove.setOnClickListener(new View.OnClickListener() {
 
             @Override
+            public void onClick(View v) {
+                int currStep = Integer.parseInt(tvStepNum.getText().toString());
+
+                for (int i = currStep + 1; i <= methodNumber; i++) {
+                    final View currView = rootView.findViewWithTag("method" + i);
+                    final TextView stepNum = currView.findViewById(R.id.num);
+
+                    int newStepNum = i - 1;
+                    stepNum.setText(Integer.toString(newStepNum));
+                    currView.setTag("method" + newStepNum);
+                }
+                methodNumber--;
+                ((LinearLayout) addView.getParent()).removeView(addView);
+            }
+        });
+
+        if (method != null) {
+            // fill in the method params
+        }
+
+        methods.addView(addView);
+    }
+
+    private void setupMethods() {
+        Button addMethodButton = findViewById(R.id.addmethod);
+        addMethodButton.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View arg0) {
-                final int initialStepNum = ++methodNumber;
-
-                LayoutInflater layoutInflater =
-                        (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                final View addView = layoutInflater.inflate(R.layout.activity_cr_method, null);
-                addView.setTag("method" + initialStepNum);
-
-                final TextView tvStepNum = (TextView) addView.findViewById(R.id.num);
-                tvStepNum.setText(Integer.toString(initialStepNum));
-
-                // image handlers
-                final ImageButton ibStepPhoto = addView.findViewById(R.id.addphoto);
-                final LinearLayout llPhotoOptions = addView.findViewById(R.id.photo_options);
-                final LinearLayout llFirstPhotoEdit = addView.findViewById(R.id.photo_edit);
-                final ImageButton ibPhotoDelete = addView.findViewById(R.id.photo_delete);
-                ibStepPhoto.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        chooseImage(ibStepPhoto, llPhotoOptions, llFirstPhotoEdit, ibPhotoDelete);
-                    }
-                });
-
-                Button method_Remove = (Button) addView.findViewById(R.id.remove_mth);
-                method_Remove.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        int currStep = Integer.parseInt(tvStepNum.getText().toString());
-
-                        for (int i = currStep + 1; i <= methodNumber; i++) {
-                            final View currView = rootView.findViewWithTag("method" + i);
-                            final TextView stepNum = currView.findViewById(R.id.num);
-
-                            int newStepNum = i - 1;
-                            stepNum.setText(Integer.toString(newStepNum));
-                            currView.setTag("method" + newStepNum);
-                        }
-                        methodNumber--;
-                        ((LinearLayout) addView.getParent()).removeView(addView);
-                    }
-                });
-                methods.addView(addView);
+                addMethod(null);
             }
         });
     }
@@ -310,50 +366,64 @@ public class CreateRecipe extends AppCompatActivity {
         startActivity(intent);
     }
 
+    // Load image based on uri or url. Either one should be null.
+    private void setImage(final ImageButton imageButton, final LinearLayout photoOptions, final LinearLayout photoEdit, final ImageButton imageDelete, Uri uri, String url) {
+        if (uri == null && url == null || uri != null && url != null) {
+            Log.d(TAG, "Either uri or url should be null.");
+            return;
+        } else if (uri != null) {
+            imageButton.setImageURI(uri);
+            imageButton.setTag(uri); // only set the uri tag if uploaded/took image from phone
+        } else { // use url instead
+            Glide.with(CreateRecipe.this)
+                    .load(storageReference.child(url))
+                    .into(imageButton);
+        }
+
+        photoOptions.setVisibility(View.VISIBLE);
+        imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                expandImage(imageButton);
+            }
+        });
+
+        photoEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseImage(imageButton, photoOptions, photoEdit, imageDelete);
+            }
+        });
+
+        imageDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new AlertDialog.Builder(view.getContext())
+                        .setMessage("Are you sure you want to delete this image?")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int button) {
+                                photoOptions.setVisibility(View.GONE);
+                                imageButton.setTag(null);
+                                imageButton.setImageResource(android.R.drawable.ic_menu_camera);
+                                imageButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        chooseImage(imageButton, photoOptions, photoEdit, imageDelete);
+                                    }
+                                });
+                            }
+                        }).setNegativeButton(android.R.string.no, null).show();
+            }
+        });
+    }
+
     private void chooseImage(final ImageButton imageButton, final LinearLayout photoOptions, final LinearLayout photoEdit, final ImageButton imageDelete) {
         PickImageDialog.build(new PickSetup()).setOnPickResult(new IPickResult() {
             @Override
             public void onPickResult(PickResult pickResult) {
                 if (pickResult.getError() == null) {
-                    photoOptions.setVisibility(View.VISIBLE);
-
-                    imageButton.setImageURI(pickResult.getUri());
-                    imageButton.setTag(pickResult.getUri());
-                    imageButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            expandImage(imageButton);
-                        }
-                    });
-
-                    photoEdit.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            chooseImage(imageButton, photoOptions, photoEdit, imageDelete);
-                        }
-                    });
-
-                    imageDelete.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            new AlertDialog.Builder(view.getContext())
-                                    .setMessage("Are you sure you want to delete this image?")
-                                    .setIcon(android.R.drawable.ic_dialog_alert)
-                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int button) {
-                                            photoOptions.setVisibility(View.GONE);
-                                            imageButton.setTag(null);
-                                            imageButton.setImageResource(android.R.drawable.ic_menu_camera);
-                                            imageButton.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View view) {
-                                                    chooseImage(imageButton, photoOptions, photoEdit, imageDelete);
-                                                }
-                                            });
-                                        }
-                                    }).setNegativeButton(android.R.string.no, null).show();
-                        }
-                    });
+                    setImage(imageButton, photoOptions, photoEdit, imageDelete, pickResult.getUri(), null);
                 } else {
                     Toast.makeText(getApplicationContext(), pickResult.getError().getMessage(), Toast.LENGTH_SHORT).show();
                 }
