@@ -16,6 +16,12 @@ public class Method {
     public Method(String instruction, Uri photoUri) {
         this.instruction = instruction;
         this.photoUri = photoUri;
-        storagePath = null;
+        this.storagePath = null;
+    }
+
+    public Method(String instruction, String storagePath) {
+        this.instruction = instruction;
+        this.storagePath = storagePath;
+        this.photoUri = null;
     }
 }

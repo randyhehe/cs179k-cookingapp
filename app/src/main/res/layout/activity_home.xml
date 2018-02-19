@@ -91,7 +91,7 @@
                 app:menu="@menu/menu"/>
         </RelativeLayout>
 
-        <com.example.randyhe.cookpad.CustomViewPager
+        <android.support.v4.view.ViewPager
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/bottomNavBar"

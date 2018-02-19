@@ -16,6 +16,7 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -32,8 +33,8 @@ public class exploreFragment extends Fragment {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    public static feedFragment newInstance() {
-        feedFragment fragment = new feedFragment();
+    public static exploreFragment newInstance() {
+        exploreFragment fragment = new exploreFragment();
         return fragment;
     }
 
