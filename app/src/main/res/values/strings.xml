@@ -25,5 +25,6 @@
     <string name="navBar.profile">Profile</string>
     <string name="navBar.feed">Feed</string>
     <string name="navBar.explore">Explore</string>
+    <string name="title_activity_search">SearchActivity</string>
 
 </resources>

@@ -108,7 +108,6 @@ public class profileFragment extends Fragment {
                 }
             }
         });
-
     }
 
     @Override
@@ -165,12 +164,12 @@ public class profileFragment extends Fragment {
                         feed.addView(a);
 
                         //  TO-DO: Open Edit recipe
-                        recipeName.setOnClickListener(new View.OnClickListener() {
+                        a.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 Intent intent = new Intent(getActivity(), ManageRecipe.class);
                                 intent.putExtra("EDIT", true);
-                                intent.putExtra("ID", "665f0975-eace-466e-964e-ce18e5a427be");
+                                intent.putExtra("ID", t);
                                 startActivity(intent);
                             }
                         });

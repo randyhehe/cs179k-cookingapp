@@ -710,6 +710,8 @@ public class ManageRecipe extends AppCompatActivity {
                                                                 recipeDoc.update("mainPhotoStoragePath", recipe.mainPhotoStoragePath).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                     @Override
                                                                     public void onSuccess(Void aVoid) {
+                                                                        progressDialog.dismiss();
+                                                                        Toast.makeText(getApplicationContext(), "Successfully edited recipe!", Toast.LENGTH_LONG).show();
                                                                         finish();
                                                                     }
                                                                 });
@@ -735,6 +737,8 @@ public class ManageRecipe extends AppCompatActivity {
             Toast.makeText(ManageRecipe.this, "You need to upload an image for the recipe.", Toast.LENGTH_LONG).show();
             return;
         }
+
+        progressDialog = ProgressDialog.show(ManageRecipe.this, null, "Editing Recipe...");
 
         deleteRemovedImagesFromDB();
         final Recipe recipe = createRecipe();
