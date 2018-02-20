@@ -40,8 +40,10 @@ import com.vansuita.pickimage.listeners.IPickResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class ManageRecipe extends AppCompatActivity {
@@ -163,7 +165,10 @@ public class ManageRecipe extends AppCompatActivity {
                         LinearLayout llFirstImageOptions = findViewById(R.id.photo_options);
                         LinearLayout llFirstImageEdit = findViewById(R.id.photo_edit);
                         ImageButton ibFirstImageDelete = findViewById(R.id.photo_delete);
-                        setImage(ibFirstImage, llFirstImageOptions, llFirstImageEdit, ibFirstImageDelete, null, firstMethod.storagePath);
+
+                        if (firstMethod.storagePath != null) {
+                            setImage(ibFirstImage, llFirstImageOptions, llFirstImageEdit, ibFirstImageDelete, null, firstMethod.storagePath);
+                        }
 
                         for (int i = 1; i < methods.size(); i++) {
                             Method currMethod = new Method((String) methods.get(i).get("instruction"), (String) methods.get(i).get("storagePath"));
@@ -190,11 +195,12 @@ public class ManageRecipe extends AppCompatActivity {
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (findViewById(R.id.mainphoto_btn).getTag() != null && findViewById(R.id.mainphoto_btn).getTag() instanceof Uri) {
-                    Log.d(TAG, "set");
-                } else {
-                    Log.d(TAG, "not set");
-                }
+                editRecipe();
+//                if (findViewById(R.id.mainphoto_btn).getTag() != null && findViewById(R.id.mainphoto_btn).getTag() instanceof Uri) {
+//                    Log.d(TAG, "set");
+//                } else {
+//                    Log.d(TAG, "not set");
+//                }
             }
         });
     }
@@ -296,7 +302,9 @@ public class ManageRecipe extends AppCompatActivity {
         });
 
         if (method != null) {
-            setImage(ibStepPhoto, llPhotoOptions, llFirstPhotoEdit, ibPhotoDelete, null, method.storagePath);
+            if (method.storagePath != null) {
+                setImage(ibStepPhoto, llPhotoOptions, llFirstPhotoEdit, ibPhotoDelete, null, method.storagePath);
+            }
             final EditText etMethodInstructions = addView.findViewById(R.id.stepout);
             etMethodInstructions.setText(method.instruction);
         }
@@ -406,6 +414,7 @@ public class ManageRecipe extends AppCompatActivity {
                     .using(new FirebaseImageLoader())
                     .load(storageReference.child(url))
                     .into(imageButton);
+            imageButton.setTag(url);
         }
 
         photoOptions.setVisibility(View.VISIBLE);
@@ -465,7 +474,8 @@ public class ManageRecipe extends AppCompatActivity {
         String recipeServings = ((EditText) findViewById(R.id.servings)).getText().toString();
         String recipeTime = ((EditText) findViewById(R.id.time)).getText().toString();
 
-        Uri mainPhotoUri = (Uri) (findViewById(R.id.mainphoto_btn).getTag());
+        final ImageButton mainPhoto = findViewById(R.id.mainphoto_btn);
+        final Uri mainPhotoUri = (mainPhoto.getTag() != null && mainPhoto.getTag() instanceof Uri) ? (Uri) mainPhoto.getTag() : null;
 
         List<Method> methods = new ArrayList<>();
         for (int i = 1; i <= methodNumber; i++) {
@@ -474,10 +484,19 @@ public class ManageRecipe extends AppCompatActivity {
             final EditText currIns = currView.findViewById(R.id.stepout);
 
             final ImageButton currImg = currView.findViewById(R.id.addphoto);
-            final Uri imageUri = (Uri) currImg.getTag();
 
-            Method method = new Method(currIns.getText().toString(), imageUri);
-            methods.add(method);
+            if (currImg.getTag() != null) {
+                if (currImg.getTag() instanceof Uri) {
+                    final Uri imageUri = (Uri) currImg.getTag();
+                    methods.add(new Method(currIns.getText().toString(), imageUri));
+                } else {
+                    String path = (String) currImg.getTag();
+                    methods.add(new Method(currIns.getText().toString(), path));
+                }
+            } else {
+                final Uri imageUri = null;
+                methods.add(new Method(currIns.getText().toString(), imageUri));
+            }
         }
 
         List<String> ingrs = new ArrayList<>();
@@ -496,7 +515,12 @@ public class ManageRecipe extends AppCompatActivity {
             tags.add(currTag.getText().toString());
         }
 
-        return new Recipe(mainPhotoUri, fbUser.getUid(), recipeTitle, recipeDesc, recipeServings,  recipeTime, ingrs, methods, tags);
+        Recipe recipe = new Recipe(mainPhotoUri, fbUser.getUid(), recipeTitle, recipeDesc, recipeServings, recipeTime, ingrs, methods, tags);
+
+        if (mainPhoto.getTag() != null && mainPhoto.getTag() instanceof String) {
+            recipe.mainPhotoStoragePath = (String) mainPhoto.getTag();
+        }
+        return recipe;
     }
 
     private void publishRecipe(final Recipe recipe) {
@@ -541,7 +565,8 @@ public class ManageRecipe extends AppCompatActivity {
                 } else { // contains method images, process all method images, then main image, then store updated recipe doc.
                     for (int i = 0; i < recipe.methods.size(); i++) {
                         Method currMethod = recipe.methods.get(i);
-                        if (currMethod.photoUri == null) continue; // skip if no image attached by user
+                        if (currMethod.photoUri == null)
+                            continue; // skip if no image attached by user
 
                         String firebaseStorageFilePath = "images/" + UUID.randomUUID().toString();
                         currMethod.storagePath = firebaseStorageFilePath;
@@ -584,5 +609,197 @@ public class ManageRecipe extends AppCompatActivity {
             }
         };
         userDoc.get().addOnCompleteListener(storeRecipeIdInUser);
+    }
+
+    private void deleteRemovedImagesFromDB() {
+        final String recipeId = getIntent().getExtras().getString("ID");
+        final DocumentReference recipeDoc = fbFirestore.collection("recipes").document(recipeId);
+        recipeDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final DocumentSnapshot document = task.getResult();
+                    final Map<String, Object> oldRecipeData = document.getData();
+
+                    // get recipe images to delete from the database and a list of new uris of images to upload to the database
+                    final Set<String> deletedRecipeImages = new HashSet<>();
+                    final List<Map<String, String>> list = (ArrayList<Map<String, String>>) oldRecipeData.get("methods");
+                    for (int i = 0; i < list.size(); i++) {
+                        if (list.get(i).get("storagePath") == null) continue;
+                        deletedRecipeImages.add(list.get(i).get("storagePath"));
+                    }
+
+                    for (int i = 1; i <= methodNumber; i++) {
+                        final String tag = "method" + i;
+                        final View currView = rootView.findViewWithTag(tag);
+                        final ImageButton currImg = currView.findViewById(R.id.addphoto);
+
+                        if (currImg.getTag() != null && currImg.getTag() instanceof String) {
+                            deletedRecipeImages.remove(currImg.getTag());
+                        }
+
+                        for (String s : deletedRecipeImages) {
+                            StorageReference ref = storageReference.child(s);
+                            ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    // do nothing
+                                }
+                            });
+                        }
+                    }
+
+                    final String mainPhotoPath = (String) oldRecipeData.get("mainPhotoStoragePath");
+
+                    final ImageButton mainPhoto = findViewById(R.id.mainphoto_btn);
+                    if (mainPhoto.getTag() == null && mainPhoto.getTag() instanceof Uri) {
+                        StorageReference ref = storageReference.child(mainPhotoPath);
+                        ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                // do nothing
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    }
+
+    private void editRecipeTask(final Recipe recipe) {
+        final String recipeId = getIntent().getExtras().getString("ID");
+
+        final DocumentReference recipeDoc = fbFirestore.collection("recipes").document(recipeId);
+        // update ingrs
+        recipeDoc.update("ingrs", recipe.ingrs).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                // update tags
+                recipeDoc.update("tags", recipe.tags).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // update methods
+                        List<Map<String, Object>> methodsMapFormat = new ArrayList<>();
+                        for (int i = 0; i < recipe.methods.size(); i++) {
+                            Method currMethod = recipe.methods.get(i);
+
+                            Map<String, Object> methodMapEntry = new HashMap<>();
+                            methodMapEntry.put("instruction", currMethod.instruction);
+                            methodMapEntry.put("storagePath", currMethod.storagePath);
+                            methodsMapFormat.add(methodMapEntry);
+                        }
+
+                        recipeDoc.update("methods", methodsMapFormat).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                // update title
+                                recipeDoc.update("title", recipe.title).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        // update description
+                                        recipeDoc.update("description", recipe.description).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                recipeDoc.update("servings", recipe.servings).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        recipeDoc.update("time", recipe.time).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                // update main storage path
+                                                                recipeDoc.update("mainPhotoStoragePath", recipe.mainPhotoStoragePath).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                    @Override
+                                                                    public void onSuccess(Void aVoid) {
+                                                                        finish();
+                                                                    }
+                                                                });
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    private void editRecipe() {
+        final ImageButton mainPhoto = findViewById(R.id.mainphoto_btn);
+        if (mainPhoto.getTag() == null) {
+            Toast.makeText(ManageRecipe.this, "You need to upload an image for the recipe.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        deleteRemovedImagesFromDB();
+        final Recipe recipe = createRecipe();
+
+        final String recipeId = getIntent().getExtras().getString("ID");
+        final DocumentReference recipeDoc = fbFirestore.collection("recipes").document(recipeId);
+
+        final OnSuccessListener<UploadTask.TaskSnapshot> editRecipeTask = new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                editRecipeTask(recipe);
+            }
+        };
+
+        OnCompleteListener<DocumentSnapshot> storeImages = new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final DocumentSnapshot document = task.getResult();
+
+                    numMethodImages = 0;
+                    for (int i = 0; i < recipe.methods.size(); i++) {
+                        Method currMethod = recipe.methods.get(i);
+                        if (currMethod.photoUri != null) numMethodImages++;
+                    }
+
+                    if (numMethodImages == 0) {
+                        if (mainPhoto.getTag() instanceof Uri) {
+                            StorageReference ref = storageReference.child(recipe.mainPhotoStoragePath);
+                            ref.putFile(recipe.mainPhotoUri).addOnSuccessListener(editRecipeTask);
+                        } else {
+                            // process the other stuff
+                            editRecipeTask(recipe);
+
+                        }
+
+                    } else {
+                        for (int i = 0; i < recipe.methods.size(); i++) {
+                            Method currMethod = recipe.methods.get(i);
+                            if (currMethod.photoUri == null)
+                                continue; // skip if no image attached by user
+
+                            String firebaseStorageFilePath = "images/" + UUID.randomUUID().toString();
+                            currMethod.storagePath = firebaseStorageFilePath;
+
+                            StorageReference ref = storageReference.child(firebaseStorageFilePath);
+                            ref.putFile(currMethod.photoUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    if (--numMethodImages == 0) {
+                                        if (mainPhoto.getTag() instanceof Uri) {
+                                            StorageReference ref = storageReference.child(recipe.mainPhotoStoragePath);
+                                            ref.putFile(recipe.mainPhotoUri).addOnSuccessListener(editRecipeTask);
+                                        } else {
+                                            editRecipeTask(recipe);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        };
+
+        recipeDoc.get().addOnCompleteListener(storeImages);
     }
 }
