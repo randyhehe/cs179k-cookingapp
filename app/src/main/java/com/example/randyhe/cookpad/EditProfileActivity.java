@@ -40,6 +40,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private EditText etEmail;
     private TextView confirmBtn;
     private User user;
+    private TextView tvEditProfilePic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +58,14 @@ public class EditProfileActivity extends AppCompatActivity {
         etBio = findViewById(R.id.editBio);
         etEmail = findViewById(R.id.editEmail);
         confirmBtn = findViewById(R.id.confirmChanges);
+
+        tvEditProfilePic = findViewById(R.id.changeProfilePhoto);
+        tvEditProfilePic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(EditProfileActivity.this, "edit this", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void setUpSaveChanges() {

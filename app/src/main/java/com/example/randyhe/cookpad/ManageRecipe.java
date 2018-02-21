@@ -397,7 +397,12 @@ public class ManageRecipe extends AppCompatActivity {
 
     private void expandImage(final ImageButton imageButton) {
         Intent intent = new Intent(this, ImageActivity.class);
-        intent.putExtra("BitmapUri", (Uri) imageButton.getTag());
+
+        if (imageButton.getTag() instanceof Uri) {
+            intent.putExtra("BitmapUri", (Uri) imageButton.getTag());
+        } else if (imageButton.getTag() instanceof String) {
+            intent.putExtra("FirebaseUrl", (String) imageButton.getTag());
+        }
         startActivity(intent);
     }
 
