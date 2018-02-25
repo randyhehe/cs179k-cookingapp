@@ -32,12 +32,14 @@ public class User {
     public void setName(String s) { this.name = s; }
     public void setEmail(String s) { this.email = s; }
     public void setBio(String s) { this.bio = s; }
+    public void setProfilePhotoPath(String s) { this.profilePhotoPath = s; }
 
 //    Get functions
     public String getName() { return name; }
     public String getUsername() { return username; }
     public String getEmail() { return email; }
     public String getBio() { return bio; }
+    public String getProfilePhotoPath() { return profilePhotoPath; }
     public List<String> getRecipes() {
         return new ArrayList<String>(this.recipes.keySet());
     }

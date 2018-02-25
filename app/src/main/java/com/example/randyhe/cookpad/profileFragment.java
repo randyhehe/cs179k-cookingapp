@@ -41,6 +41,9 @@ public class profileFragment extends Fragment {
     private final FirebaseAuth auth = FirebaseAuth.getInstance();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final FirebaseUser currentFirebaseUser = auth.getCurrentUser();
+    private final FirebaseStorage fbStorage = FirebaseStorage.getInstance();
+    private final StorageReference storageReference = fbStorage.getReference();
+
 
     private TextView tvProfileName;
     private TextView tvProfileBio;
@@ -101,6 +104,14 @@ public class profileFragment extends Fragment {
                     tvProfileName.setText(user.getUsername());
                     tvNumRecipes.setText(Integer.toString(recipes.size()));
                     tvProfileBio.setText(user.getBio());
+
+                    if (user.getProfilePhotoPath() != null && !user.getProfilePhotoPath().equals("")) {
+                        Glide.with(getActivity())
+                                .using(new FirebaseImageLoader())
+                                .load(storageReference.child(user.getProfilePhotoPath()))
+                                .into(profileImg);
+                    }
+
                     loadRecipeList(recipes, user.getUsername());
 
                 } else {
