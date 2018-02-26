@@ -137,6 +137,7 @@ public class feedFragment extends Fragment {
                                 }
                                 else
                                 {
+
                                     Glide.with(c)
                                             .load(document.getString("imagePath"))
                                             .into(recipePic);
