@@ -22,7 +22,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
-
+import android.view.View;
+import android.view.ViewGroup;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -118,7 +119,8 @@ public class Individual_Recipe extends AppCompatActivity {
         setSupportActionBar(myToolbar);
         getSupportActionBar().setTitle("");
 
-        individualRecipeID = "bce3204e-573a-42a2-b2dc-92941a6dfe75";
+        //individualRecipeID = getIntent().getExtras().getString("ID");
+        individualRecipeID = "351844ed-af0a-4861-b4e2-aff7fb7d3b93";
 
         setupViews();
 
@@ -156,26 +158,31 @@ public class Individual_Recipe extends AppCompatActivity {
 
 
                     // DISPLAY MAIN INFO
-                    String dbmainImage = document.getString("mainPhotoStoragePath");
 
-
-                    //if(dbmainImage != null) {
-                        //StorageReference storageReferenceMI = FirebaseStorage.getInstance().getReference();
-                        //Glide.with(Individual_Recipe.this)
-                        //        .load(storageReferenceMI.child(dbmainImage))
-                        //        .into(mainImage);
-                    if (document.getString("mainPhotoStoragePath") != null) {
-                        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(document.getString("mainPhotoStoragePath"));
-
-                        Glide.with(Individual_Recipe.this /* context */)
-                                .using(new FirebaseImageLoader())
-                                .load(storageReference)
+                    if(document.getString("imagePath") == null || document.getString("imagePath") == "")
+                    {
+                        mainImage.setImageResource(R.drawable.kermit_cooking);
+                    }
+                    else
+                    {
+                        Glide.with(c)
+                                .load(document.getString("imagePath"))
                                 .into(mainImage);
                     }
-                   // }
+
+
 
                     mainTitle.setText(document.getString("title"));
-                    mainDescription.setText(document.getString("desciption"));
+
+                    if(document.getString("desciption") == null || document.getString("desciption") == "")
+                    {
+                        mainDescription.setText("No desc");
+                    }
+                    else
+                    {
+                        mainDescription.setText(document.getString("desciption"));
+                    }
+
                     recipeFor = document.getId();
                     recipeUserID = document.getString("userId");
 
@@ -183,7 +190,10 @@ public class Individual_Recipe extends AppCompatActivity {
                     cookTime.setText(document.getString("time"));
 
 
-                    float avgS = Float.parseFloat(document.getString("total")) / Integer.parseInt(document.getString("number"));
+                    float avgS = 0;
+                    if(document.getString("total") != null && document.getString("total") != "") {
+                        avgS = Float.parseFloat(document.getString("total")) / Integer.parseInt(document.getString("number"));
+                    }
                     avgStarsDisp.setRating(avgS);
 
                     setupReviewAddPhotos();
@@ -202,11 +212,19 @@ public class Individual_Recipe extends AppCompatActivity {
                     String temp;
                     StringBuilder sb = new StringBuilder();
 
-                    for(int i = 0; i < ingredsList.size(); i++) {
-                        temp = ingredsList.get(i);
-                        sb.append(temp);
-                        if (i != ingredsList.size() - 1) {
-                            sb.append("\n\n");
+                    if(ingredsList.size() == 0) {
+                        sb.append("No ingredients\n");
+                    }
+                    else if (ingredsList.size() == 1 && ingredsList.get(0).equals("")) {
+                        sb.append("No ingredients\n");
+                    }
+                    else {
+                        for (int i = 0; i < ingredsList.size(); i++) {
+                            temp = ingredsList.get(i);
+                            sb.append(temp);
+                            if (i != ingredsList.size() - 1) {
+                                sb.append("\n\n");
+                            }
                         }
                     }
 
@@ -216,33 +234,42 @@ public class Individual_Recipe extends AppCompatActivity {
 
 
                     //DISPLAY METHOD
-                    List<Map<String, String>> methodList = (ArrayList<Map<String, String>>)document.get("methods");
+                    List<HashMap<String, Object>> methodList = (ArrayList<HashMap<String, Object>>) document.get("methods");
 
-                    LinearLayout methodsLayout = (LinearLayout) findViewById(R.id.methods);
+                    LinearLayout methodLayout = (LinearLayout) findViewById(R.id.methods);
+                    for(int i = 0; i < methodList.size(); i++){
+                        LayoutInflater li = LayoutInflater.from(Individual_Recipe.this);
+                        View met = li.inflate(R.layout.ir_single_method, null);
 
-                    for (int i = 0; i < methodList.size(); i++) {
-                        View met = getLayoutInflater().inflate(R.layout.ir_single_method, null);
+                        final LinearLayout methodsLayout = (LinearLayout) findViewById(R.id.methods);
 
-                        TextView stepNum = (TextView) met.findViewById(R.id.step_num);
-                        TextView stepText = (TextView) met.findViewById(R.id.step_text);
-                        ImageView stepPhoto = (ImageView) met.findViewById(R.id.step_photo);
+                        final TextView stepNum = (TextView) met.findViewById(R.id.step_num);
+                        final TextView stepText = (TextView) met.findViewById(R.id.step_text);
+                        final ImageButton stepPhoto = (ImageButton) met.findViewById(R.id.step_photo);
 
-                        final Map<String, String> methodMap = methodList.get(i);
-                        String currT = methodMap.get("instruction");
-                        stepNum.setText(Integer.toString(i+1));
-                        stepText.setText(currT);
+                        stepNum.setText(Integer.toString(i + 1));
+                        stepText.setText((String) methodList.get(i).get("instruction"));
 
-                        if(methodMap.get("storagePath") == null) {
+                        if(methodList.get(i).get("storagePath") == null || methodList.get(i).get("storagePath") == "") {
                             stepPhoto.setVisibility(View.INVISIBLE);
                             stepPhoto.getLayoutParams().width = 0;
                             stepPhoto.getLayoutParams().height = 0;
                         }
+                        else {
+                            Glide.with(c)
+                                    .load(methodList.get(i).get("storagePath"))
+                                    .into(stepPhoto);
 
-                        methodsLayout.addView(met);
+                            stepPhoto.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    //expandPhoto(stepPhoto);
+                                }
+                            });
+                        }
+
+                        methodLayout.addView(met);
                     }
-
-
-
 
 
 
@@ -291,6 +318,8 @@ public class Individual_Recipe extends AppCompatActivity {
 
 
                                     // TODO Display review images
+
+
                                     if(document3.getString("photo1") == null && document3.getString("photo2") == null && document3.getString("photo3") == null) {
                                         reviewAvatar2.setImageResource(R.drawable.kermit_cooking);
 
@@ -309,6 +338,18 @@ public class Individual_Recipe extends AppCompatActivity {
                                                     DocumentSnapshot documentUser = task.getResult();
                                                     if(documentUser.exists()) {
                                                         reviewName2.setText(documentUser.getString("username"));
+
+                                                        if(documentUser.getString("profilePhotoPath") == null || documentUser.getString("profilePhotoPath") == "")
+                                                        {
+                                                            reviewAvatar2.setImageResource(R.drawable.kermit_cooking);
+                                                        }
+                                                        else
+                                                        {
+                                                            Glide.with(c)
+                                                                    .load(documentUser.getString("profilePhotoPath"))
+                                                                    .into(reviewAvatar2);
+                                                        }
+
                                                     }
                                                 }
                                                 else {
@@ -336,6 +377,17 @@ public class Individual_Recipe extends AppCompatActivity {
                                                     DocumentSnapshot documentUser = task.getResult();
                                                     if(documentUser.exists()) {
                                                         reviewName.setText(documentUser.getString("username"));
+
+                                                        if(documentUser.getString("profilePhotoPath") == null || documentUser.getString("profilePhotoPath") == "")
+                                                        {
+                                                            reviewAvatar.setImageResource(R.drawable.kermit_cooking);
+                                                        }
+                                                        else
+                                                        {
+                                                            Glide.with(c)
+                                                                    .load(documentUser.getString("profilePhotoPath"))
+                                                                    .into(reviewAvatar);
+                                                        }
                                                     }
                                                 }
                                                 else {
@@ -355,7 +407,7 @@ public class Individual_Recipe extends AppCompatActivity {
 
 
                     // GET RECIPE USERNAME AND AVATAR
-                    String recAuthorID = document.getString("userId");
+                    final String recAuthorID = document.getString("userId");
                     final DocumentReference docRef2 = db.collection("users").document(recAuthorID.toString());
                     docRef2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
@@ -399,7 +451,7 @@ public class Individual_Recipe extends AppCompatActivity {
                 if(task.isSuccessful()) {
                     Log.d(TAG, "Checking review images");
                     DocumentSnapshot userDocument = task.getResult();
-                    if(userDocument.getString("photo1") != null) {  // set photo1
+                    if(userDocument.getString("photo1") != null && userDocument.getString("photo1") != "") {  // set photo1
                         Glide.with(c)
                                 .load("http://via.placeholder.com/300.png")
                                 .into(revImage1);
@@ -410,7 +462,7 @@ public class Individual_Recipe extends AppCompatActivity {
                         revImage1.getLayoutParams().height = 0;
                     }
 
-                    if(userDocument.getString("photo2") != null) {  // set photo2
+                    if(userDocument.getString("photo2") != null && userDocument.getString("photo2") != "") {  // set photo2
                         Glide.with(c)
                                 .load("http://via.placeholder.com/300.png")
                                 .into(revImage2);
@@ -421,7 +473,7 @@ public class Individual_Recipe extends AppCompatActivity {
                         revImage2.getLayoutParams().height = 0;
                     }
 
-                    if(userDocument.getString("photo3") != null) {  // set photo3
+                    if(userDocument.getString("photo3") != null && userDocument.getString("photo3") != "") {  // set photo3
                         Glide.with(c)
                                 .load("http://via.placeholder.com/300.png")
                                 .into(revImage3);
@@ -610,6 +662,22 @@ public class Individual_Recipe extends AppCompatActivity {
         }
     }
 
+    private void displayMethodPhoto(final ImageButton photoBtn, Uri uri, String url) {
+        if (uri == null && url == null || uri != null && url != null) {
+            Log.d(TAG, "Either uri or url should be null.");
+            return;
+        } else if (uri != null) {
+            photoBtn.setImageURI(uri);
+            photoBtn.setTag(uri); // only set the uri tag if uploaded/took image from phone
+        } else { // use url instead
+
+            StorageReference storageReferenceSI = FirebaseStorage.getInstance().getReference();
+            Glide.with(Individual_Recipe.this)
+                    .load(storageReferenceSI.child(url))
+                    .into(photoBtn);
+        }
+    }
+
     private void expandPhoto(final ImageButton photoButton) {
         Intent intent = new Intent(this, ImageActivity.class);
         intent.putExtra("BitmapUri", (Uri) photoButton.getTag());
@@ -620,68 +688,123 @@ public class Individual_Recipe extends AppCompatActivity {
         reviewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Store the date
-                Date d = Calendar.getInstance().getTime();
 
-                SimpleDateFormat f = new SimpleDateFormat("MM-dd-yyyy");
-                String formattedDate = f.format(d);
+                final DocumentReference userDocRef = db.collection("users").document(currentUser.getUid().toString());
 
-
-                final Float stars = starsInput.getRating();
-
-                final UUID reviewId = UUID.randomUUID();
-
-
-                // ADD IMAGES
-
-
-                //ADD REVIEW
-                Map<String, Object> newReview = new HashMap<>();
-                newReview.put("author", currentUser.getUid().toString());
-                newReview.put("stars", Float.toString(stars));
-                newReview.put("text", etReview.getText().toString());
-                newReview.put("recipeID", recipeFor);
-                newReview.put("date", formattedDate);
-                //newReview.put("picy", p1.toString());
-                db.collection("reviews").document(reviewId.toString())
-                        .set(newReview)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "Success in review addition");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Failure in review addition");
-                            }
-                        });
-
-
-                //Add review to recipe review set
-                final DocumentReference recipeDoc = db.collection("recipes").document(individualRecipeID.toString());
-                final OnCompleteListener<DocumentSnapshot> storeReviewId = new OnCompleteListener<DocumentSnapshot>() {
+                userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful() && task.getResult() != null) {
-                            final DocumentSnapshot document = task.getResult();
-                            final Map<String, Object> docData = document.getData();
-                            final Map<String, Boolean> revs = (docData.get("reviews") != null) ? (HashMap<String, Boolean>) docData.get("reviews") : new HashMap<String, Boolean>();
-                            revs.put(reviewId.toString(), true);
-                            recipeDoc.update("reviews", revs);
+                        if(task.isSuccessful()) {
+                            Log.d(TAG, "Checking likes and bookmarks");
+                            DocumentSnapshot userDocumentMain = task.getResult();
+                            final Map<String, Object> userDataMain = userDocumentMain.getData();
+                            final Map<String, Boolean> reviewed = (userDataMain.get("reviewed") != null) ? (HashMap<String, Boolean>) userDataMain.get("reviewed") : new HashMap<String, Boolean>();
 
-                            float tot = Float.parseFloat(document.getString("total")) + stars;
-                            int num = Integer.parseInt(document.getString("number"));
-                            recipeDoc.update("total", Float.toString(tot));
-                            recipeDoc.update("number", Integer.toString(num + 1));
+                            if(reviewed.containsKey(individualRecipeID.toString())) {
+                                Toast.makeText(c,"You can't review the same recipe more than once!",Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            else {
+                                //Store the date
+                                Date d = Calendar.getInstance().getTime();
+
+                                SimpleDateFormat f = new SimpleDateFormat("MM-dd-yyyy");
+                                String formattedDate = f.format(d);
+
+
+                                final Float stars = starsInput.getRating();
+
+                                final UUID reviewId = UUID.randomUUID();
+
+
+                                // ADD IMAGES
+
+
+                                //ADD REVIEW
+                                Map<String, Object> newReview = new HashMap<>();
+                                newReview.put("author", currentUser.getUid().toString());
+                                newReview.put("stars", Float.toString(stars));
+                                newReview.put("text", etReview.getText().toString());
+                                newReview.put("recipeID", recipeFor);
+                                newReview.put("date", formattedDate);
+                                //newReview.put("picy", p1.toString());
+                                db.collection("reviews").document(reviewId.toString())
+                                        .set(newReview)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "Success in review addition");
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.w(TAG, "Failure in review addition");
+                                            }
+                                        });
+
+                                // Add review to user
+                                final OnCompleteListener<DocumentSnapshot> storeReviewIdtoUser = new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful() && task.getResult() != null) {
+                                            final DocumentSnapshot userDocument = task.getResult();
+                                            final Map<String, Object> userData = userDocument.getData();
+                                            final Map<String, Boolean> userRevs = (userData.get("reviewed") != null) ? (HashMap<String, Boolean>) userData.get("reviewed") : new HashMap<String, Boolean>();
+                                            userRevs.put(individualRecipeID.toString(), true);
+                                            userDocRef.update("reviewed", userRevs);
+                                        }
+                                    }
+                                };
+                                userDocRef.get().addOnCompleteListener(storeReviewIdtoUser);
+
+
+                                //Add review to recipe review set
+                                final DocumentReference recipeDoc = db.collection("recipes").document(individualRecipeID.toString());
+                                final OnCompleteListener<DocumentSnapshot> storeReviewId = new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful() && task.getResult() != null) {
+                                            final DocumentSnapshot document = task.getResult();
+                                            final Map<String, Object> docData = document.getData();
+                                            final Map<String, Boolean> revs = (docData.get("reviews") != null) ? (HashMap<String, Boolean>) docData.get("reviews") : new HashMap<String, Boolean>();
+                                            revs.put(reviewId.toString(), true);
+                                            recipeDoc.update("reviews", revs);
+
+                                            float tot = 0;
+                                            if(document.getString("total") == null || document.getString("total") == "") {
+                                                tot = 0 + stars;
+                                            }
+                                            else {
+                                                tot = Float.parseFloat(document.getString("total")) + stars;
+                                            }
+                                            int num = 0;
+                                            if(document.getString("number") == null || document.getString("number") == "") {
+                                                num = 0;
+                                            }
+                                            else {
+                                                num = Integer.parseInt(document.getString("number"));
+                                            }
+                                            recipeDoc.update("total", Float.toString(tot));
+                                            recipeDoc.update("number", Integer.toString(num + 1));
+                                        }
+                                    }
+                                };
+                                recipeDoc.get().addOnCompleteListener(storeReviewId);
+
+                                etReview.setText("");
+                                starsInput.setRating((float) 0.0);
+                                Toast.makeText(c,"Review Added!",Toast.LENGTH_SHORT).show();
+                            }
+
+
+                        }
+                        else {
+                            Log.d(TAG, "fail");
                         }
                     }
-                };
-                recipeDoc.get().addOnCompleteListener(storeReviewId);
+                });
 
-
-                Toast.makeText(c,"Review Added!",Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -714,14 +837,15 @@ public class Individual_Recipe extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.recipe_menu, menu);
 
         final MenuItem likeItem = menu.findItem(R.id.like);
+        final MenuItem bookmarkItem = menu.findItem(R.id.bookmark);
 
-        // Check likes
+        // Check likes and bookmarks
         final DocumentReference dRef = db.collection("users").document(currentUser.getUid().toString());
         dRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()) {
-                    Log.d(TAG, "Checking likes");
+                    Log.d(TAG, "Checking likes and bookmarks");
                     DocumentSnapshot userDocument = task.getResult();
                     final Map<String, Object> userData = userDocument.getData();
                     final Map<String, Boolean> likes = (userData.get("likes") != null) ? (HashMap<String, Boolean>) userData.get("likes") : new HashMap<String, Boolean>();
@@ -731,28 +855,14 @@ public class Individual_Recipe extends AppCompatActivity {
                     else {
                         likeItem.setIcon(ContextCompat.getDrawable(Individual_Recipe.this, R.drawable.ic_favorite_border_black_24dp));
                     }
-                }
-                else {
-                    Log.d(TAG, "fail");
-                }
-            }
-        });
-
-        final MenuItem bookmarkItem = menu.findItem(R.id.bookmark);
-
-        // Check bookmarks
-        dRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()) {
-                    Log.d(TAG, "Checking bookmarks");
-                    DocumentSnapshot userDocumentB = task.getResult();
-                    final Map<String, Object> userDataB = userDocumentB.getData();
-                    final Map<String, Boolean> bookmarks = (userDataB.get("bookmarks") != null) ? (HashMap<String, Boolean>) userDataB.get("bookmarks") : new HashMap<String, Boolean>();
-                    if(bookmarks.containsKey(individualRecipeID.toString())) {  // if the recipe has been bookmarked before
+                    User user = userDocument.toObject(User.class);
+                    List<String> bookmarks = user.getBookmarkedRecipes();
+                    if(bookmarks.contains(individualRecipeID.toString()))
+                    {
                         bookmarkItem.setIcon(ContextCompat.getDrawable(Individual_Recipe.this, R.drawable.ic_bookmark_black_24dp));
                     }
-                    else {
+                    else
+                    {
                         bookmarkItem.setIcon(ContextCompat.getDrawable(Individual_Recipe.this, R.drawable.ic_bookmark_border_black_24dp));
                     }
                 }
@@ -761,7 +871,6 @@ public class Individual_Recipe extends AppCompatActivity {
                 }
             }
         });
-
         return true;
     }
 
@@ -817,7 +926,10 @@ public class Individual_Recipe extends AppCompatActivity {
                             if (task.isSuccessful() && task.getResult() != null) {
                                 final DocumentSnapshot recDocument = task.getResult();
 
-                                int likes = Integer.parseInt(recDocument.getString("numLikes"));
+                                int likes = 0;
+                                if(recDocument.getString("numLikes") != null && recDocument.getString("numLikes") != "") {
+                                    likes = Integer.parseInt(recDocument.getString("numLikes"));
+                                }
                                 recDocR.update("numLikes", Integer.toString(likes + 1));
                             }
                         }
@@ -853,10 +965,11 @@ public class Individual_Recipe extends AppCompatActivity {
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                             if (task.isSuccessful() && task.getResult() != null) {
                                 final DocumentSnapshot userDocument3 = task.getResult();
-                                final Map<String, Object> userData3 = userDocument3.getData();
-                                final Map<String, Boolean> bookmarks = (userData3.get("bookmarks") != null) ? (HashMap<String, Boolean>) userData3.get("bookmarks") : new HashMap<String, Boolean>();
+
+                                User user = userDocument3.toObject(User.class);
+                                List<String> bookmarks = user.getBookmarkedRecipes();
                                 bookmarks.remove(individualRecipeID.toString());
-                                userDocR.update("bookmarks", bookmarks);
+                                userDocR.update("bookmarkedRecipes", bookmarks);
                             }
                         }
                     };
@@ -868,19 +981,21 @@ public class Individual_Recipe extends AppCompatActivity {
                     item.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_bookmark_black_24dp));
 
                     // Add bookmark to user
-                    final OnCompleteListener<DocumentSnapshot> storeBookmarkId = new OnCompleteListener<DocumentSnapshot>() {
+                    final OnCompleteListener<DocumentSnapshot> addBookmarkId = new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                             if (task.isSuccessful() && task.getResult() != null) {
                                 final DocumentSnapshot userDocument4 = task.getResult();
-                                final Map<String, Object> userData4 = userDocument4.getData();
-                                final Map<String, Boolean> bookmarks2 = (userData4.get("bookmarks") != null) ? (HashMap<String, Boolean>) userData4.get("bookmarks") : new HashMap<String, Boolean>();
-                                bookmarks2.put(individualRecipeID.toString(), true);
-                                userDocR.update("bookmarks", bookmarks2);
+
+                                User user = userDocument4.toObject(User.class);
+                                List<String> bookmarks = user.getBookmarkedRecipes();
+                                bookmarks.add(individualRecipeID.toString());
+                                userDocR.update("bookmarkedRecipes", bookmarks);
                             }
                         }
                     };
-                    userDocR.get().addOnCompleteListener(storeBookmarkId);
+                    userDocR.get().addOnCompleteListener(addBookmarkId);
+
 
                     Toast.makeText(c,"Recipe has been bookmarked!",Toast.LENGTH_SHORT).show();
                 }
