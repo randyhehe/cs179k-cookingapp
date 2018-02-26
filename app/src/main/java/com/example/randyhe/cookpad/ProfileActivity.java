@@ -287,8 +287,7 @@ public class ProfileActivity extends AppCompatActivity {
                         recipeName.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Intent intent = new Intent(ProfileActivity.this, ManageRecipe.class);
-                                intent.putExtra("EDIT", true);
+                                Intent intent = new Intent(ProfileActivity.this, Individual_Recipe.class);
                                 intent.putExtra("ID", t);
                                 startActivity(intent);
                             }
