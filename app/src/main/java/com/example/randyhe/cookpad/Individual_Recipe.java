@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.provider.ContactsContract;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -267,8 +268,8 @@ public class Individual_Recipe extends AppCompatActivity {
         setSupportActionBar(myToolbar);
         getSupportActionBar().setTitle("");
 
-//        individualRecipeID = getIntent().getExtras().getString("ID");
-        individualRecipeID = "351844ed-af0a-4861-b4e2-aff7fb7d3b93";
+        individualRecipeID = getIntent().getExtras().getString("ID");
+//        individualRecipeID = "351844ed-af0a-4861-b4e2-aff7fb7d3b93";
 
         setupViews();
 
@@ -558,7 +559,14 @@ public class Individual_Recipe extends AppCompatActivity {
                                 Log.d(TAG, "Getting username");
                                 DocumentSnapshot document2 = task.getResult();
                                 mainName.setText(document2.getString("username"));
-
+                                mainName.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        Intent intent = new Intent(Individual_Recipe.this, ProfileActivity.class);
+                                        intent.putExtra("ID", recAuthorID);
+                                        startActivity(intent);
+                                    }
+                                });
 
                                 ImageView mainAvatar = (ImageView) indiv_rec.findViewById(R.id.avatar);
                                 mainAvatar.setImageResource(R.drawable.kermit_cooking);

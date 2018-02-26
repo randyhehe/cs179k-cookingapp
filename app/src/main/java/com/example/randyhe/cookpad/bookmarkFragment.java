@@ -62,6 +62,7 @@ public class bookmarkFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), Individual_Recipe.class);
+                intent.putExtra("ID", "351844ed-af0a-4861-b4e2-aff7fb7d3b93");
                 startActivity(intent);
             }
         });
