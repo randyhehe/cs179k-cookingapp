@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -21,6 +23,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
@@ -38,10 +42,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 
 public class FollowActivity extends AppCompatActivity {
-    private static final String TAG = "EditProfileActivity";
+    private static final String TAG = "FollowActivity";
     private final FirebaseAuth auth = FirebaseAuth.getInstance();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final FirebaseUser currentFirebaseUser = auth.getCurrentUser();
+    private final FirebaseStorage fbStorage = FirebaseStorage.getInstance();
+    private final StorageReference storageReference = fbStorage.getReference();
 
     private CircleImageView profilePic;
     private TextView tvUsername;
@@ -134,6 +140,17 @@ public class FollowActivity extends AppCompatActivity {
                     int followersNum = user.getNumFollowers();
                     View followItem = getLayoutInflater().inflate(R.layout.snippet_follow_listitem, null);
                     setupViews(followItem);
+
+                    String profilePhotoPath = user.getProfilePhotoPath();
+                    if(profilePhotoPath != null) {
+                        Glide.with(FollowActivity.this)
+                                .using(new FirebaseImageLoader())
+                                .load(storageReference.child(profilePhotoPath))
+                                .into(profilePic);
+                    }
+                    else {
+                        profilePic.setImageResource(R.drawable.profile_g);
+                    }
 
                     tvUsername.setText(user.getUsername());
                     tvRecipeNum.setText(String.valueOf(recipesNum) + " recipes");

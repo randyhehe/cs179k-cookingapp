@@ -55,6 +55,7 @@ public class profileFragment extends Fragment {
     private TextView tvNumFollowers;
     private TextView tvNumFollowing;
     private List<String> recipeList;
+    private String profileImgPath;
 
 
     public static profileFragment newInstance() {
@@ -124,6 +125,11 @@ public class profileFragment extends Fragment {
         super.onStart();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
     private void getData() {
         DocumentReference docRef = db.collection("users").document(currentFirebaseUser.getUid());
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -138,10 +144,11 @@ public class profileFragment extends Fragment {
                     tvNumRecipes.setText(Integer.toString(recipes.size()));
                     tvProfileBio.setText(user.getBio());
 
-                    if (user.getProfilePhotoPath() != null && !user.getProfilePhotoPath().equals("")) {
+                    profileImgPath = user.getProfilePhotoPath();
+                    if (profileImgPath != null && !profileImgPath.equals("")) {
                         Glide.with(getActivity())
                                 .using(new FirebaseImageLoader())
-                                .load(storageReference.child(user.getProfilePhotoPath()))
+                                .load(storageReference.child(profileImgPath))
                                 .into(profileImg);
                     }
 
@@ -169,7 +176,6 @@ public class profileFragment extends Fragment {
         setupEditProfileBtn(view);
         setupTopInfo(view);
         getData();
-
     }
 
     private void loadRecipeList(final List<String> rList, final String user) {
@@ -205,7 +211,15 @@ public class profileFragment extends Fragment {
                                     .into(recipePic);
                         }
 
-                        userPic.setImageResource(R.drawable.kermit_cooking);
+                        if (profileImgPath != null && !profileImgPath.equals("")) {
+                            Glide.with(getActivity())
+                                    .using(new FirebaseImageLoader())
+                                    .load(storageReference.child(profileImgPath))
+                                    .into(userPic);
+                        }
+                        else {
+                            userPic.setImageResource(R.drawable.profile_g);
+                        }
                         username.setText(user);
                         recipeName.setText(document.getString("title"));
                         recipeBio.setText(document.getString("description"));
