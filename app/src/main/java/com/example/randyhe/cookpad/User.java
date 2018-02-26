@@ -23,7 +23,7 @@ public class User {
     private Map<String, Boolean> recipes;
     private Map<String, Boolean> followers;
     private Map<String, Boolean> following;
-    private List<String> bookmarkedRecipes;
+    private Map<String, Boolean> bookmarkedRecipes;
 
     public User() {}
 
@@ -38,6 +38,12 @@ public class User {
     public String getUsername() { return username; }
     public String getEmail() { return email; }
     public String getBio() { return bio; }
+    public List<String> getBookmarkedRecipes() {
+        if(bookmarkedRecipes != null) {
+            return new ArrayList<String>(this.bookmarkedRecipes.keySet());
+        }
+        return new ArrayList<String>();
+    }
     public List<String> getRecipes() {
         if(recipes != null) {
             return new ArrayList<String>(this.recipes.keySet());
