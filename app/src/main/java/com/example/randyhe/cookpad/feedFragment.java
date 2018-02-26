@@ -97,6 +97,7 @@ public class feedFragment extends Fragment {
                     if (following.size() > 0) { // for every person you are following
                         for (String key : following) {
                             Toast.makeText(c,key,Toast.LENGTH_SHORT).show();
+                            //wheee
                             followingRecipes(key, feed); //get all the recipes of one person ur following
                         }
                     }
