@@ -151,7 +151,7 @@ public class feedFragment extends Fragment {
     }
 
     //inflate each individual recipe
-    private void getRecipe(String recipeID, final LinearLayout feed, final String userID, final boolean isBookmark) {
+    private void getRecipe(final String recipeID, final LinearLayout feed, final String userID, final boolean isBookmark) {
         final Context c = getActivity();
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(c).build();
@@ -173,6 +173,15 @@ public class feedFragment extends Fragment {
                     TextView notificationDesc = (TextView) a.findViewById(R.id.notificationDesc);
                     final ImageView recipePic = (ImageView) a.findViewById(R.id.foodPic);
                     final ImageButton bookmark = (ImageButton) a.findViewById(R.id.bookmarkButton);
+
+                    recipeName.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(getActivity(), Individual_Recipe.class);
+                            intent.putExtra("ID", recipeID);
+                            startActivity(intent);
+                        }
+                    });
 
                     if((String) data.get("title") == null || (String) data.get("title") == "")
                     {
