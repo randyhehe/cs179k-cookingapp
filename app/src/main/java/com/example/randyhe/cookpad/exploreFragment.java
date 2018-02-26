@@ -5,10 +5,12 @@ package com.example.randyhe.cookpad;
  */
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +20,7 @@ import android.widget.Toast;
 
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -32,6 +35,9 @@ import java.util.Vector;
 public class exploreFragment extends Fragment {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    private final FirebaseStorage fbStorage = FirebaseStorage.getInstance();
+    private final StorageReference storageReference = fbStorage.getReference();
 
     public static exploreFragment newInstance() {
         exploreFragment fragment = new exploreFragment();
@@ -66,11 +72,15 @@ public class exploreFragment extends Fragment {
                             final GridImageAdapter gia = new GridImageAdapter(c,R.layout.grid_imageview,"",imgUrls);
                             g.setAdapter(gia);
                             for (DocumentSnapshot document : task.getResult()) {
-                                String image = document.getString("imagePath");
-                                //Toast.makeText(c,image,Toast.LENGTH_SHORT).show();
-                                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(image);
-                                imgUrls.add(image);
-                                g.setAdapter(gia);
+
+                                String path = document.getString("mainPhotoStoragePath");
+                                storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        imgUrls.add(uri.toString());
+                                        g.setAdapter(gia);
+                                    }
+                                });
                             }
                         }
 

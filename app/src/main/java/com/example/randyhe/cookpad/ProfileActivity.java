@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -248,6 +249,7 @@ public class ProfileActivity extends AppCompatActivity {
                             StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(document.getString("mainPhotoStoragePath"));
 
                             Glide.with(ProfileActivity.this /* context */)
+                                    .using(new FirebaseImageLoader())
                                     .load(storageReference)
                                     .into(recipePic);
                         }

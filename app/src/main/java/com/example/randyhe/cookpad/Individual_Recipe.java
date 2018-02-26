@@ -168,6 +168,7 @@ public class Individual_Recipe extends AppCompatActivity {
                         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(document.getString("mainPhotoStoragePath"));
 
                         Glide.with(Individual_Recipe.this /* context */)
+                                .using(new FirebaseImageLoader())
                                 .load(storageReference)
                                 .into(mainImage);
                     }

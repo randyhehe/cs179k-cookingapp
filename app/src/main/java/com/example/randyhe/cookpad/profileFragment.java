@@ -44,6 +44,9 @@ public class profileFragment extends Fragment {
     private final FirebaseAuth auth = FirebaseAuth.getInstance();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final FirebaseUser currentFirebaseUser = auth.getCurrentUser();
+    private final FirebaseStorage fbStorage = FirebaseStorage.getInstance();
+    private final StorageReference storageReference = fbStorage.getReference();
+
 
     private TextView tvProfileName;
     private TextView tvProfileBio;
@@ -134,6 +137,14 @@ public class profileFragment extends Fragment {
                     tvProfileName.setText(user.getUsername());
                     tvNumRecipes.setText(Integer.toString(recipes.size()));
                     tvProfileBio.setText(user.getBio());
+
+                    if (user.getProfilePhotoPath() != null && !user.getProfilePhotoPath().equals("")) {
+                        Glide.with(getActivity())
+                                .using(new FirebaseImageLoader())
+                                .load(storageReference.child(user.getProfilePhotoPath()))
+                                .into(profileImg);
+                    }
+
                     tvNumFollowers.setText(Integer.toString(user.getNumFollowers()));
                     tvNumFollowing.setText(Integer.toString(user.getNumFollowing()));
                     loadRecipeList(recipes, user.getUsername());
@@ -143,7 +154,6 @@ public class profileFragment extends Fragment {
                 }
             }
         });
-
     }
 
     @Override
@@ -190,6 +200,7 @@ public class profileFragment extends Fragment {
                             StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(document.getString("mainPhotoStoragePath"));
 
                             Glide.with(getActivity() /* context */)
+                                    .using(new FirebaseImageLoader())
                                     .load(storageReference)
                                     .into(recipePic);
                         }
@@ -201,7 +212,7 @@ public class profileFragment extends Fragment {
                         feed.addView(a);
 
                         //  TO-DO: Open Edit recipe
-                        recipeName.setOnClickListener(new View.OnClickListener() {
+                        a.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 Intent intent = new Intent(getActivity(), ManageRecipe.class);

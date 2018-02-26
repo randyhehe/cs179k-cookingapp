@@ -32,6 +32,7 @@ public class User {
     public void setName(String s) { this.name = s; }
     public void setEmail(String s) { this.email = s; }
     public void setBio(String s) { this.bio = s; }
+    public void setProfilePhotoPath(String s) { this.profilePhotoPath = s; }
 
 //    Get functions
     public String getName() { return name; }
@@ -44,6 +45,8 @@ public class User {
         }
         return new ArrayList<String>();
     }
+
+    public String getProfilePhotoPath() { return profilePhotoPath; }
     public List<String> getRecipes() {
         if(recipes != null) {
             return new ArrayList<String>(this.recipes.keySet());

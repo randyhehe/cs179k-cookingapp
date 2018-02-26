@@ -1,6 +1,8 @@
 package com.example.randyhe.cookpad;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +12,8 @@ import android.widget.TextView;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -19,10 +23,20 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.vansuita.pickimage.bean.PickResult;
+import com.vansuita.pickimage.bundle.PickSetup;
+import com.vansuita.pickimage.dialog.PickImageDialog;
+import com.vansuita.pickimage.listeners.IPickResult;
 
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by mcast on 1/28/2018.
@@ -33,6 +47,8 @@ public class EditProfileActivity extends AppCompatActivity {
     private final FirebaseAuth auth = FirebaseAuth.getInstance();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final FirebaseUser currentFirebaseUser = auth.getCurrentUser();
+    private final FirebaseStorage fbStorage = FirebaseStorage.getInstance();
+    private final StorageReference storageReference = fbStorage.getReference();
 
     private EditText etName;
     private EditText etUsername;
@@ -40,6 +56,9 @@ public class EditProfileActivity extends AppCompatActivity {
     private EditText etEmail;
     private TextView confirmBtn;
     private User user;
+    private TextView tvEditProfilePic;
+    private CircleImageView civProfile;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +76,26 @@ public class EditProfileActivity extends AppCompatActivity {
         etBio = findViewById(R.id.editBio);
         etEmail = findViewById(R.id.editEmail);
         confirmBtn = findViewById(R.id.confirmChanges);
+
+        civProfile = findViewById(R.id.editProfilePhoto);
+        tvEditProfilePic = findViewById(R.id.changeProfilePhoto);
+        tvEditProfilePic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // edit the image.
+                PickImageDialog.build(new PickSetup()).setOnPickResult(new IPickResult() {
+                    @Override
+                    public void onPickResult(PickResult pickResult) {
+                        if (pickResult.getError() == null) {
+                            civProfile.setImageURI(pickResult.getUri());
+                            civProfile.setTag(pickResult.getUri());
+                        } else {
+                            Toast.makeText(getApplicationContext(), pickResult.getError().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }).show(getSupportFragmentManager());
+            }
+        });
     }
 
     private void setUpSaveChanges() {
@@ -64,31 +103,72 @@ public class EditProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 storeChanges(currentFirebaseUser);
-                startActivity(new Intent(EditProfileActivity.this, HomeActivity.class));
             }
         };
         confirmBtn.setOnClickListener(saveChangesListener);
     }
 
     private void storeChanges(FirebaseUser user) {
-        DocumentReference docRef = db.collection("users").document(user.getUid());
-//        Stores updates
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("name", etName.getText().toString());
-        updates.put("username", etUsername.getText().toString());
-        updates.put("email", etEmail.getText().toString());
-        updates.put("bio", etBio.getText().toString());
+        progressDialog = ProgressDialog.show(EditProfileActivity.this, null, "Editing Profile...");
 
-        docRef.update(updates).addOnSuccessListener(new OnSuccessListener<Void>() {
+
+        final DocumentReference docRef = db.collection("users").document(user.getUid());
+
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onSuccess(Void aVoid) {
-                Log.d(TAG, "DocumentSnapshot successfully updated!");
-            }
-        })
-        .addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w(TAG, "Error updating document", e);
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                final User user = documentSnapshot.toObject(User.class);
+
+                // Stores updates
+                Map<String, Object> updates = new HashMap<>();
+                updates.put("name", etName.getText().toString());
+                updates.put("username", etUsername.getText().toString());
+                updates.put("email", etEmail.getText().toString());
+                updates.put("bio", etBio.getText().toString());
+
+                final String picturePath  = "images/" + UUID.randomUUID().toString();
+                if (civProfile.getTag() != null && civProfile.getTag() instanceof Uri) {
+                    updates.put("profilePhotoPath", picturePath);
+                }
+
+                docRef.update(updates).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully updated!");
+
+                        if (civProfile.getTag() != null && civProfile.getTag() instanceof Uri) {
+                            // also add this into firebase storage
+                            StorageReference ref = storageReference.child(picturePath);
+                            ref.putFile((Uri) civProfile.getTag()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    if (user.getProfilePhotoPath() != picturePath) {
+                                        StorageReference ref = storageReference.child(user.getProfilePhotoPath());
+                                        ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                progressDialog.dismiss();
+                                                Toast.makeText(getApplicationContext(), "Successfully edited profile!", Toast.LENGTH_LONG).show();
+                                                finish();
+                                            }
+                                        });
+                                    } else {
+                                        progressDialog.dismiss();
+                                        Toast.makeText(getApplicationContext(), "Successfully edited profile!", Toast.LENGTH_LONG).show();
+                                        finish();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error updating document", e);
+                    }
+                });
+
             }
         });
     }
@@ -106,6 +186,16 @@ public class EditProfileActivity extends AppCompatActivity {
                     etUsername.setText(user.getUsername());
                     etBio.setText(user.getBio());
                     etEmail.setText(user.getEmail());
+
+                    if (user.getProfilePhotoPath() == null) {
+                        // default image
+                    } else {
+                        Glide.with(EditProfileActivity.this)
+                                .using(new FirebaseImageLoader())
+                                .load(storageReference.child(user.getProfilePhotoPath()))
+                                .into(civProfile);
+                        // do i need to set the url tag here?
+                    }
 
                 } else {
                     Log.d(TAG, "get failed with ", task.getException());
