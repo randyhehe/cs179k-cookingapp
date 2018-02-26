@@ -58,7 +58,7 @@ public class bookmarkFragment extends Fragment {
         recipeBio.setText("This is a test recipe for the profile recipe feed.");
 
 //        TO-DO: Bookmarked recipes take you to individual recipe pages
-        recipeName.setOnClickListener(new View.OnClickListener() {
+        a.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), Individual_Recipe.class);
