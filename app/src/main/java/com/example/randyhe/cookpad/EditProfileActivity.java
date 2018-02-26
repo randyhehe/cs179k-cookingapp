@@ -159,6 +159,10 @@ public class EditProfileActivity extends AppCompatActivity {
                                     }
                                 }
                             });
+                        } else {
+                            progressDialog.dismiss();
+                            Toast.makeText(getApplicationContext(), "Successfully edited profile!", Toast.LENGTH_LONG).show();
+                            finish();
                         }
                     }
                 })
