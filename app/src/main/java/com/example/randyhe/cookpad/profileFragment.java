@@ -33,7 +33,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -56,6 +59,8 @@ public class profileFragment extends Fragment {
     private TextView tvNumFollowing;
     private List<String> recipeList;
     private String profileImgPath;
+    private String username;
+    private String bio;
 
 
     public static profileFragment newInstance() {
@@ -128,8 +133,47 @@ public class profileFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        checkIfUpdated();
     }
 
+    private void checkIfUpdated() {
+        DocumentReference docRef = db.collection("users").document(currentFirebaseUser.getUid());
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    User user = document.toObject(User.class);
+                    if(user.getNumRecipes() != recipeList.size()) {
+                        Log.d(TAG, "Recipe size: " + Integer.toString(recipeList.size()));
+                        Set<String> oldRecipes = new LinkedHashSet<String>(recipeList);
+                        Set<String> newRecipes = new LinkedHashSet<String>(user.getRecipes());
+                        newRecipes.removeAll(oldRecipes);
+                        List<String> recipesToAdd = new ArrayList<String>(newRecipes);
+                        loadRecipeList(recipesToAdd);
+                    }
+                    if(!username.equals(user.getUsername())) {
+                        username = user.getUsername();
+                        tvProfileName.setText(username);
+                    }
+                    if(!bio.equals(user.getBio())) {
+                        bio = user.getBio();
+                        tvProfileBio.setText(bio);
+                    }
+                    if(!profileImgPath.equals(user.getProfilePhotoPath())) {
+                        profileImgPath = user.getProfilePhotoPath();
+                        if (profileImgPath != null && !profileImgPath.equals("")) {
+                            Glide.with(getActivity())
+                                    .using(new FirebaseImageLoader())
+                                    .load(storageReference.child(profileImgPath))
+                                    .into(profileImg);
+                        }
+                    }
+                }
+            }
+        });
+
+    }
     private void getData() {
         DocumentReference docRef = db.collection("users").document(currentFirebaseUser.getUid());
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -139,10 +183,12 @@ public class profileFragment extends Fragment {
                     Log.d(TAG, "DocumentSnapshot data: " + task.getResult().getData());
                     DocumentSnapshot document = task.getResult();
                     User user = document.toObject(User.class);
-                    List<String> recipes = user.getRecipes();
-                    tvProfileName.setText(user.getUsername());
-                    tvNumRecipes.setText(Integer.toString(recipes.size()));
-                    tvProfileBio.setText(user.getBio());
+                    recipeList = user.getRecipes();
+                    username = user.getUsername();
+                    bio = user.getBio();
+                    tvProfileName.setText(username);
+                    tvNumRecipes.setText(Integer.toString(recipeList.size()));
+                    tvProfileBio.setText(bio);
 
                     profileImgPath = user.getProfilePhotoPath();
                     if (profileImgPath != null && !profileImgPath.equals("")) {
@@ -154,7 +200,7 @@ public class profileFragment extends Fragment {
 
                     tvNumFollowers.setText(Integer.toString(user.getNumFollowers()));
                     tvNumFollowing.setText(Integer.toString(user.getNumFollowing()));
-                    loadRecipeList(recipes, user.getUsername());
+                    loadRecipeList(recipeList);
 
                 } else {
                     Log.d(TAG, "get failed with ", task.getException());
@@ -178,7 +224,7 @@ public class profileFragment extends Fragment {
         getData();
     }
 
-    private void loadRecipeList(final List<String> rList, final String user) {
+    private void loadRecipeList(final List<String> rList) {
         final LinearLayout feed = (LinearLayout) getView().findViewById(R.id.profileRecipeFeed);
 
         for(int i = 0; i < rList.size(); i++) {
@@ -195,7 +241,7 @@ public class profileFragment extends Fragment {
                         DocumentSnapshot document = task.getResult();
 //                        Recipe r = document.toObject(Recipe.class);
                         CircleImageView userPic = (CircleImageView) a.findViewById(R.id.userPic);
-                        TextView username = (TextView) a.findViewById(R.id.username);
+                        TextView userName = (TextView) a.findViewById(R.id.username);
                         TextView recipeName = (TextView) a.findViewById(R.id.recipeName);
                         TextView recipeTime = (TextView) a.findViewById(R.id.recipeTime);
                         TextView recipeServings = (TextView) a.findViewById(R.id.recipeServings);
@@ -220,7 +266,7 @@ public class profileFragment extends Fragment {
                         else {
                             userPic.setImageResource(R.drawable.profile_g);
                         }
-                        username.setText(user);
+                        userName.setText(username);
                         recipeName.setText(document.getString("title"));
                         recipeBio.setText(document.getString("description"));
                         feed.addView(a);
