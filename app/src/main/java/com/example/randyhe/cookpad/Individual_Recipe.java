@@ -734,7 +734,6 @@ public class Individual_Recipe extends AppCompatActivity {
                 }
             }
         }).show(getSupportFragmentManager());
-
     }
 
 
