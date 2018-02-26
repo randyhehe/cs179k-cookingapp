@@ -142,7 +142,7 @@ public class EditProfileActivity extends AppCompatActivity {
                             ref.putFile((Uri) civProfile.getTag()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                 @Override
                                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                    if (user.getProfilePhotoPath() != picturePath) {
+                                    if (user.getProfilePhotoPath() != null && !user.getProfilePhotoPath().equals("") && !user.getProfilePhotoPath().equals(picturePath)) {
                                         StorageReference ref = storageReference.child(user.getProfilePhotoPath());
                                         ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
@@ -202,7 +202,5 @@ public class EditProfileActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
-
 }
