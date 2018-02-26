@@ -12,8 +12,8 @@
         android:layout_height="match_parent"
         android:id="@+id/relLayout1">
         <de.hdodenhof.circleimageview.CircleImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:id="@+id/profilePic"
             android:layout_weight="15"
             android:layout_centerHorizontal="true"
@@ -26,8 +26,8 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:id="@+id/linLayout1"
-        android:layout_weight="70"
-        android:layout_marginTop="5dp">
+        android:layout_weight="65"
+        android:layout_marginTop="15dp">
 
         <TextView
             android:layout_width="match_parent"
@@ -36,28 +36,31 @@
             android:textSize="18sp"
             android:text="nicholas.cage"
             android:textColor="@android:color/black"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:clickable="true"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/linLayout2"
             android:layout_below="@id/tvUsername"
-            android:weightSum="10">
+            android:weightSum="100">
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:src="@drawable/eggs"
-
-                />
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tvUsername"
+                android:id="@+id/recipeNum"
                 android:text="0 recipes"
-                android:layout_weight="20"
+                android:layout_weight="40"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/followersNum"
+                android:text="25 followers"
+                android:layout_weight="50"
                 android:textSize="14sp"/>
         </LinearLayout>
 
@@ -67,8 +70,11 @@
     <Button
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="26"
-        android:text="Follow"/>
+        android:layout_weight="36"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="5dp"
+        android:id="@+id/followBtn"
+        android:text="Following"/>
 
 
 </LinearLayout>

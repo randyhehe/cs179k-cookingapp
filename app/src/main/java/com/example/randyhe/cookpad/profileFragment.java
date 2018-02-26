@@ -6,13 +6,16 @@ package com.example.randyhe.cookpad;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -66,6 +69,13 @@ public class profileFragment extends Fragment {
         tvNumFollowers = (TextView) view.findViewById(R.id.textViewFollowers);
         tvNumFollowing = (TextView) view.findViewById(R.id.textViewFollowing);
         profileImg = (CircleImageView) view.findViewById(R.id.profileImg);
+
+        // Removes Follow button
+        ConstraintLayout profileTop = (ConstraintLayout) view.findViewById(R.id.constraintLayout1);
+
+        Button followBtn = (Button) view.findViewById(R.id.follow);
+        followBtn.setVisibility(View.GONE);
+        profileTop.removeView(followBtn);
     }
 
     public void setupEditProfileBtn(View view) {
@@ -81,9 +91,32 @@ public class profileFragment extends Fragment {
         });
     }
 
+    public void setupTopInfo(View view) {
+        tvNumFollowers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), FollowActivity.class);
+                intent.putExtra("ID", currentFirebaseUser.getUid());
+                intent.putExtra("Followers", true);
+                startActivity(intent);
+            }
+        });
+
+        tvNumFollowing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), FollowActivity.class);
+                intent.putExtra("ID", currentFirebaseUser.getUid());
+                intent.putExtra("Followers", false);
+                startActivity(intent);
+            }
+        });
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Override
@@ -112,6 +145,8 @@ public class profileFragment extends Fragment {
                                 .into(profileImg);
                     }
 
+                    tvNumFollowers.setText(Integer.toString(user.getNumFollowers()));
+                    tvNumFollowing.setText(Integer.toString(user.getNumFollowing()));
                     loadRecipeList(recipes, user.getUsername());
 
                 } else {
@@ -132,10 +167,12 @@ public class profileFragment extends Fragment {
     {
         setupViews(view);
         setupEditProfileBtn(view);
+        setupTopInfo(view);
         getData();
+
     }
 
-    private void loadRecipeList(List<String> rList, final String user) {
+    private void loadRecipeList(final List<String> rList, final String user) {
         final LinearLayout feed = (LinearLayout) getView().findViewById(R.id.profileRecipeFeed);
 
         for(int i = 0; i < rList.size(); i++) {
@@ -147,8 +184,8 @@ public class profileFragment extends Fragment {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if(task.isSuccessful()) {
-                        Log.d(TAG, t);
-                        Log.d(TAG, "DocumentSnapshot data: " + task.getResult().getData());
+//                        Log.d(TAG, t);
+//                        Log.d(TAG, "DocumentSnapshot data: " + task.getResult().getData());
                         DocumentSnapshot document = task.getResult();
 //                        Recipe r = document.toObject(Recipe.class);
                         CircleImageView userPic = (CircleImageView) a.findViewById(R.id.userPic);
@@ -159,7 +196,7 @@ public class profileFragment extends Fragment {
                         TextView recipeBio = (TextView) a.findViewById(R.id.recipeBio);
                         ImageView recipePic = (ImageView) a.findViewById(R.id.imageView);
 
-                        if( document.getString("mainPhotoStoragePath") != null ) {
+                        if (document.getString("mainPhotoStoragePath") != null) {
                             StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(document.getString("mainPhotoStoragePath"));
 
                             Glide.with(getActivity() /* context */)

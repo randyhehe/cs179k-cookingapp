@@ -5,6 +5,7 @@ package com.example.randyhe.cookpad;
  */
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,22 +14,30 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.GridView;
 import android.widget.LinearLayout;
-import com.bumptech.glide.Glide;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
+import android.widget.Toast;
+
+
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import static android.content.ContentValues.TAG;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import java.util.ArrayList;
+import java.util.Vector;
 
 public class exploreFragment extends Fragment {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    private final FirebaseStorage fbStorage = FirebaseStorage.getInstance();
+    private final StorageReference storageReference = fbStorage.getReference();
 
     public static exploreFragment newInstance() {
         exploreFragment fragment = new exploreFragment();
@@ -45,55 +54,38 @@ public class exploreFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState)
     {
         final Context c = getActivity();
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(c).build();
+        ImageLoader.getInstance().init(config);
 
+        final Vector<View> listPic = new Vector<View>();
         LinearLayout feed = (LinearLayout) getView().findViewById(R.id.recipesScrollView);
 
-        final View a = getLayoutInflater().inflate(R.layout.explore_recipe, null);
+        final ArrayList<String> imgUrls = new ArrayList<>();
 
-        db.collection("recipes")
-                .get()
+        db.collection("recipes").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            int i = 0;
+                        if(task.isSuccessful())
+                        {
+                            final GridView g = (GridView) getView().findViewById(R.id.grid);
+                            final GridImageAdapter gia = new GridImageAdapter(c,R.layout.grid_imageview,"",imgUrls);
+                            g.setAdapter(gia);
                             for (DocumentSnapshot document : task.getResult()) {
-                                String image = document.getString("mainPhotoStoragePath");
-                                if(image != null)
-                                {
-                                    if(i == 0)
-                                    {
-                                        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(image);
 
-                                        ImageView imageView = (ImageView) a.findViewById(R.id.recipePic1);
-
-                                        Glide.with(c /* context */)
-                                                .using(new FirebaseImageLoader())
-                                                .load(storageReference)
-                                                .into(imageView);
-                                        i++;
+                                String path = document.getString("mainPhotoStoragePath");
+                                storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        imgUrls.add(uri.toString());
+                                        g.setAdapter(gia);
                                     }
-                                    else if(i == 1)
-                                    {
-                                        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(image);
-
-                                        ImageView imageView = (ImageView) a.findViewById(R.id.recipePic2);
-
-                                        Glide.with(c /* context */)
-                                                .using(new FirebaseImageLoader())
-                                                .load(storageReference)
-                                                .into(imageView);
-                                    }
-                                }
+                                });
                             }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
                         }
+
                     }
                 });
-
-        feed.addView(a);
-
     }
 
     @Override

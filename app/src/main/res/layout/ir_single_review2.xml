@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/review2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        >
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/review_avatar2"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:paddingLeft="20dp"
+            android:layout_centerVertical="true"
+            />
+
+        <TextView
+            android:id="@+id/review_name2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/review_avatar2"
+            android:layout_centerInParent="true"
+            android:paddingLeft="20dp"
+            android:textSize="15dp"
+            android:gravity="center_vertical"
+            />
+
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/stars2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/review2"
+        android:paddingLeft="20dp">
+
+        <RatingBar
+            android:id="@+id/rev_stars_disp2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:stepSize=".5"
+            style="?android:attr/ratingBarStyleSmall" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/review_desc2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/stars2">
+
+        <TextView
+            android:id="@+id/review_text2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15dp"
+            android:paddingLeft="20dp"
+            android:paddingTop="10dp"
+            />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/review_date2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/review_desc2"
+        android:paddingTop="10dp"
+        android:paddingBottom="20dp">
+        <TextView
+            android:id="@+id/review_date_text2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp"
+            android:textSize="10dp"
+            />
+    </LinearLayout>
+
+
+
+</RelativeLayout>

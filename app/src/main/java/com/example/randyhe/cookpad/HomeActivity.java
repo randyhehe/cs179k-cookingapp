@@ -59,7 +59,13 @@ public class HomeActivity extends AppCompatActivity
                             startActivity(new Intent(c, ManageRecipe.class));
                         }
                         if(item.getTitle().toString().equals("Account settings")) {
-                            startActivity(new Intent(c, ProfileActivity.class));
+//                            startActivity(new Intent(c, ProfileActivity.class));
+                            Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+                            intent.putExtra("ID", "cPcTL3Xke2g2n0lILhKrLSzTDFV2");
+                            startActivity(intent);
+                        }
+                        if(item.getTitle().toString().equals("Individual Recipe")) {
+                            startActivity(new Intent(c, Individual_Recipe.class));
                         }
                         return true;
                     }
@@ -71,6 +77,7 @@ public class HomeActivity extends AppCompatActivity
         final ViewPager viewPager = findViewById(R.id.frame_layout);
         viewPager.setOffscreenPageLimit(3);
         viewPager.setAdapter(fragmentPagerAdapter);
+
 
         BottomNavigationView navBar = findViewById(R.id.navigation);
         navBar.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {

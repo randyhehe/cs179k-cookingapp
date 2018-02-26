@@ -26,6 +26,12 @@
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="reviewStarBar" parent="@android:style/Widget.RatingBar">
+        <item name="android:progressDrawable">@drawable/reviewstar</item>
+        <item name="android:minHeight">22dip</item>
+        <item name="android:minWidth">22dip</item>
+
+    </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 

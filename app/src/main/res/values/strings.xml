@@ -27,4 +27,6 @@
     <string name="navBar.explore">Explore</string>
     <string name="title_activity_search">SearchActivity</string>
 
+    <string name="indiv.reviewhint">Type your comment here</string>
+
 </resources>

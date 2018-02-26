@@ -21,8 +21,8 @@ public class User {
     private String bio;
     private String test;
     private Map<String, Boolean> recipes;
-    private List<String> followers;
-    private List<String> following;
+    private Map<String, Boolean> followers;
+    private Map<String, Boolean> following;
     private List<String> bookmarkedRecipes;
 
     public User() {}
@@ -41,7 +41,22 @@ public class User {
     public String getBio() { return bio; }
     public String getProfilePhotoPath() { return profilePhotoPath; }
     public List<String> getRecipes() {
-        return new ArrayList<String>(this.recipes.keySet());
+        if(recipes != null) {
+            return new ArrayList<String>(this.recipes.keySet());
+        }
+        return new ArrayList<String>();
+    }
+    public List<String> getFollowers() {
+        if(followers != null ) {
+            return new ArrayList<String>(this.followers.keySet());
+        }
+        return new ArrayList<String>();
+    }
+    public List<String> getFollowing() {
+        if(following != null) {
+            return new ArrayList<String>(this.following.keySet());
+        }
+        return new ArrayList<String>();
     }
     public int getNumFollowers() {
         if(this.followers == null) { return 0; }
@@ -50,6 +65,9 @@ public class User {
     public int getNumFollowing() {
         if(this.following == null) { return 0; }
             return following.size();
+    }
+    public int getNumRecipes() {
+        return recipes.size();
     }
 
 
