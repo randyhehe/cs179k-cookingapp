@@ -39,6 +39,13 @@ public class User {
     public String getUsername() { return username; }
     public String getEmail() { return email; }
     public String getBio() { return bio; }
+    public List<String> getBookmarkedRecipes() {
+        if(bookmarkedRecipes != null) {
+            return new ArrayList<String>(this.bookmarkedRecipes);
+        }
+        return new ArrayList<String>();
+    }
+
     public String getProfilePhotoPath() { return profilePhotoPath; }
     public List<String> getRecipes() {
         if(recipes != null) {

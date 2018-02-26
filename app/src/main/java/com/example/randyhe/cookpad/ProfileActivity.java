@@ -42,6 +42,9 @@ public class ProfileActivity extends AppCompatActivity {
     private final FirebaseAuth auth = FirebaseAuth.getInstance();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final FirebaseUser currentFirebaseUser = auth.getCurrentUser();
+    private final FirebaseStorage fbStorage = FirebaseStorage.getInstance();
+    private final StorageReference storageReference = fbStorage.getReference();
+
 
     private TextView tvProfileName;
     private TextView tvProfileBio;
@@ -50,6 +53,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView tvNumFollowers;
     private TextView tvNumFollowing;
     private Button followButton;
+//    private String profilePhotoPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +67,7 @@ public class ProfileActivity extends AppCompatActivity {
         getData(user);
         setupTopInfo(user);
     }
+
 
     private Boolean isFollowing(final String profileUID, final String currentUID) {
         DocumentReference docRef = db.collection("users").document(currentUID);
@@ -214,7 +219,17 @@ public class ProfileActivity extends AppCompatActivity {
                     tvProfileBio.setText(user.getBio());
                     tvNumFollowers.setText(Integer.toString(user.getNumFollowers()));
                     tvNumFollowing.setText(Integer.toString(user.getNumFollowing()));
-                    loadRecipeList(recipes, user.getUsername());
+                    String profilePhotoPath = user.getProfilePhotoPath();
+                    if(profilePhotoPath != null) {
+                        Glide.with(ProfileActivity.this)
+                                .using(new FirebaseImageLoader())
+                                .load(storageReference.child(profilePhotoPath))
+                                .into(profileImg);
+                    }
+                    else {
+                        profileImg.setImageResource(R.drawable.profile_g);
+                    }
+                    loadRecipeList(recipes, user.getUsername(), profilePhotoPath);
 
                 } else {
                     Log.d(TAG, "get failed with ", task.getException());
@@ -224,7 +239,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
-    private void loadRecipeList(final List<String> rList, final String user) {
+    private void loadRecipeList(final List<String> rList, final String user, final String profilePhotoPath) {
         final LinearLayout feed = (LinearLayout) findViewById(R.id.profileRecipeFeed);
 
         for(int i = 0; i < rList.size(); i++) {
@@ -254,7 +269,15 @@ public class ProfileActivity extends AppCompatActivity {
                                     .into(recipePic);
                         }
 
-                        userPic.setImageResource(R.drawable.kermit_cooking);
+                        if(profilePhotoPath != null) {
+                            Glide.with(ProfileActivity.this)
+                                    .using(new FirebaseImageLoader())
+                                    .load(storageReference.child(profilePhotoPath))
+                                    .into(userPic);
+                        }
+                        else {
+                            userPic.setImageResource(R.drawable.profile_g);
+                        }
                         username.setText(user);
                         recipeName.setText(document.getString("title"));
                         recipeBio.setText(document.getString("description"));
