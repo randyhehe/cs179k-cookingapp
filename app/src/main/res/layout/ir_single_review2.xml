@@ -4,13 +4,13 @@
     android:layout_height="match_parent">
 
     <RelativeLayout
-        android:id="@+id/review"
+        android:id="@+id/review2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         >
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/review_avatar"
+            android:id="@+id/review_avatar2"
             android:layout_width="55dp"
             android:layout_height="55dp"
             android:paddingLeft="20dp"
@@ -18,10 +18,10 @@
             />
 
         <TextView
-            android:id="@+id/review_name"
+            android:id="@+id/review_name2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/review_avatar"
+            android:layout_toRightOf="@id/review_avatar2"
             android:layout_centerInParent="true"
             android:paddingLeft="20dp"
             android:textSize="15dp"
@@ -32,14 +32,14 @@
     </RelativeLayout>
 
     <LinearLayout
-        android:id="@+id/stars"
+        android:id="@+id/stars2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/review"
+        android:layout_below="@+id/review2"
         android:paddingLeft="20dp">
 
         <RatingBar
-            android:id="@+id/rev_stars_disp"
+            android:id="@+id/rev_stars_disp2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:numStars="5"
@@ -49,13 +49,13 @@
     </LinearLayout>
 
     <RelativeLayout
-        android:id="@+id/review_desc"
+        android:id="@+id/review_desc2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/stars">
+        android:layout_below="@id/stars2">
 
         <TextView
-            android:id="@+id/review_text"
+            android:id="@+id/review_text2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="15dp"
@@ -66,51 +66,14 @@
     </RelativeLayout>
 
     <LinearLayout
-        android:id="@+id/review_images"
-        android:layout_below="@+id/review_desc"
+        android:id="@+id/review_date2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="10dp"
-        android:paddingLeft="20dp"
-        >
-
-        <ImageButton
-            android:id="@+id/image1"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/eggs"
-            android:layout_marginRight="10dp"
-            android:background="@null"/>
-
-        <ImageButton
-            android:id="@+id/image2"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/kermit_cooking"
-            android:layout_marginRight="10dp"
-            android:background="@null"/>
-
-        <ImageButton
-            android:id="@+id/image3"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/kermit_cooking"
-            android:background="@null"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/review_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/review_images"
+        android:layout_below="@+id/review_desc2"
         android:paddingTop="10dp"
         android:paddingBottom="20dp">
         <TextView
-            android:id="@+id/review_date_text"
+            android:id="@+id/review_date_text2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="20dp"

@@ -127,7 +127,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/ingredients_title"
-            android:paddingLeft="10dp"
             android:orientation="vertical"
             android:layout_marginBottom="20dp"
             android:layout_marginLeft="20dp"
@@ -223,14 +222,230 @@
             android:layout_below="@+id/stars_input"
             />
 
+
+
+        <LinearLayout
+            android:id="@+id/review_add_images"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+            android:paddingTop="10dp"
+            android:layout_below="@+id/review_text_input">
+
+            <RelativeLayout
+                android:id="@+id/add_image_block"
+                android:layout_width="100dp"
+                android:layout_height="100dp">
+                <ImageButton
+                    android:id="@+id/first_photo_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="Upload a photo of your recipe!"
+                    app:srcCompat="@android:drawable/ic_menu_camera"
+                    android:background="@color/colorLightGray"/>
+                <LinearLayout
+                    android:id="@+id/first_photo_options"
+                    android:layout_width="100dp"
+                    android:layout_height="30dp"
+                    android:orientation="horizontal"
+                    android:layout_alignBottom="@id/first_photo_btn"
+                    android:layout_alignRight="@id/first_photo_btn"
+                    android:layout_alignEnd="@id/first_photo_btn"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="#33000000"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:id="@+id/first_photo_edit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:clickable="true">
+
+                        <ImageButton
+                            android:layout_marginLeft="3dp"
+                            android:layout_width="30dp"
+                            android:layout_height="match_parent"
+                            android:src="@android:drawable/ic_menu_camera"
+                             />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:includeFontPadding="false"
+                            android:text="Edit"
+                            android:textColor="@android:color/white"
+                            android:layout_marginTop="-40dp"
+                            android:layout_marginBottom="-40dp"
+                            android:paddingRight="5dp"
+                            android:paddingEnd="5dp"
+                            android:clickable="false" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_marginRight="5dp"
+                        android:layout_height="match_parent"
+                        android:layout_width="2dp"
+                        android:background="@color/colorLightGray"/>
+
+                    <ImageButton
+                        android:background="@android:color/transparent"
+                        android:id="@+id/first_photo_delete"
+                        android:layout_width="30dp"
+                        android:layout_height="match_parent"
+                        android:src="@android:drawable/ic_menu_delete"/>
+                </LinearLayout>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/add_image_block2"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="20dp">
+                <ImageButton
+                    android:id="@+id/second_photo_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="Upload a photo of your recipe!"
+                    app:srcCompat="@android:drawable/ic_menu_camera"
+                    android:background="@color/colorLightGray"/>
+                <LinearLayout
+                    android:id="@+id/second_photo_options"
+                    android:layout_width="100dp"
+                    android:layout_height="30dp"
+                    android:orientation="horizontal"
+                    android:layout_alignBottom="@id/second_photo_btn"
+                    android:layout_alignRight="@id/second_photo_btn"
+                    android:layout_alignEnd="@id/second_photo_btn"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="#33000000"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:id="@+id/second_photo_edit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:clickable="true">
+
+                        <ImageButton
+                            android:layout_marginLeft="3dp"
+                            android:layout_width="30dp"
+                            android:layout_height="match_parent"
+                            android:src="@android:drawable/ic_menu_camera"
+                            android:clickable="false" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:includeFontPadding="false"
+                            android:text="Edit"
+                            android:textColor="@android:color/white"
+                            android:layout_marginTop="-40dp"
+                            android:layout_marginBottom="-40dp"
+                            android:paddingRight="5dp"
+                            android:paddingEnd="5dp"
+                            android:clickable="false" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_marginRight="5dp"
+                        android:layout_height="match_parent"
+                        android:layout_width="2dp"
+                        android:background="@color/colorLightGray"/>
+
+                    <ImageButton
+                        android:background="@android:color/transparent"
+                        android:id="@+id/second_photo_delete"
+                        android:layout_width="30dp"
+                        android:layout_height="match_parent"
+                        android:src="@android:drawable/ic_menu_delete"/>
+                </LinearLayout>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/add_image_block3"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="20dp">
+                <ImageButton
+                    android:id="@+id/third_photo_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="Upload a photo of your recipe!"
+                    app:srcCompat="@android:drawable/ic_menu_camera"
+                    android:background="@color/colorLightGray"/>
+                <LinearLayout
+                    android:id="@+id/third_photo_options"
+                    android:layout_width="100dp"
+                    android:layout_height="30dp"
+                    android:orientation="horizontal"
+                    android:layout_alignBottom="@id/third_photo_btn"
+                    android:layout_alignRight="@id/third_photo_btn"
+                    android:layout_alignEnd="@id/third_photo_btn"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="#33000000"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:id="@+id/third_photo_edit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:clickable="true">
+
+                        <ImageButton
+                            android:layout_marginLeft="3dp"
+                            android:layout_width="30dp"
+                            android:layout_height="match_parent"
+                            android:src="@android:drawable/ic_menu_camera"
+                            android:clickable="false" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:includeFontPadding="false"
+                            android:text="Edit"
+                            android:textColor="@android:color/white"
+                            android:layout_marginTop="-40dp"
+                            android:layout_marginBottom="-40dp"
+                            android:paddingRight="5dp"
+                            android:paddingEnd="5dp"
+                            android:clickable="false" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_marginRight="5dp"
+                        android:layout_height="match_parent"
+                        android:layout_width="2dp"
+                        android:background="@color/colorLightGray"/>
+
+                    <ImageButton
+                        android:background="@android:color/transparent"
+                        android:id="@+id/third_photo_delete"
+                        android:layout_width="30dp"
+                        android:layout_height="match_parent"
+                        android:src="@android:drawable/ic_menu_delete"/>
+                </LinearLayout>
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
         <Button
             android:id="@+id/review_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/review_text_input"
+            android:layout_marginTop="10dp"
+            android:layout_below="@+id/review_add_images"
             android:text="Submit"
-            android:layout_centerInParent="true"
-            />
+            android:layout_centerHorizontal="true"/>
 
     </RelativeLayout>
 
