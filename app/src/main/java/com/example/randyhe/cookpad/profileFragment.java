@@ -158,11 +158,11 @@ public class profileFragment extends Fragment {
                         List<String> recipesToAdd = new ArrayList<String>(newRecipes);
                         loadRecipeList(recipesToAdd);
                     }
-                    if(!bio.equals(user.getBio())) {
+                    if(bio != null && !bio.equals(user.getBio())) {
                         bio = user.getBio();
                         tvProfileBio.setText(bio);
                     }
-                    if(!profileImgPath.equals(user.getProfilePhotoPath())) {
+                    if(profileImgPath != null && !profileImgPath.equals(user.getProfilePhotoPath())) {
                         profileImgPath = user.getProfilePhotoPath();
                         if (profileImgPath != null && !profileImgPath.equals("")) {
                             Glide.with(getActivity())
