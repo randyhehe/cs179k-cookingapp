@@ -62,9 +62,10 @@ public class User {
     }
     public int getNumFollowing() {
         if(this.following == null) { return 0; }
-            return following.size();
+        return following.size();
     }
     public int getNumRecipes() {
+        if(this.recipes == null) { return 0; }
         return recipes.size();
     }
 
