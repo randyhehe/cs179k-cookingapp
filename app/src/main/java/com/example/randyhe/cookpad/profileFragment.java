@@ -61,6 +61,8 @@ public class profileFragment extends Fragment {
     private String profileImgPath;
     private String username;
     private String bio;
+    private int numFollowers;
+    private int numFollowing;
 
 
     public static profileFragment newInstance() {
@@ -144,6 +146,10 @@ public class profileFragment extends Fragment {
                 if(task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     User user = document.toObject(User.class);
+                    if(!username.equals(user.getUsername())) {
+                        username = user.getUsername();
+                        tvProfileName.setText(username);
+                    }
                     if(user.getNumRecipes() != recipeList.size()) {
                         Log.d(TAG, "Recipe size: " + Integer.toString(recipeList.size()));
                         Set<String> oldRecipes = new LinkedHashSet<String>(recipeList);
@@ -151,10 +157,6 @@ public class profileFragment extends Fragment {
                         newRecipes.removeAll(oldRecipes);
                         List<String> recipesToAdd = new ArrayList<String>(newRecipes);
                         loadRecipeList(recipesToAdd);
-                    }
-                    if(!username.equals(user.getUsername())) {
-                        username = user.getUsername();
-                        tvProfileName.setText(username);
                     }
                     if(!bio.equals(user.getBio())) {
                         bio = user.getBio();
@@ -168,6 +170,14 @@ public class profileFragment extends Fragment {
                                     .load(storageReference.child(profileImgPath))
                                     .into(profileImg);
                         }
+                    }
+                    if(user.getNumFollowers() != numFollowers) {
+                        numFollowers = user.getNumFollowers();
+                        tvNumFollowers.setText(Integer.toString(numFollowers));
+                    }
+                    if(user.getNumFollowing() != numFollowing) {
+                        numFollowing = user.getNumFollowing();
+                        tvNumFollowing.setText(Integer.toString(numFollowing));
                     }
                 }
             }
@@ -186,6 +196,8 @@ public class profileFragment extends Fragment {
                     recipeList = user.getRecipes();
                     username = user.getUsername();
                     bio = user.getBio();
+                    numFollowers = user.getNumFollowers();
+                    numFollowing = user.getNumFollowing();
                     tvProfileName.setText(username);
                     tvNumRecipes.setText(Integer.toString(recipeList.size()));
                     tvProfileBio.setText(bio);
@@ -198,8 +210,8 @@ public class profileFragment extends Fragment {
                                 .into(profileImg);
                     }
 
-                    tvNumFollowers.setText(Integer.toString(user.getNumFollowers()));
-                    tvNumFollowing.setText(Integer.toString(user.getNumFollowing()));
+                    tvNumFollowers.setText(Integer.toString(numFollowers));
+                    tvNumFollowing.setText(Integer.toString(numFollowing));
                     loadRecipeList(recipeList);
 
                 } else {
