@@ -58,7 +58,6 @@ public class feedFragment extends Fragment {
 
     final private FirebaseAuth fbAuth = FirebaseAuth.getInstance();
     final private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    //private final FirebaseUser currentFirebaseUser = fbAuth.getCurrentUser();
     private final FirebaseStorage fbStorage = FirebaseStorage.getInstance();
     private final StorageReference storageReference = fbStorage.getReference();
     List<String> bookmarks;
@@ -94,12 +93,11 @@ public class feedFragment extends Fragment {
                     bookmarks = user.getBookmarkedRecipes();
                     Map<String, Object> data = document.getData();
 
-                    HashMap<String, Object> following = (HashMap<String, Object>) data.get("following"); // get who current user is following
+                    List<String> following = user.getFollowing(); // get who current user is following
                     if (following.size() > 0) { // for every person you are following
-                        for (String key : following.keySet()) {
-
+                        for (String key : following) {
+                            Toast.makeText(c,key,Toast.LENGTH_SHORT).show();
                             followingRecipes(key, feed); //get all the recipes of one person ur following
-
                         }
                     }
                 }
@@ -124,18 +122,19 @@ public class feedFragment extends Fragment {
                     Map<String, Object> data = document.getData();
                     final String us = (String) data.get("username");
 
-                    HashMap<String, Object> recipes = (HashMap<String, Object>) data.get("recipes"); // get recipes of specific following
+                    List<String> recipes = user.getRecipes(); // get recipes of specific
 
-                    if (bookmarks != null) { //adds bookmarked recipes to the map
-                        for (int i = 0; i < bookmarks.size(); ++i) {
-                            recipes.put(bookmarks.get(i), null); //get that bookmarked recipe
+                    if (bookmarks != null)
+                    { //adds bookmarked recipes to the map
+                        for (int i = 0; i < bookmarks.size(); ++i)
+                        {
+                            recipes.add(bookmarks.get(i)); //get that bookmarked recipe
                         }
                     }
-
-
                     if (recipes.size() > 0) { // for every recipe
-                        for (String key : recipes.keySet()) {
-                            if (recipes.get(key) == null)
+                        for (String key : recipes)
+                        {
+                            if (key == null)
                             {
                                 isBookmark = true;
                             }
@@ -270,16 +269,6 @@ public class feedFragment extends Fragment {
                                     }
                                 }
                             });
-//                                        if(bookmark.getDrawable().getConstantState().equals(getResources().getDrawable(R.drawable.bookmarked).getConstantState()))
-//                                        {
-//                                            bookmark.setImageResource(R.drawable.bookmark);
-//                                            Toast.makeText(c,"Recipe has been unbookmarked.",Toast.LENGTH_SHORT).show();
-//                                        }
-//                                        else
-//                                        {
-//                                            bookmark.setImageResource(R.drawable.bookmarked);
-//                                            Toast.makeText(c,"Recipe has been bookmarked!",Toast.LENGTH_SHORT).show();
-//                                        }
                         }
                     });
 
