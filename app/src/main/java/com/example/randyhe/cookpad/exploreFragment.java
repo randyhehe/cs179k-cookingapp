@@ -61,7 +61,7 @@ public class exploreFragment extends Fragment {
         LinearLayout feed = (LinearLayout) getView().findViewById(R.id.recipesScrollView);
 
         final ArrayList<String> imgUrls = new ArrayList<>();
-
+/*
         db.collection("recipes").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -86,7 +86,9 @@ public class exploreFragment extends Fragment {
 
                     }
                 });
+                */
     }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
