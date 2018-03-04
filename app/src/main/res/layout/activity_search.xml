@@ -7,13 +7,17 @@
     android:layout_height="match_parent"
     tools:context="com.example.randyhe.cookpad.SearchActivity">
 
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/searchRecipeFeed"
-        android:orientation="vertical"
-        android:layout_below="@id/relLayout7">
-    </LinearLayout>
+        android:layout_height="match_parent">
 
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/searchRecipeFeed"
+            android:orientation="vertical"
+            android:layout_below="@id/relLayout7">
+        </LinearLayout>
+    </ScrollView>
 </android.support.constraint.ConstraintLayout>

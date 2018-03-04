@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -72,7 +73,6 @@ public class exploreFragment extends Fragment {
                             final GridImageAdapter gia = new GridImageAdapter(c,R.layout.grid_imageview,"",imgUrls);
                             g.setAdapter(gia);
                             for (DocumentSnapshot document : task.getResult()) {
-
                                 String path = document.getString("mainPhotoStoragePath");
                                 storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
@@ -82,6 +82,13 @@ public class exploreFragment extends Fragment {
                                     }
                                 });
                             }
+//
+//                            g.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                                @Override
+//                                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                                    int id = task.getResult().
+//                                }
+//                            });
                         }
 
                     }

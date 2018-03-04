@@ -14,10 +14,16 @@ import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Asus on 1/28/2018.
@@ -27,6 +33,7 @@ public class HomeActivity extends AppCompatActivity
 {
 
     final private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    final private FirebaseFirestore fbFirestore = FirebaseFirestore.getInstance();
     private FirebaseUser currentUser;
 
     @Override
@@ -102,20 +109,51 @@ public class HomeActivity extends AppCompatActivity
             }
         });
 
-        SearchView searchView = findViewById(R.id.search_bar);
+        final SearchView searchView = findViewById(R.id.search_bar);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String s) {
-                Intent intent = new  Intent(HomeActivity.this, SearchActivity.class);
-                intent.putExtra("searchString", s);
+            public boolean onQueryTextSubmit(final String s) {
+                searchView.clearFocus();
+                fbFirestore.collection("recipes").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot documentSnapshots) {
+                        ArrayList<String> queryResults = new ArrayList<>();
 
-                ArrayList<String> queryResults = new ArrayList<>();
-                queryResults.add("bce3204e-573a-42a2-b2dc-92941a6dfe75");
-                queryResults.add("17436ae2-2374-48a2-9c45-ed6f4b550fe0");
-                queryResults.add("665f0975-eace-466e-964e-ce18e5a427be");
+                        List<DocumentSnapshot> recipes = documentSnapshots.getDocuments();
+                        for (DocumentSnapshot document : recipes) {
+                            Map<String, Object> data = document.getData();
 
-                intent.putStringArrayListExtra("ids", queryResults);
-                startActivity(intent);
+                            // Matches substring based on ingredients, title, description, tags
+                            String title = (String) data.get("title");
+                            String description = (String) data.get("description");
+
+                            if ((title != null && title.contains(s)) ||
+                                (description != null && description.contains(s))) {
+                                queryResults.add(document.getId());
+                                continue;
+                            }
+                            List<String> ingrs = (ArrayList<String>) data.get("ingrs");
+                            for (String ingr : ingrs) {
+                                if (ingr.contains(s)) {
+                                    queryResults.add(document.getId());
+                                    continue;
+                                }
+                            }
+                            List<String> tags = (ArrayList<String>) data.get("tags");
+                            for (String tag: tags) {
+                                if (tag.contains(s)) {
+                                    queryResults.add(document.getId());
+                                    continue;
+                                }
+                            }
+                        }
+
+                        Intent intent = new  Intent(HomeActivity.this, SearchActivity.class);
+                        intent.putExtra("searchString", s);
+                        intent.putStringArrayListExtra("ids", queryResults);
+                        startActivity(intent);
+                    }
+                });
                 return true;
             }
 
