@@ -91,7 +91,7 @@ public class FollowActivity extends AppCompatActivity {
                     List<String> followers = user.getFollowers();
                     if(followers != null ) {
                         for (int i = 0; i < followers.size(); i++) {
-                            loadItem(followers.get(i), feed, false);
+                            loadItem(followers.get(i), feed);
                         }
                     }
 
@@ -114,7 +114,7 @@ public class FollowActivity extends AppCompatActivity {
                     List<String> following = user.getFollowing();
                     if(following != null) {
                         for (int i = 0; i < following.size(); i++) {
-                            loadItem(following.get(i), feed, true);
+                            loadItem(following.get(i), feed);
                         }
                     }
                 }
@@ -126,7 +126,7 @@ public class FollowActivity extends AppCompatActivity {
         });
     }
 
-    private void loadItem(final String userId, final LinearLayout feed, final Boolean isFollowing) {
+    private void loadItem(final String userId, final LinearLayout feed) {
         DocumentReference docRef = db.collection("users").document(userId);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -165,7 +165,7 @@ public class FollowActivity extends AppCompatActivity {
                         }
                     });
 
-                    setupBtn(userId, currentFirebaseUser.getUid());
+                    setupBtn(userId, currentFirebaseUser.getUid(), followItem);
                     feed.addView(followItem);
 
                 } else {
@@ -175,7 +175,9 @@ public class FollowActivity extends AppCompatActivity {
         });
     }
 
-    private void setupBtn(final String profileUID, final String currentUID) {
+    private void setupBtn(final String profileUID, final String currentUID, final View view) {
+        final Button followBtn = (Button) view.findViewById(R.id.followBtn);
+        Log.d(TAG, "Entered setupBtn for profileUID: " + profileUID);
         // Does not setup a button if it's your own profile
         if(profileUID.equals(currentUID)) {
             followBtn.setVisibility(View.GONE);
@@ -192,17 +194,19 @@ public class FollowActivity extends AppCompatActivity {
                     final Map<String, Object> docData = document.getData();
                     if(docData.get("following") == null) {
                         followBtn.setText("Follow");
-                        setupFollowBtn(profileUID, currentUID);
+                        setupFollowBtn(profileUID, currentUID, view);
                     }
                     else {
                         final Map<String, Boolean> followersList = (HashMap<String, Boolean>) docData.get("following");
 
                         if (followersList.containsKey(profileUID)) {
                             followBtn.setText("Following");
-                            setupUnfollowBtn(profileUID, currentUID);
+                            Log.d(TAG, "Unfollow setup " + profileUID);
+                            setupUnfollowBtn(profileUID, currentUID, view);
                         } else {
                             followBtn.setText("Follow");
-                            setupFollowBtn(profileUID, currentUID);
+                            Log.d(TAG, "Follow Setup " + profileUID);
+                            setupFollowBtn(profileUID, currentUID, view);
                         }
                     }
                 } else {
@@ -216,36 +220,38 @@ public class FollowActivity extends AppCompatActivity {
         docRef.get().addOnCompleteListener(isFollowing);
     }
 
-    private void setupFollowBtn(final String profileUID, final String currentUID) {
+    private void setupFollowBtn(final String profileUID, final String currentUID, final View view) {
+        final Button followBtn = (Button) view.findViewById(R.id.followBtn);
         followBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                followAction(profileUID, currentUID);
+                followAction(profileUID, currentUID, view);
                 followBtn.setText("Following");
-                setupUnfollowBtn(profileUID, currentUID);
+                setupUnfollowBtn(profileUID, currentUID, view);
             }
         });
     }
 
-    private void setupUnfollowBtn(final String profileUID, final String currentUID) {
+    private void setupUnfollowBtn(final String profileUID, final String currentUID, final View view) {
+        final Button followBtn = (Button) view.findViewById(R.id.followBtn);
         followBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                unfollowAction(profileUID, currentUID);
+                unfollowAction(profileUID, currentUID, view);
                 followBtn.setText("Follow");
-                setupFollowBtn(profileUID, currentUID);
+                setupFollowBtn(profileUID, currentUID, view);
             }
         });
     }
 
-    private void followAction(final String profileUID, final String currentUID) {
+    private void followAction(final String profileUID, final String currentUID, final View view) {
         final DocumentReference currUserDoc = db.collection("users").document(currentUID);
 
         // Add profile's UID into current user's Following table
         final OnCompleteListener<DocumentSnapshot> storeFollowingInCurrentUser = new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful() && task.getResult() != null) {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful() && task.getResult() != null) {
                     final DocumentSnapshot document = task.getResult();
                     final Map<String, Object> docData = document.getData();
                     final Map<String, Boolean> followingList = (docData.get("following") != null) ? (HashMap<String, Boolean>) docData.get("following") : new HashMap<String, Boolean>();
@@ -272,6 +278,7 @@ public class FollowActivity extends AppCompatActivity {
                     final Map<String, Boolean> followersList = (docData.get("followers") != null) ? (HashMap<String, Boolean>) docData.get("followers") : new HashMap<String, Boolean>();
                     followersList.put(currentUID, true);
                     profileUserDoc.update("followers", followersList);
+                    TextView tvFollowersNum = (TextView) view.findViewById(R.id.followersNum);
                     tvFollowersNum.setText(Integer.toString(followersList.size()) + " followers");
                 } else {
                     /* Else possible errors below
@@ -284,7 +291,7 @@ public class FollowActivity extends AppCompatActivity {
         profileUserDoc.get().addOnCompleteListener(storeFollowersinProfileUser);
     }
 
-    private void unfollowAction(final String profileUID, final String currentUID) {
+    private void unfollowAction(final String profileUID, final String currentUID, final View view) {
         // Remove profile's UID from current user's following table
         final DocumentReference currUserDoc = db.collection("users").document(currentUID);
         final OnCompleteListener<DocumentSnapshot> storeUnfollowInCurrentUser = new OnCompleteListener<DocumentSnapshot>() {
@@ -294,7 +301,7 @@ public class FollowActivity extends AppCompatActivity {
                     final DocumentSnapshot document = task.getResult();
                     final Map<String, Object> docData = document.getData();
                     final Map<String, Boolean> followingList = (docData.get("following") != null) ? (HashMap<String, Boolean>) docData.get("following") : new HashMap<String, Boolean>();
-                    followingList.remove(profileUID, true);
+                    followingList.remove(profileUID);
                     currUserDoc.update("following", followingList);
                 } else {
                     /* Else possible errors below
@@ -317,6 +324,7 @@ public class FollowActivity extends AppCompatActivity {
                     final Map<String, Boolean> followersList = (docData.get("followers") != null) ? (HashMap<String, Boolean>) docData.get("followers") : new HashMap<String, Boolean>();
                     followersList.remove(currentUID);
                     profileUserDoc.update("followers", followersList);
+                    TextView tvFollowersNum = (TextView) view.findViewById(R.id.followersNum);
                     tvFollowersNum.setText(Integer.toString(followersList.size()) + " followers");
                 } else {
                     /* Else possible errors below

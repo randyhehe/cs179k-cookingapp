@@ -17,7 +17,6 @@
             android:id="@+id/profilePic"
             android:layout_weight="15"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/the_legend"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"/>
     </RelativeLayout>
@@ -34,7 +33,6 @@
             android:layout_height="wrap_content"
             android:id="@+id/tvUsername"
             android:textSize="18sp"
-            android:text="nicholas.cage"
             android:textColor="@android:color/black"
             android:textStyle="bold"
             android:clickable="true"/>
@@ -51,7 +49,6 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tvUsername"
                 android:id="@+id/recipeNum"
-                android:text="0 recipes"
                 android:layout_weight="40"
                 android:textSize="14sp"/>
 
@@ -59,7 +56,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/followersNum"
-                android:text="25 followers"
                 android:layout_weight="50"
                 android:textSize="14sp"/>
         </LinearLayout>
@@ -73,8 +69,7 @@
         android:layout_weight="36"
         android:layout_marginTop="10dp"
         android:layout_marginRight="5dp"
-        android:id="@+id/followBtn"
-        android:text="Following"/>
+        android:id="@+id/followBtn"/>
 
 
 </LinearLayout>

@@ -85,7 +85,6 @@ public class Individual_Recipe extends AppCompatActivity {
 
     private View indiv_rec;
 
-
     private TextView mainTitle;
     private TextView mainDescription;
     private TextView mainName;
@@ -293,7 +292,7 @@ public class Individual_Recipe extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()) {
-                    Log.d(TAG, "Document");
+                    Log.d(TAG, "Getting individual recipe");
                     final DocumentSnapshot document = task.getResult();
 
 
@@ -446,7 +445,6 @@ public class Individual_Recipe extends AppCompatActivity {
 
                                     final ImageView reviewAvatar = (ImageView) rev.findViewById(R.id.review_avatar);
                                     final TextView reviewName = (TextView) rev.findViewById(R.id.review_name);
-                                    //final RelativeLayout reviewDesc = (RelativeLayout) rev.findViewById(R.id.review_desc);
                                     final TextView reviewText = (TextView) rev.findViewById(R.id.review_text);
                                     final TextView reviewDateText = (TextView) rev.findViewById(R.id.review_date_text);
                                     final LinearLayout reviewImages = (LinearLayout) rev.findViewById(R.id.review_images);
@@ -461,7 +459,6 @@ public class Individual_Recipe extends AppCompatActivity {
 
                                     final ImageView reviewAvatar2 = (ImageView) rev2.findViewById(R.id.review_avatar2);
                                     final TextView reviewName2 = (TextView) rev2.findViewById(R.id.review_name2);
-                                    //final RelativeLayout reviewDesc2 = (RelativeLayout) rev2.findViewById(R.id.review_desc2);
                                     final TextView reviewText2 = (TextView) rev2.findViewById(R.id.review_text2);
                                     final TextView reviewDateText2 = (TextView) rev2.findViewById(R.id.review_date_text2);
 
@@ -603,7 +600,7 @@ public class Individual_Recipe extends AppCompatActivity {
                                 }
                             }
                             else {
-                                Log.d(TAG, "fail");
+                                Log.d(TAG, "Getting username fail");
                             }
                         }
                     });
