@@ -1,7 +1,9 @@
 package com.example.randyhe.cookpad;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -29,11 +31,12 @@ public class GridImageAdapter extends ArrayAdapter<String> {
     private int layoutResource;
     private String nappend;
     private ArrayList<String> imgurls;
+    private ArrayList<String> recipeId;
 
     public GridImageAdapter(Context context,
             int layoutresource,
             String append,
-            ArrayList<String> imgUrls)
+            ArrayList<String> imgUrls, ArrayList<String> recipes)
     {
         super(context,layoutresource,imgUrls);
         c = context;
@@ -41,6 +44,7 @@ public class GridImageAdapter extends ArrayAdapter<String> {
         layoutResource=layoutresource;
         nappend = append;
         imgurls = imgUrls;
+        recipeId = recipes;
     }
 
     private static class ViewHolder
@@ -52,19 +56,29 @@ public class GridImageAdapter extends ArrayAdapter<String> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent)
     {
+        String imgUrl = getItem(position);
+        final String recipe = recipeId.get(position);
+
         final ViewHolder vHolder;
         if(convertView == null)
         {
             convertView = inflate.inflate(layoutResource,parent,false);
             vHolder = new ViewHolder();
-            vHolder.recipePics = (ImageView) convertView.findViewById(R.id.recipePic);
+            ImageView a = (ImageView) convertView.findViewById(R.id.recipePic);
+            a.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(c, Individual_Recipe.class);
+                    intent.putExtra("ID", recipe);
+                    c.startActivity(intent);
+                }
+            });
+            vHolder.recipePics = a;
         }
         else
         {
             vHolder = (ViewHolder) convertView.getTag();
         }
-
-        String imgUrl = getItem(position);
 
         if(vHolder != null)
         {
@@ -82,7 +96,6 @@ public class GridImageAdapter extends ArrayAdapter<String> {
 
                 @Override
                 public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-
                 }
 
                 @Override

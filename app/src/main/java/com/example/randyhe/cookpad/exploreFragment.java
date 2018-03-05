@@ -5,6 +5,7 @@ package com.example.randyhe.cookpad;
  */
 
 import android.content.Context;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -62,7 +64,8 @@ public class exploreFragment extends Fragment {
         LinearLayout feed = (LinearLayout) getView().findViewById(R.id.recipesScrollView);
 
         final ArrayList<String> imgUrls = new ArrayList<>();
-/*
+        final ArrayList<String> recipeId = new ArrayList<>();
+
         db.collection("recipes").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -70,30 +73,24 @@ public class exploreFragment extends Fragment {
                         if(task.isSuccessful())
                         {
                             final GridView g = (GridView) getView().findViewById(R.id.grid);
-                            final GridImageAdapter gia = new GridImageAdapter(c,R.layout.grid_imageview,"",imgUrls);
+                            View a = getLayoutInflater().inflate(R.layout.grid_imageview, null);
+                            final GridImageAdapter gia = new GridImageAdapter(c,R.layout.grid_imageview,"",imgUrls,recipeId);
                             g.setAdapter(gia);
-                            for (DocumentSnapshot document : task.getResult()) {
+                            for (final DocumentSnapshot document : task.getResult()) {
                                 String path = document.getString("mainPhotoStoragePath");
                                 storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
                                     public void onSuccess(Uri uri) {
                                         imgUrls.add(uri.toString());
-                                        g.setAdapter(gia);
+                                        recipeId.add(document.getId());
                                     }
                                 });
                             }
-//
-//                            g.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//                                @Override
-//                                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                                    int id = task.getResult().
-//                                }
-//                            });
+                            g.setAdapter(gia);
                         }
 
                     }
                 });
-                */
     }
 
 

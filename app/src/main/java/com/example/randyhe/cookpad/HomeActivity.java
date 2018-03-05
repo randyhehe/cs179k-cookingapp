@@ -81,9 +81,10 @@ public class HomeActivity extends AppCompatActivity
         });
 
         final SmartFragmentStatePagerAdapter fragmentPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        final ViewPager viewPager = findViewById(R.id.frame_layout);
+        final CustomViewPager viewPager = findViewById(R.id.frame_layout);
         viewPager.setOffscreenPageLimit(3);
         viewPager.setAdapter(fragmentPagerAdapter);
+        viewPager.setPagingEnabled(false);
 
 
         BottomNavigationView navBar = findViewById(R.id.navigation);

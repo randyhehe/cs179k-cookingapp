@@ -52,7 +52,7 @@
         android:verticalSpacing="1dp"
         android:horizontalSpacing="1dp"
         android:layout_below="@id/recipesScrollView"
-
+        android:scrollbars="none"
         android:stretchMode="columnWidth"
         android:gravity="center">
 

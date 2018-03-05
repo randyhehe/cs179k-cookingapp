@@ -60,6 +60,7 @@ public class feedFragment extends Fragment {
     final private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final FirebaseStorage fbStorage = FirebaseStorage.getInstance();
     private final StorageReference storageReference = fbStorage.getReference();
+    List<String> origbookmarks;
     List<String> bookmarks;
 
     public static feedFragment newInstance() {
@@ -90,14 +91,12 @@ public class feedFragment extends Fragment {
                     Log.d(TAG, "DocumentSnapshot data: " + task.getResult().getData());
                     DocumentSnapshot document = task.getResult();
                     User user = document.toObject(User.class);
-                    bookmarks = user.getBookmarkedRecipes();
+                    origbookmarks = user.getBookmarkedRecipes();
                     Map<String, Object> data = document.getData();
 
                     List<String> following = user.getFollowing(); // get who current user is following
                     if (following.size() > 0) { // for every person you are following
                         for (String key : following) {
-                            Toast.makeText(c,key,Toast.LENGTH_SHORT).show();
-                            //wheee
                             followingRecipes(key, feed); //get all the recipes of one person ur following
                         }
                     }
@@ -125,6 +124,7 @@ public class feedFragment extends Fragment {
 
                     List<String> recipes = user.getRecipes(); // get recipes of specific
 
+
                     if (bookmarks != null)
                     { //adds bookmarked recipes to the map
                         for (int i = 0; i < bookmarks.size(); ++i)
@@ -132,17 +132,22 @@ public class feedFragment extends Fragment {
                             recipes.add(bookmarks.get(i)); //get that bookmarked recipe
                         }
                     }
+
+                    String profileUrl = user.getProfilePhotoPath();
+                    int recipeNum = user.getNumRecipes();
+                    int totalNum = 0;
                     if (recipes.size() > 0) { // for every recipe
                         for (String key : recipes)
                         {
-                            if (key == null)
+                            if (totalNum >= recipeNum)
                             {
                                 isBookmark = true;
                             }
                             else {
                                 isBookmark = false;
                             }
-                            getRecipe(key, feed, us, isBookmark); //get that recipes' specific stuff
+                            getRecipe(key, feed, us, isBookmark, profileUrl); //get that recipes' specific stuff
+                            totalNum++;
                         }
                     }
                 }
@@ -151,7 +156,7 @@ public class feedFragment extends Fragment {
     }
 
     //inflate each individual recipe
-    private void getRecipe(final String recipeID, final LinearLayout feed, final String userID, final boolean isBookmark) {
+    private void getRecipe(final String recipeID, final LinearLayout feed, final String userID, final boolean isBookmark, final String profileUrl) {
         final Context c = getActivity();
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(c).build();
@@ -167,9 +172,10 @@ public class feedFragment extends Fragment {
                     Map<String, Object> data = documentSnapshot.getData(); //inflate recipe
 
                     View a = getLayoutInflater().inflate(R.layout.feed_recipe, null);
+                    final ImageView profilePic = (ImageView) a.findViewById(R.id.profile);
                     TextView recipeName = (TextView) a.findViewById(R.id.recipeTitle);
                     TextView recipeDesc = (TextView) a.findViewById(R.id.recipeDesc);
-                    TextView recipePoster = (TextView) a.findViewById(R.id.recipePoster);
+                    final TextView recipePoster = (TextView) a.findViewById(R.id.recipePoster);
                     TextView notificationDesc = (TextView) a.findViewById(R.id.notificationDesc);
                     final ImageView recipePic = (ImageView) a.findViewById(R.id.foodPic);
                     final ImageButton bookmark = (ImageButton) a.findViewById(R.id.bookmarkButton);
@@ -199,22 +205,56 @@ public class feedFragment extends Fragment {
                     {
                         recipeDesc.setText((String) data.get("desciption"));
                     }
-                    if(userID == null || userID == "")
+
+                    String profileP = profileUrl;
+                    if(profileP != null)
                     {
-                        recipePoster.setText("Unknown user");
+                        storageReference.child(profileP).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Glide.with(c)
+                                        .load(uri.toString())
+                                        .into(profilePic);
+                            }
+                        });
                     }
-                    else
-                    {
-                        String poster = "by " + userID;
-                        recipePoster.setText(poster);
-                    }
+
                     //checks if its recipe or bookmark
                     if (isBookmark)
                     {
+                        if(userID == null || userID == "")
+                        {
+                            recipePoster.setText("Unknown user");
+                        }
+                        else
+                        {
+                            DocumentReference docRef = db.collection("users").document((String) data.get("userId"));
+                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        DocumentSnapshot document = task.getResult();
+                                        User user = document.toObject(User.class);
+                                        String poster = user.getUsername();
+                                        String posterString = "by " + poster;
+                                        recipePoster.setText(posterString);
+                                    }
+                                }
+                            });
+                        }
                         String ndesc = userID + " bookmarked this recipe";
                         notificationDesc.setText(ndesc);
                     }
                     else {
+                        if(userID == null || userID == "")
+                        {
+                            recipePoster.setText("Unknown user");
+                        }
+                        else
+                        {
+                            String posterString = "by " + userID;
+                            recipePoster.setText(posterString);
+                        }
                         String ndesc = userID + " shared this recipe";
                         notificationDesc.setText(ndesc);
                     }
@@ -234,13 +274,13 @@ public class feedFragment extends Fragment {
                             }
                         });
                     }
-                    if(bookmarks.contains(documentSnapshot.getId()))
+                    if(origbookmarks.contains(documentSnapshot.getId()))
                     {
-                        bookmark.setImageResource(R.drawable.bookmarked);
+                        bookmark.setImageResource(R.drawable.ic_bookmark_black_24dp);
                     }
                     else
                     {
-                        bookmark.setImageResource(R.drawable.bookmark);
+                        bookmark.setImageResource(R.drawable.ic_bookmark_border_black_24dp);
                     }
                     bookmark.setOnClickListener(new View.OnClickListener()
                     {
@@ -252,17 +292,17 @@ public class feedFragment extends Fragment {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                     if(task.isSuccessful()) {
-                                        if(bookmarks.contains(documentSnapshot.getId()))
+                                        if(origbookmarks.contains(documentSnapshot.getId()))
                                         {
-                                            bookmarks.remove(documentSnapshot.getId());
+                                            origbookmarks.remove(documentSnapshot.getId());
                                             docRef.update("bookmarkedRecipes",bookmarks);
-                                            bookmark.setImageResource(R.drawable.bookmark);
+                                            bookmark.setImageResource(R.drawable.ic_bookmark_border_black_24dp);
                                             Toast.makeText(c,"Recipe has been unbookmarked.",Toast.LENGTH_SHORT).show();
                                         }
                                         else {
-                                            bookmarks.add(documentSnapshot.getId());
+                                            origbookmarks.add(documentSnapshot.getId());
                                             docRef.update("bookmarkedRecipes", bookmarks);
-                                            bookmark.setImageResource(R.drawable.bookmarked);
+                                            bookmark.setImageResource(R.drawable.ic_bookmark_black_24dp);
                                             Toast.makeText(c, "Recipe has been bookmarked!", Toast.LENGTH_SHORT).show();
                                         }
                                     } else {

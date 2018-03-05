@@ -89,7 +89,7 @@ public class SignupActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     FirebaseUser user = auth.getCurrentUser();
                     storeUser(user); // add entry with additional information into database
-                    startActivity(new Intent(SignupActivity.this, MainActivity.class));
+                    startActivity(new Intent(SignupActivity.this, LoginActivity.class));
                 } else {
                     tvError.setText(task.getException().getMessage());
                     tvError.setVisibility(View.VISIBLE);
