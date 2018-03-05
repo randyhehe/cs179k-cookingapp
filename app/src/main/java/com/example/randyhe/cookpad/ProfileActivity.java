@@ -357,7 +357,7 @@ public class ProfileActivity extends AppCompatActivity {
                     final DocumentSnapshot document = task.getResult();
                     final Map<String, Object> docData = document.getData();
                     final Map<String, Boolean> followingList = (docData.get("following") != null) ? (HashMap<String, Boolean>) docData.get("following") : new HashMap<String, Boolean>();
-                    followingList.remove(profileUID, true);
+                    followingList.remove(profileUID);
                     currUserDoc.update("following", followingList);
                 } else {
                     /* Else possible errors below
