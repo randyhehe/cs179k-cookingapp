@@ -182,8 +182,8 @@ public class profileFragment extends Fragment {
                 }
             }
         });
-
     }
+
     private void getData() {
         DocumentReference docRef = db.collection("users").document(currentFirebaseUser.getUid());
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -260,24 +260,6 @@ public class profileFragment extends Fragment {
                         TextView recipeBio = (TextView) a.findViewById(R.id.recipeBio);
                         ImageView recipePic = (ImageView) a.findViewById(R.id.imageView);
 
-                        if (document.getString("mainPhotoStoragePath") != null) {
-                            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(document.getString("mainPhotoStoragePath"));
-
-                            Glide.with(getActivity() /* context */)
-                                    .using(new FirebaseImageLoader())
-                                    .load(storageReference)
-                                    .into(recipePic);
-                        }
-
-                        if (profileImgPath != null && !profileImgPath.equals("")) {
-                            Glide.with(getActivity())
-                                    .using(new FirebaseImageLoader())
-                                    .load(storageReference.child(profileImgPath))
-                                    .into(userPic);
-                        }
-                        else {
-                            userPic.setImageResource(R.drawable.profile_g);
-                        }
                         userName.setText(username);
                         recipeName.setText(document.getString("title"));
                         recipeBio.setText(document.getString("description"));

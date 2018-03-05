@@ -559,7 +559,6 @@ public class Individual_Recipe extends AppCompatActivity {
                         });
                     }
 
-
                     // GET RECIPE USERNAME AND AVATAR
                     final String recAuthorID = document.getString("userId");
                     final DocumentReference docRef2 = db.collection("users").document(recAuthorID.toString());
@@ -1109,14 +1108,26 @@ public class Individual_Recipe extends AppCompatActivity {
 
                                 User user = userDocument4.toObject(User.class);
                                 List<String> bookmarks = user.getBookmarkedRecipes();
-                                bookmarks.add(individualRecipeID.toString());
-                                userDocR.update("bookmarkedRecipes", bookmarks);
+                                bookmarks.add(individualRecipeID);
+                                userDocR.update("bookmarkedRecipes", bookmarks).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        recDocR.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                // add to recipe's bookmarkedUsers array.
+                                                Map<String, Object> recipeData = documentSnapshot.getData();
+                                                Map<String, Boolean> bookmarkedUsers = (HashMap<String, Boolean>) recipeData.get("bookmarkedUsers");
+                                                bookmarkedUsers.put(currentUser.getUid().toString(), true);
+                                                recDocR.update("bookmarkedUsers", bookmarkedUsers);
+                                            }
+                                        });
+                                    }
+                                });
                             }
                         }
                     };
                     userDocR.get().addOnCompleteListener(addBookmarkId);
-
-
                     Toast.makeText(c,"Recipe has been bookmarked!",Toast.LENGTH_SHORT).show();
                 }
                 return true;
