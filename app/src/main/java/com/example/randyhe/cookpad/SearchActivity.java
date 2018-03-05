@@ -1,5 +1,6 @@
 package com.example.randyhe.cookpad;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
@@ -85,7 +86,7 @@ public class SearchActivity extends AppCompatActivity {
 
         // title text and color
         String searchString = getIntent().getExtras().getString("searchString");
-        SpannableString s = new SpannableString(searchString);
+        SpannableString s = new SpannableString("Search: " + searchString);
         s.setSpan(new ForegroundColorSpan(Color.BLACK), 0, s.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         setTitle(s);
     }
@@ -115,6 +116,7 @@ public class SearchActivity extends AppCompatActivity {
                                 final TextView recipeBio = currView.findViewById(R.id.recipeBio);
                                 final ImageView recipePic  = currView.findViewById(R.id.imageView);
 
+
                                 StorageReference ref = storageReference.child(recipeDoc.getString("mainPhotoStoragePath"));
                                 Glide.with(SearchActivity.this)
                                         .using(new FirebaseImageLoader())
@@ -124,12 +126,17 @@ public class SearchActivity extends AppCompatActivity {
                                 userImage.setImageResource(R.drawable.kermit_cooking);
                                 username.setText(userDoc.getString("username"));
                                 recipeName.setText(recipeDoc.getString("title"));
-                                recipeName.setText(recipeDoc.getString("description"));
+                                recipeBio.setText(recipeDoc.getString("description"));
+                                recipeTime.setText(recipeDoc.getString("time"));
+                                recipeServings.setText(recipeDoc.getString("servings"));
                                 feed.addView(currView);
 
                                 currView.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
+                                        Intent intent = new Intent(SearchActivity.this, Individual_Recipe.class);
+                                        intent.putExtra("ID", recipeDoc.getId());
+                                        startActivity(intent);
                                         // view the recipe
                                     }
                                 });

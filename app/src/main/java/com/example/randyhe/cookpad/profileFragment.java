@@ -281,6 +281,8 @@ public class profileFragment extends Fragment {
                         userName.setText(username);
                         recipeName.setText(document.getString("title"));
                         recipeBio.setText(document.getString("description"));
+                        recipeTime.setText(document.getString("time"));
+                        recipeServings.setText(document.getString("servings"));
                         feed.addView(a);
 
                         //  TO-DO: Open Edit recipe

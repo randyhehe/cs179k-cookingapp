@@ -38,6 +38,8 @@ import com.vansuita.pickimage.bundle.PickSetup;
 import com.vansuita.pickimage.dialog.PickImageDialog;
 import com.vansuita.pickimage.listeners.IPickResult;
 
+import org.w3c.dom.Document;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -107,6 +109,54 @@ public class ManageRecipe extends AppCompatActivity {
     private boolean editOrCreate() {
         Bundle extras = getIntent().getExtras();
         return extras != null && extras.getBoolean("EDIT", false);
+    }
+
+    private void deleteRecipe(final DocumentSnapshot recipeSnapshot) {
+        Map<String, Object> recipeData = recipeSnapshot.getData();
+
+        // delete images from database
+        deleteImageFromStorage((String) recipeData.get("mainPhotoStoragePath"));
+        List<Map<String, String>> methods = (ArrayList<Map<String, String>>) recipeData.get("methods");
+        for (int i = 0; i < methods.size(); i++) {
+            String storagePath = methods.get(i).get("storagePath");
+            if (storagePath == null) continue;
+            else deleteImageFromStorage(storagePath);
+        }
+
+        // delete recipe from users collection
+        final DocumentReference userDoc = fbFirestore.collection("users").document(fbUser.getUid());
+        userDoc.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Map<String, Object> userData = documentSnapshot.getData();
+                Map<String, Boolean> recipes = (HashMap<String, Boolean>) userData.get("recipes");
+                recipes.remove(recipeSnapshot.getId());
+                userDoc.update("recipes", recipes).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // delete recipe from recipes collection
+                        fbFirestore.collection("recipes").document(recipeSnapshot.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                progressDialog.dismiss();
+                                Toast.makeText(getApplicationContext(), "Successfully deleted recipe!", Toast.LENGTH_LONG).show();
+                                finish();
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    private void deleteImageFromStorage(String path) {
+        StorageReference ref = storageReference.child(path);
+        ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                // do nothing
+            }
+        });
     }
 
     private void setupEdit() {
@@ -201,6 +251,24 @@ public class ManageRecipe extends AppCompatActivity {
 //                } else {
 //                    Log.d(TAG, "not set");
 //                }
+            }
+        });
+
+        // set delete button to delete the current entry
+        Button deleteButton = findViewById(R.id.delete_recipe);
+        deleteButton.setVisibility(View.VISIBLE);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                progressDialog = ProgressDialog.show(ManageRecipe.this, null, "Deleting Recipe...");
+
+                final String recipeId = getIntent().getExtras().getString("ID");
+                fbFirestore.collection("recipes").document(recipeId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        deleteRecipe(documentSnapshot);
+                    }
+                });
             }
         });
     }
