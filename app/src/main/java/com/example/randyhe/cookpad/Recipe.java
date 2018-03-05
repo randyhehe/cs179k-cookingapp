@@ -6,7 +6,9 @@ import com.google.firebase.firestore.Exclude;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -24,7 +26,7 @@ public class Recipe {
     public List<Method> methods;
     public List<String> tags;
 
-    public List<String> reviews;
+    public Map<String, Object> reviews;
     public Long timeCreated;
     public String mainPhotoStoragePath;
 
@@ -42,7 +44,7 @@ public class Recipe {
         this.methods = methods;
         this.tags = tags;
 
-        this.reviews = new ArrayList<>();
+        this.reviews = new HashMap<>();
         this.mainPhotoStoragePath = "images/" + UUID.randomUUID().toString();
         this.timeCreated = new Date().getTime();
     }

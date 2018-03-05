@@ -284,7 +284,7 @@ public class ProfileActivity extends AppCompatActivity {
                         feed.addView(a);
 
                         //  TO-DO: Open Edit recipe
-                        recipeName.setOnClickListener(new View.OnClickListener() {
+                        a.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 Intent intent = new Intent(ProfileActivity.this, Individual_Recipe.class);
