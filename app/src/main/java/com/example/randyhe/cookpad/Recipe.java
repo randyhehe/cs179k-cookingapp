@@ -27,6 +27,8 @@ public class Recipe {
     public List<String> tags;
 
     public Map<String, Object> reviews;
+    public Map<String, Object> bookmarkedUsers;
+
     public Long timeCreated;
     public String mainPhotoStoragePath;
 
@@ -45,6 +47,7 @@ public class Recipe {
         this.tags = tags;
 
         this.reviews = new HashMap<>();
+        this.bookmarkedUsers = new HashMap<>();
         this.mainPhotoStoragePath = "images/" + UUID.randomUUID().toString();
         this.timeCreated = new Date().getTime();
     }

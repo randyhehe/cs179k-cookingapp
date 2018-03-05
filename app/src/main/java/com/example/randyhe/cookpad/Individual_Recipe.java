@@ -1088,7 +1088,21 @@ public class Individual_Recipe extends AppCompatActivity {
                                 User user = userDocument3.toObject(User.class);
                                 List<String> bookmarks = user.getBookmarkedRecipes();
                                 bookmarks.remove(individualRecipeID.toString());
-                                userDocR.update("bookmarkedRecipes", bookmarks);
+                                userDocR.update("bookmarkedRecipes", bookmarks).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        recDocR.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                // add to recipe's bookmarkedUsers array.
+                                                Map<String, Object> recipeData = documentSnapshot.getData();
+                                                Map<String, Boolean> bookmarkedUsers = (HashMap<String, Boolean>) recipeData.get("bookmarkedUsers");
+                                                bookmarkedUsers.remove(currentUser.getUid().toString());
+                                                recDocR.update("bookmarkedUsers", bookmarkedUsers);
+                                            }
+                                        });
+                                    }
+                                });
                             }
                         }
                     };
