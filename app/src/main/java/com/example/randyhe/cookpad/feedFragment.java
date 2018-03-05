@@ -61,7 +61,7 @@ public class feedFragment extends Fragment {
     private final FirebaseStorage fbStorage = FirebaseStorage.getInstance();
     private final StorageReference storageReference = fbStorage.getReference();
     List<String> origbookmarks;
-    List<String> bookmarks;
+    List<String> listRecipes = new ArrayList<String>();
 
     public static feedFragment newInstance() {
         feedFragment fragment = new feedFragment();
@@ -120,7 +120,7 @@ public class feedFragment extends Fragment {
                     if(document.exists())
                     {
                         User user = document.toObject(User.class);
-                        bookmarks = user.getBookmarkedRecipes();
+                        List<String> bookmarks = user.getBookmarkedRecipes();
                         Map<String, Object> data = document.getData();
                         final String us = (String) data.get("username");
 
@@ -131,7 +131,10 @@ public class feedFragment extends Fragment {
                         { //adds bookmarked recipes to the map
                             for (int i = 0; i < bookmarks.size(); ++i)
                             {
-                                recipes.add(bookmarks.get(i)); //get that bookmarked recipe
+                                if(!recipes.contains(bookmarks.get(i)))
+                                {
+                                    recipes.add(bookmarks.get(i)); //get that bookmarked recipe
+                                }
                             }
                         }
 
@@ -160,170 +163,188 @@ public class feedFragment extends Fragment {
 
     //inflate each individual recipe
     private void getRecipe(final String recipeID, final LinearLayout feed, final String userID, final boolean isBookmark, final String profileUrl) {
-        final Context c = getActivity();
-
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(c).build();
-        ImageLoader.getInstance().init(config);
-
-        final ArrayList<String> imgUrls = new ArrayList<>();
-
-        DocumentReference dr = db.collection("recipes").document(recipeID);
-        dr.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(final DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot != null) {
-                    Map<String, Object> data = documentSnapshot.getData(); //inflate recipe
-
-                    View a = getLayoutInflater().inflate(R.layout.feed_recipe, null);
-                    final ImageView profilePic = (ImageView) a.findViewById(R.id.profile);
-                    TextView recipeName = (TextView) a.findViewById(R.id.recipeTitle);
-                    TextView recipeDesc = (TextView) a.findViewById(R.id.recipeDesc);
-                    final TextView recipePoster = (TextView) a.findViewById(R.id.recipePoster);
-                    TextView notificationDesc = (TextView) a.findViewById(R.id.notificationDesc);
-                    final ImageView recipePic = (ImageView) a.findViewById(R.id.foodPic);
-                    final ImageButton bookmark = (ImageButton) a.findViewById(R.id.bookmarkButton);
-
-                    recipeName.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Intent intent = new Intent(getActivity(), Individual_Recipe.class);
-                            intent.putExtra("ID", recipeID);
-                            startActivity(intent);
-                        }
-                    });
-
-                    if((String) data.get("title") == null || (String) data.get("title") == "")
-                    {
-                        recipeName.setText("Untitled");
-                    }
-                    else
-                    {
-                        recipeName.setText((String) data.get("title"));
-                    }
-                    if((String) data.get("desciption") == null || (String) data.get("desciption") == "")
-                    {
-                        recipeDesc.setText("No description available");
-                    }
-                    else
-                    {
-                        recipeDesc.setText((String) data.get("desciption"));
-                    }
-
-                    String profileP = profileUrl;
-                    if(profileP != null)
-                    {
-                        storageReference.child(profileP).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                Glide.with(c)
-                                        .load(uri.toString())
-                                        .into(profilePic);
-                            }
-                        });
-                    }
-
-                    //checks if its recipe or bookmark
-                    if (isBookmark)
-                    {
-                        if(userID == null || userID == "")
-                        {
-                            recipePoster.setText("Unknown user");
-                        }
-                        else
-                        {
-                            DocumentReference docRef = db.collection("users").document((String) data.get("userId"));
-                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot document = task.getResult();
-                                        if(document.exists())
-                                        {
-                                            User user = document.toObject(User.class);
-                                            String poster = user.getUsername();
-                                            String posterString = "by " + poster;
-                                            recipePoster.setText(posterString);
-                                        }
-                                    }
-                                }
-                            });
-                        }
-                        String ndesc = userID + " bookmarked this recipe";
-                        notificationDesc.setText(ndesc);
-                    }
-                    else {
-                        if(userID == null || userID == "")
-                        {
-                            recipePoster.setText("Unknown user");
-                        }
-                        else
-                        {
-                            String posterString = "by " + userID;
-                            recipePoster.setText(posterString);
-                        }
-                        String ndesc = userID + " shared this recipe";
-                        notificationDesc.setText(ndesc);
-                    }
-                    if((String) data.get("mainPhotoStoragePath") == null || (String) data.get("mainPhotoStoragePath") == "")
-                    {
-                        recipePic.setImageResource(R.drawable.eggs);
-                    }
-                    else
-                    {
-                        final String path = (String) data.get("mainPhotoStoragePath");
-                        storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                Glide.with(c)
-                                        .load(uri.toString())
-                                        .into(recipePic);
-                            }
-                        });
-                    }
-                    if(origbookmarks.contains(documentSnapshot.getId()))
-                    {
-                        bookmark.setImageResource(R.drawable.ic_bookmark_black_24dp);
-                    }
-                    else
-                    {
-                        bookmark.setImageResource(R.drawable.ic_bookmark_border_black_24dp);
-                    }
-                    bookmark.setOnClickListener(new View.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(View v)
-                        {
-                            final DocumentReference docRef = db.collection("users").document(fbAuth.getCurrentUser().getUid());
-                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if(task.isSuccessful()) {
-                                        if(origbookmarks.contains(documentSnapshot.getId()))
-                                        {
-                                            origbookmarks.remove(documentSnapshot.getId());
-                                            docRef.update("bookmarkedRecipes",origbookmarks);
-                                            bookmark.setImageResource(R.drawable.ic_bookmark_border_black_24dp);
-                                            Toast.makeText(c,"Recipe has been unbookmarked.",Toast.LENGTH_SHORT).show();
-                                        }
-                                        else {
-                                            origbookmarks.add(documentSnapshot.getId());
-                                            docRef.update("bookmarkedRecipes", origbookmarks);
-                                            bookmark.setImageResource(R.drawable.ic_bookmark_black_24dp);
-                                            Toast.makeText(c, "Recipe has been bookmarked!", Toast.LENGTH_SHORT).show();
-                                        }
-                                    } else {
-                                        Log.d(TAG, "get failed with ", task.getException());
-                                    }
-                                }
-                            });
-                        }
-                    });
-
-                    feed.addView(a);
-
-                }
+        if(listRecipes == null)
+        {
+            listRecipes.add(recipeID);
+            inflateRecipe(recipeID,feed,userID,isBookmark,profileUrl);
+        }
+        else
+        {
+            if(!listRecipes.contains(recipeID))
+            {
+                listRecipes.add(recipeID);
+                inflateRecipe(recipeID,feed,userID,isBookmark,profileUrl);
             }
-        });
+        }
+
+    }
+
+    private void inflateRecipe (final String recipeID, final LinearLayout feed, final String userID, final boolean isBookmark, final String profileUrl)
+    {
+            final Context c = getActivity();
+
+            ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(c).build();
+            ImageLoader.getInstance().init(config);
+
+            final ArrayList<String> imgUrls = new ArrayList<>();
+
+            DocumentReference dr = db.collection("recipes").document(recipeID);
+            dr.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(final DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot != null) {
+                        Map<String, Object> data = documentSnapshot.getData(); //inflate recipe
+
+                        View a = getLayoutInflater().inflate(R.layout.feed_recipe, null);
+                        final ImageView profilePic = (ImageView) a.findViewById(R.id.profile);
+                        TextView recipeName = (TextView) a.findViewById(R.id.recipeTitle);
+                        TextView recipeDesc = (TextView) a.findViewById(R.id.recipeDesc);
+                        final TextView recipePoster = (TextView) a.findViewById(R.id.recipePoster);
+                        TextView notificationDesc = (TextView) a.findViewById(R.id.notificationDesc);
+                        final ImageView recipePic = (ImageView) a.findViewById(R.id.foodPic);
+                        final ImageButton bookmark = (ImageButton) a.findViewById(R.id.bookmarkButton);
+
+                        recipeName.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent intent = new Intent(getActivity(), Individual_Recipe.class);
+                                intent.putExtra("ID", recipeID);
+                                startActivity(intent);
+                            }
+                        });
+
+                        if((String) data.get("title") == null || (String) data.get("title") == "")
+                        {
+                            recipeName.setText("Untitled");
+                        }
+                        else
+                        {
+                            recipeName.setText((String) data.get("title"));
+                        }
+                        if((String) data.get("desciption") == null || (String) data.get("desciption") == "")
+                        {
+                            recipeDesc.setText("No description available");
+                        }
+                        else
+                        {
+                            recipeDesc.setText((String) data.get("desciption"));
+                        }
+
+                        String profileP = profileUrl;
+                        if(profileP != null)
+                        {
+                            storageReference.child(profileP).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    Glide.with(c)
+                                            .load(uri.toString())
+                                            .into(profilePic);
+                                }
+                            });
+                        }
+
+                        //checks if its recipe or bookmark
+                        if (isBookmark)
+                        {
+                            if(userID == null || userID == "")
+                            {
+                                recipePoster.setText("Unknown user");
+                            }
+                            else
+                            {
+                                DocumentReference docRef = db.collection("users").document((String) data.get("userId"));
+                                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            DocumentSnapshot document = task.getResult();
+                                            if(document.exists())
+                                            {
+                                                User user = document.toObject(User.class);
+                                                String poster = user.getUsername();
+                                                String posterString = "by " + poster;
+                                                recipePoster.setText(posterString);
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                            String ndesc = userID + " bookmarked this recipe";
+                            notificationDesc.setText(ndesc);
+                        }
+                        else {
+                            if(userID == null || userID == "")
+                            {
+                                recipePoster.setText("Unknown user");
+                            }
+                            else
+                            {
+                                String posterString = "by " + userID;
+                                recipePoster.setText(posterString);
+                            }
+                            String ndesc = userID + " shared this recipe";
+                            notificationDesc.setText(ndesc);
+                        }
+                        if((String) data.get("mainPhotoStoragePath") == null || (String) data.get("mainPhotoStoragePath") == "")
+                        {
+                            recipePic.setImageResource(R.drawable.eggs);
+                        }
+                        else
+                        {
+                            final String path = (String) data.get("mainPhotoStoragePath");
+                            storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    Glide.with(c)
+                                            .load(uri.toString())
+                                            .into(recipePic);
+                                }
+                            });
+                        }
+                        if(origbookmarks.contains(documentSnapshot.getId()))
+                        {
+                            bookmark.setImageResource(R.drawable.ic_bookmark_black_24dp);
+                        }
+                        else
+                        {
+                            bookmark.setImageResource(R.drawable.ic_bookmark_border_black_24dp);
+                        }
+                        bookmark.setOnClickListener(new View.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(View v)
+                            {
+                                final DocumentReference docRef = db.collection("users").document(fbAuth.getCurrentUser().getUid());
+                                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if(task.isSuccessful()) {
+                                            if(origbookmarks.contains(documentSnapshot.getId()))
+                                            {
+                                                origbookmarks.remove(documentSnapshot.getId());
+                                                docRef.update("bookmarkedRecipes",origbookmarks);
+                                                bookmark.setImageResource(R.drawable.ic_bookmark_border_black_24dp);
+                                                Toast.makeText(c,"Recipe has been unbookmarked.",Toast.LENGTH_SHORT).show();
+                                            }
+                                            else {
+                                                origbookmarks.add(documentSnapshot.getId());
+                                                docRef.update("bookmarkedRecipes", origbookmarks);
+                                                bookmark.setImageResource(R.drawable.ic_bookmark_black_24dp);
+                                                Toast.makeText(c, "Recipe has been bookmarked!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        } else {
+                                            Log.d(TAG, "get failed with ", task.getException());
+                                        }
+                                    }
+                                });
+                            }
+                        });
+
+                        feed.addView(a);
+
+                    }
+                }
+            });
     }
 
     @Override
