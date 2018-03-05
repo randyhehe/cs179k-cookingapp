@@ -115,39 +115,42 @@ public class feedFragment extends Fragment {
                 if(task.isSuccessful()) {
                     final Context c = getActivity();
                     boolean isBookmark = false;
-                    Log.d(TAG, "DocumentSnapshot data: " + task.getResult().getData());
+                    //Log.d(TAG, "DocumentSnapshot data: " + task.getResult().getData());
                     DocumentSnapshot document = task.getResult();
-                    User user = document.toObject(User.class);
-                    bookmarks = user.getBookmarkedRecipes();
-                    Map<String, Object> data = document.getData();
-                    final String us = (String) data.get("username");
+                    if(document.exists())
+                    {
+                        User user = document.toObject(User.class);
+                        bookmarks = user.getBookmarkedRecipes();
+                        Map<String, Object> data = document.getData();
+                        final String us = (String) data.get("username");
 
-                    List<String> recipes = user.getRecipes(); // get recipes of specific
+                        List<String> recipes = user.getRecipes(); // get recipes of specific
 
 
-                    if (bookmarks != null)
-                    { //adds bookmarked recipes to the map
-                        for (int i = 0; i < bookmarks.size(); ++i)
-                        {
-                            recipes.add(bookmarks.get(i)); //get that bookmarked recipe
-                        }
-                    }
-
-                    String profileUrl = user.getProfilePhotoPath();
-                    int recipeNum = user.getNumRecipes();
-                    int totalNum = 0;
-                    if (recipes.size() > 0) { // for every recipe
-                        for (String key : recipes)
-                        {
-                            if (totalNum >= recipeNum)
+                        if (bookmarks != null)
+                        { //adds bookmarked recipes to the map
+                            for (int i = 0; i < bookmarks.size(); ++i)
                             {
-                                isBookmark = true;
+                                recipes.add(bookmarks.get(i)); //get that bookmarked recipe
                             }
-                            else {
-                                isBookmark = false;
+                        }
+
+                        String profileUrl = user.getProfilePhotoPath();
+                        int recipeNum = user.getNumRecipes();
+                        int totalNum = 0;
+                        if (recipes.size() > 0) { // for every recipe
+                            for (String key : recipes)
+                            {
+                                if (totalNum >= recipeNum)
+                                {
+                                    isBookmark = true;
+                                }
+                                else {
+                                    isBookmark = false;
+                                }
+                                getRecipe(key, feed, us, isBookmark, profileUrl); //get that recipes' specific stuff
+                                totalNum++;
                             }
-                            getRecipe(key, feed, us, isBookmark, profileUrl); //get that recipes' specific stuff
-                            totalNum++;
                         }
                     }
                 }
@@ -234,10 +237,13 @@ public class feedFragment extends Fragment {
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                     if (task.isSuccessful()) {
                                         DocumentSnapshot document = task.getResult();
-                                        User user = document.toObject(User.class);
-                                        String poster = user.getUsername();
-                                        String posterString = "by " + poster;
-                                        recipePoster.setText(posterString);
+                                        if(document.exists())
+                                        {
+                                            User user = document.toObject(User.class);
+                                            String poster = user.getUsername();
+                                            String posterString = "by " + poster;
+                                            recipePoster.setText(posterString);
+                                        }
                                     }
                                 }
                             });
@@ -295,13 +301,13 @@ public class feedFragment extends Fragment {
                                         if(origbookmarks.contains(documentSnapshot.getId()))
                                         {
                                             origbookmarks.remove(documentSnapshot.getId());
-                                            docRef.update("bookmarkedRecipes",bookmarks);
+                                            docRef.update("bookmarkedRecipes",origbookmarks);
                                             bookmark.setImageResource(R.drawable.ic_bookmark_border_black_24dp);
                                             Toast.makeText(c,"Recipe has been unbookmarked.",Toast.LENGTH_SHORT).show();
                                         }
                                         else {
                                             origbookmarks.add(documentSnapshot.getId());
-                                            docRef.update("bookmarkedRecipes", bookmarks);
+                                            docRef.update("bookmarkedRecipes", origbookmarks);
                                             bookmark.setImageResource(R.drawable.ic_bookmark_black_24dp);
                                             Toast.makeText(c, "Recipe has been bookmarked!", Toast.LENGTH_SHORT).show();
                                         }
