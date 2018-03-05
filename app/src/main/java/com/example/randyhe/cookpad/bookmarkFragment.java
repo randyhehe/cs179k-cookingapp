@@ -101,52 +101,54 @@ public class bookmarkFragment extends Fragment {
                                 if(task.isSuccessful()) {
                                     Log.d(TAG, "Checking recipe for bookmark fragment");
                                     DocumentSnapshot recipeDocument = task.getResult();
+                                    if(recipeDocument.exists())
+                                    {
+                                        recipeName.setText(recipeDocument.getString("title"));
+                                        recipeTime.setText(recipeDocument.getString("time"));
+                                        recipeServings.setText(recipeDocument.getString("servings"));
+                                        recipeBio.setText(recipeDocument.getString("description"));
 
-                                    recipeName.setText(recipeDocument.getString("title"));
-                                    recipeTime.setText(recipeDocument.getString("time"));
-                                    recipeServings.setText(recipeDocument.getString("servings"));
-                                    recipeBio.setText(recipeDocument.getString("description"));
+                                        storageReference.child(recipeDocument.getString("mainPhotoStoragePath")).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                            @Override
+                                            public void onSuccess(final Uri uri) {
+                                                Glide.with(bookmarkFragment.this)
+                                                        .load(uri.toString())
+                                                        .into(recipeImage);
+                                            }
+                                        });
 
-                                    storageReference.child(recipeDocument.getString("mainPhotoStoragePath")).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                        @Override
-                                        public void onSuccess(final Uri uri) {
-                                            Glide.with(bookmarkFragment.this)
-                                                    .load(uri.toString())
-                                                    .into(recipeImage);
-                                        }
-                                    });
+                                        // GET RECIPE USER INFO
+                                        final DocumentReference dRefU = db.collection("users").document(recipeDocument.getString("userId").toString());
+                                        dRefU.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if(task.isSuccessful()) {
+                                                    Log.d(TAG, "Checking recipe user for bookmark fragment");
+                                                    DocumentSnapshot ruserDocument = task.getResult();
 
-                                    // GET RECIPE USER INFO
-                                    final DocumentReference dRefU = db.collection("users").document(recipeDocument.getString("userId").toString());
-                                    dRefU.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                            if(task.isSuccessful()) {
-                                                Log.d(TAG, "Checking recipe user for bookmark fragment");
-                                                DocumentSnapshot ruserDocument = task.getResult();
+                                                    final String path = (String) ruserDocument.get("profilePhotoPath");
 
-                                                final String path = (String) ruserDocument.get("profilePhotoPath");
-
-                                                if(path != null) {
-                                                    storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                                        @Override
-                                                        public void onSuccess(final Uri uri) {
-                                                            Glide.with(bookmarkFragment.this)
-                                                                    .load(uri.toString())
-                                                                    .into(userPic);
-                                                        }
-                                                    });
+                                                    if(path != null) {
+                                                        storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                            @Override
+                                                            public void onSuccess(final Uri uri) {
+                                                                Glide.with(bookmarkFragment.this)
+                                                                        .load(uri.toString())
+                                                                        .into(userPic);
+                                                            }
+                                                        });
+                                                    }
+                                                    else {
+                                                        userPic.setImageResource(R.drawable.kermit_cooking);
+                                                    }
+                                                    userName.setText(ruserDocument.getString("username"));
                                                 }
                                                 else {
-                                                    userPic.setImageResource(R.drawable.kermit_cooking);
+                                                    Log.d(TAG, "fail");
                                                 }
-                                                userName.setText(ruserDocument.getString("username"));
                                             }
-                                            else {
-                                                Log.d(TAG, "fail");
-                                            }
-                                        }
-                                    });
+                                        });
+                                    }
                                 }
                                 else {
                                     Log.d(TAG, "fail");

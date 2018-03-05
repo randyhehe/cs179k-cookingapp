@@ -319,13 +319,13 @@ public class Individual_Recipe extends AppCompatActivity {
 
                     mainTitle.setText(document.getString("title"));
 
-                    if(document.getString("desciption") == null || document.getString("desciption") == "")
+                    if(document.getString("description") == null || document.getString("description") == "")
                     {
                         mainDescription.setText("No desc");
                     }
                     else
                     {
-                        mainDescription.setText(document.getString("desciption"));
+                        mainDescription.setText(document.getString("description"));
                     }
 
                     numFeeds.setText(document.getString("servings"));
