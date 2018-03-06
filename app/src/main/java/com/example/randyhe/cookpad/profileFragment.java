@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -35,13 +36,11 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class profileFragment extends Fragment {
+public class profileFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     // publish and uploading
     private static final String TAG = "ProfileFragment";
@@ -55,6 +54,8 @@ public class profileFragment extends Fragment {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private int adapterCounter;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+
 
     private TextView tvProfileName;
     private TextView tvProfileBio;
@@ -144,53 +145,14 @@ public class profileFragment extends Fragment {
         getData();
     }
 
-    private void checkIfUpdated() {
-        DocumentReference docRef = db.collection("users").document(currentFirebaseUser.getUid());
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    User user = document.toObject(User.class);
-                    if(!username.equals(user.getUsername())) {
-                        username = user.getUsername();
-                        tvProfileName.setText(username);
-                    }
-                    if(user.getNumRecipes() != recipeList.size()) {
-                        Log.d(TAG, "Recipe size: " + Integer.toString(recipeList.size()));
-                        Set<String> oldRecipes = new LinkedHashSet<String>(recipeList);
-                        Set<String> newRecipes = new LinkedHashSet<String>(user.getRecipes());
-                        newRecipes.removeAll(oldRecipes);
-                        List<String> recipesToAdd = new ArrayList<String>(newRecipes);
-                        loadRecipeList(recipesToAdd);
-                    }
-                    if(bio != null && !bio.equals(user.getBio())) {
-                        bio = user.getBio();
-                        tvProfileBio.setText(bio);
-                    }
-                    if(profileImgPath != null && !profileImgPath.equals(user.getProfilePhotoPath())) {
-                        profileImgPath = user.getProfilePhotoPath();
-                        if (profileImgPath != null && !profileImgPath.equals("")) {
-                            Glide.with(getActivity())
-                                    .using(new FirebaseImageLoader())
-                                    .load(storageReference.child(profileImgPath))
-                                    .into(profileImg);
-                        }
-                    }
-                    if(user.getNumFollowers() != numFollowers) {
-                        numFollowers = user.getNumFollowers();
-                        tvNumFollowers.setText(Integer.toString(numFollowers));
-                    }
-                    if(user.getNumFollowing() != numFollowing) {
-                        numFollowing = user.getNumFollowing();
-                        tvNumFollowing.setText(Integer.toString(numFollowing));
-                    }
-                }
-            }
-        });
+    @Override
+    public void onRefresh() {
+
+        getData();
     }
 
     private void getData() {
+        mSwipeRefreshLayout.setRefreshing(true);
         DocumentReference docRef = db.collection("users").document(currentFirebaseUser.getUid());
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -239,6 +201,20 @@ public class profileFragment extends Fragment {
         setupViews(view);
         setupEditProfileBtn(view);
         setupTopInfo(view);
+
+        mSwipeRefreshLayout = view.findViewById(R.id.swipe_container);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefreshLayout.setRefreshing(true);
+                getData();
+            }
+        });
     }
 
     private void loadRecipeList(final List<String> rList) {
@@ -277,6 +253,7 @@ public class profileFragment extends Fragment {
                         });
                         mAdapter = new RecipeCompactAdapter(recipeCompactObjectList, getContext(), false);
                         mRecyclerView.setAdapter(mAdapter);
+                        mSwipeRefreshLayout.setRefreshing(false);
                     }
                 }
             });

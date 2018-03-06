@@ -6,6 +6,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -29,7 +30,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     private FirebaseAuth fbAuth;
     private FirebaseFirestore fbFirestore;
@@ -40,6 +41,8 @@ public class SearchActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private int adapterCounter;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +56,26 @@ public class SearchActivity extends AppCompatActivity {
         fbAuth = FirebaseAuth.getInstance();
         fbStorage = FirebaseStorage.getInstance();
         storageReference = fbStorage.getReference();
+//        populateData();
 
+        mSwipeRefreshLayout = findViewById(R.id.swipe_container);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefreshLayout.setRefreshing(true);
+                populateData();
+            }
+        });
+    }
+
+    @Override
+    public void onRefresh() {
         populateData();
     }
 
@@ -87,6 +109,8 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void populateData() {
+        mSwipeRefreshLayout.setRefreshing(true);
+
         mRecyclerView = findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
 
@@ -131,6 +155,7 @@ public class SearchActivity extends AppCompatActivity {
                                     });
                                     mAdapter = new RecipeCompactAdapter(recipeCompactObjectList, SearchActivity.this, true);
                                     mRecyclerView.setAdapter(mAdapter);
+                                    mSwipeRefreshLayout.setRefreshing(false);
                                 }
                             }
                         });

@@ -7,6 +7,7 @@ package com.example.randyhe.cookpad;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -26,8 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-public class bookmarkFragment extends Fragment {
-
+public class bookmarkFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = "bookmarkFragment";
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -38,10 +38,17 @@ public class bookmarkFragment extends Fragment {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private int adapterCounter;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+
 
     public static bookmarkFragment newInstance() {
         bookmarkFragment fragment = new bookmarkFragment();
         return fragment;
+    }
+
+    @Override
+    public void onRefresh() {
+        getData();
     }
 
     @Override
@@ -57,12 +64,10 @@ public class bookmarkFragment extends Fragment {
         return inflater.inflate(R.layout.layout_bookmarkfeed, container, false);
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState)
-    {
-        mRecyclerView = view.findViewById(R.id.my_recycler_view);
+    public void getData() {
+        mSwipeRefreshLayout.setRefreshing(true);
+        mRecyclerView = getView().findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
-
         mLayoutManager = new LinearLayoutManager(getContext()); // maybe change to view
         mRecyclerView.setLayoutManager(mLayoutManager);
         final List<RecipeCompactObject> recipeCompactObjectList = new ArrayList<>();
@@ -104,12 +109,31 @@ public class bookmarkFragment extends Fragment {
                                         });
                                         mAdapter = new RecipeCompactAdapter(recipeCompactObjectList, getContext(), true);
                                         mRecyclerView.setAdapter(mAdapter);
+                                        mSwipeRefreshLayout.setRefreshing(false);
                                     }
                                 }
                             });
                         }
                     });
                 }
+            }
+        });
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState)
+    {
+        mSwipeRefreshLayout = view.findViewById(R.id.swipe_container);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefreshLayout.setRefreshing(true);
+                getData();
             }
         });
     }

@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,12 +30,15 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import java.util.ArrayList;
 import java.util.Vector;
 
-public class exploreFragment extends Fragment {
+public class exploreFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private final FirebaseStorage fbStorage = FirebaseStorage.getInstance();
     private final StorageReference storageReference = fbStorage.getReference();
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private int tempCounter;
+
 
     public static exploreFragment newInstance() {
         exploreFragment fragment = new exploreFragment();
@@ -48,8 +52,30 @@ public class exploreFragment extends Fragment {
     }
 
     @Override
+    public void onRefresh() {
+        getData();
+    }
+
+    @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState)
     {
+        mSwipeRefreshLayout = view.findViewById(R.id.swipe_container);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefreshLayout.setRefreshing(true);
+                getData();
+            }
+        });
+    }
+
+    private void getData() {
+        mSwipeRefreshLayout.setRefreshing(true);
         final Context c = getActivity();
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(c).build();
         ImageLoader.getInstance().init(config);
@@ -61,30 +87,36 @@ public class exploreFragment extends Fragment {
         final ArrayList<String> recipeId = new ArrayList<>();
 
         db.collection("recipes").get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if(task.isSuccessful())
-                        {
-                            final GridView g = (GridView) getView().findViewById(R.id.grid);
-                            View a = getLayoutInflater().inflate(R.layout.grid_imageview, null);
-                            final GridImageAdapter gia = new GridImageAdapter(c,R.layout.grid_imageview,"",imgUrls,recipeId);
-                            g.setAdapter(gia);
-                            for (final DocumentSnapshot document : task.getResult()) {
-                                String path = document.getString("mainPhotoStoragePath");
-                                storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        imgUrls.add(uri.toString());
-                                        recipeId.add(document.getId());
+            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if(task.isSuccessful())
+                    {
+                        final GridView g = (GridView) getView().findViewById(R.id.grid);
+                        View a = getLayoutInflater().inflate(R.layout.grid_imageview, null);
+
+                        tempCounter = task.getResult().size();
+                        for (final DocumentSnapshot document : task.getResult()) {
+                            String path = document.getString("mainPhotoStoragePath");
+                            storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    imgUrls.add(uri.toString());
+                                    recipeId.add(document.getId());
+
+                                    if (--tempCounter == 0) {
+                                        final GridImageAdapter gia = new GridImageAdapter(c,R.layout.grid_imageview,"",imgUrls,recipeId);
+                                        g.setAdapter(gia);
+                                        mSwipeRefreshLayout.setRefreshing(false);
                                     }
-                                });
-                            }
-                            g.setAdapter(gia);
+                                }
+                            });
                         }
 
                     }
-                });
+
+                }
+            });
     }
 
 
