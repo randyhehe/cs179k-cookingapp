@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.randyhe.cookpad.Individual_Recipe"
-    android:descendantFocusability="blocksDescendants"
     android:orientation="vertical"
     >
 

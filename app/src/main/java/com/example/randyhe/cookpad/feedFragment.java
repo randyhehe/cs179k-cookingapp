@@ -315,33 +315,54 @@ public class feedFragment extends Fragment {
                             public void onClick(View v)
                             {
                                 final DocumentReference docRef = db.collection("users").document(fbAuth.getCurrentUser().getUid());
+                                final DocumentReference recipeDocRef = db.collection("recipes").document(recipeID);
                                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if(task.isSuccessful()) {
-                                            if(origbookmarks.contains(documentSnapshot.getId()))
-                                            {
-                                                origbookmarks.remove(documentSnapshot.getId());
-                                                docRef.update("bookmarkedRecipes",origbookmarks);
-                                                bookmark.setImageResource(R.drawable.ic_bookmark_border_black_24dp);
-                                                Toast.makeText(c,"Recipe has been unbookmarked.",Toast.LENGTH_SHORT).show();
-                                            }
-                                            else {
-                                                origbookmarks.add(documentSnapshot.getId());
-                                                docRef.update("bookmarkedRecipes", origbookmarks);
-                                                bookmark.setImageResource(R.drawable.ic_bookmark_black_24dp);
-                                                Toast.makeText(c, "Recipe has been bookmarked!", Toast.LENGTH_SHORT).show();
-                                            }
-                                        } else {
-                                            Log.d(TAG, "get failed with ", task.getException());
-                                        }
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task)
+                                    {
+                                        if (task.isSuccessful()) {
+                                                        if(origbookmarks.contains(documentSnapshot.getId()))
+                                                        {
+                                                            origbookmarks.remove(documentSnapshot.getId());
+                                                            docRef.update("bookmarkedRecipes",origbookmarks);
+                                                            bookmark.setImageResource(R.drawable.ic_bookmark_border_black_24dp);
+                                                            Toast.makeText(c,"Recipe has been unbookmarked.",Toast.LENGTH_SHORT).show();
+
+                                                            recipeDocRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                                @Override
+                                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                                    Map<String, Object> recipeData = documentSnapshot.getData();
+                                                                    Map<String, Boolean> bookmarkedUsers = (HashMap<String, Boolean>) recipeData.get("bookmarkedUsers");
+                                                                    bookmarkedUsers.remove(fbAuth.getCurrentUser().getUid());
+                                                                    recipeDocRef.update("bookmarkedUsers", bookmarkedUsers);
+                                                                }
+                                                            });
+                                                        }
+                                                        else
+                                                        {
+                                                            origbookmarks.add(documentSnapshot.getId());
+                                                            docRef.update("bookmarkedRecipes", origbookmarks);
+                                                            bookmark.setImageResource(R.drawable.ic_bookmark_black_24dp);
+                                                            Toast.makeText(c, "Recipe has been bookmarked!", Toast.LENGTH_SHORT).show();
+
+                                                            recipeDocRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                                @Override
+                                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                                    Map<String, Object> recipeData = documentSnapshot.getData();
+                                                                    Map<String, Boolean> bookmarkedUsers = (HashMap<String, Boolean>) recipeData.get("bookmarkedUsers");
+                                                                    bookmarkedUsers.put(fbAuth.getCurrentUser().getUid(), true);
+                                                                    recipeDocRef.update("bookmarkedUsers", bookmarkedUsers);
+                                                                }
+                                                            });
+                                                        }
+                                                    } else {
+                                                        Log.d(TAG, "get failed with ", task.getException());
+                                                    }
                                     }
                                 });
                             }
                         });
-
                         feed.addView(a);
-
                     }
                 }
             });
@@ -353,4 +374,3 @@ public class feedFragment extends Fragment {
 
     }
 }
-
