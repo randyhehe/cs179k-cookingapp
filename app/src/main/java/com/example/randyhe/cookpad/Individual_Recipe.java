@@ -1048,8 +1048,8 @@ public class Individual_Recipe extends AppCompatActivity {
                     Log.d(TAG, "Checking bookmarks");
                     DocumentSnapshot userDocument = task.getResult();
                     User user = userDocument.toObject(User.class);
-                    List<String> bookmarks = user.getBookmarkedRecipes();
-                    if(bookmarks.contains(individualRecipeID.toString()))
+                    Map<String, Long> bookmarks = user.getBookmarkedRecipes();
+                    if(bookmarks.containsKey(individualRecipeID))
                     {
                         bookmarkItem.setIcon(ContextCompat.getDrawable(Individual_Recipe.this, R.drawable.ic_bookmark_black_24dp));
                     }
@@ -1086,8 +1086,9 @@ public class Individual_Recipe extends AppCompatActivity {
                                 final DocumentSnapshot userDocument3 = task.getResult();
 
                                 User user = userDocument3.toObject(User.class);
-                                List<String> bookmarks = user.getBookmarkedRecipes();
-                                bookmarks.remove(individualRecipeID.toString());
+
+                                Map<String, Long> bookmarks = user.getBookmarkedRecipes();
+                                bookmarks.remove(individualRecipeID);
                                 userDocR.update("bookmarkedRecipes", bookmarks).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
@@ -1121,8 +1122,8 @@ public class Individual_Recipe extends AppCompatActivity {
                                 final DocumentSnapshot userDocument4 = task.getResult();
 
                                 User user = userDocument4.toObject(User.class);
-                                List<String> bookmarks = user.getBookmarkedRecipes();
-                                bookmarks.add(individualRecipeID);
+                                Map<String, Long> bookmarks = user.getBookmarkedRecipes();
+                                bookmarks.put(individualRecipeID, new Date().getTime());
                                 userDocR.update("bookmarkedRecipes", bookmarks).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
@@ -1149,8 +1150,6 @@ public class Individual_Recipe extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
-
 }
 
 

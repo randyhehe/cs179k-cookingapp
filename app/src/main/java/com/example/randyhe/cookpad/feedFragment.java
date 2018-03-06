@@ -48,6 +48,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,8 +61,8 @@ public class feedFragment extends Fragment {
     final private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final FirebaseStorage fbStorage = FirebaseStorage.getInstance();
     private final StorageReference storageReference = fbStorage.getReference();
-    List<String> origbookmarks;
-    List<String> bookmarks;
+    Map<String, Long> origbookmarks;
+    Map<String, Long> bookmarks;
 
     public static feedFragment newInstance() {
         feedFragment fragment = new feedFragment();
@@ -125,15 +126,7 @@ public class feedFragment extends Fragment {
                         final String us = (String) data.get("username");
 
                         List<String> recipes = user.getRecipes(); // get recipes of specific
-
-
-                        if (bookmarks != null)
-                        { //adds bookmarked recipes to the map
-                            for (int i = 0; i < bookmarks.size(); ++i)
-                            {
-                                recipes.add(bookmarks.get(i)); //get that bookmarked recipe
-                            }
-                        }
+                        recipes.addAll(bookmarks.keySet());
 
                         String profileUrl = user.getProfilePhotoPath();
                         int recipeNum = user.getNumRecipes();
@@ -280,7 +273,7 @@ public class feedFragment extends Fragment {
                             }
                         });
                     }
-                    if(origbookmarks.contains(documentSnapshot.getId()))
+                    if(origbookmarks.containsKey(documentSnapshot.getId()))
                     {
                         bookmark.setImageResource(R.drawable.ic_bookmark_black_24dp);
                     }
@@ -300,7 +293,7 @@ public class feedFragment extends Fragment {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                     if(task.isSuccessful()) {
-                                        if(origbookmarks.contains(documentSnapshot.getId()))
+                                        if(origbookmarks.containsKey(documentSnapshot.getId()))
                                         {
                                             origbookmarks.remove(documentSnapshot.getId());
                                             docRef.update("bookmarkedRecipes",origbookmarks);
@@ -318,7 +311,7 @@ public class feedFragment extends Fragment {
                                             });
                                         }
                                         else {
-                                            origbookmarks.add(documentSnapshot.getId());
+                                            origbookmarks.put(documentSnapshot.getId(), new Date().getTime());
                                             docRef.update("bookmarkedRecipes", origbookmarks);
                                             bookmark.setImageResource(R.drawable.ic_bookmark_black_24dp);
                                             Toast.makeText(c, "Recipe has been bookmarked!", Toast.LENGTH_SHORT).show();
