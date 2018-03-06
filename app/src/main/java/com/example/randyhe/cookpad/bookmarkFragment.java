@@ -79,6 +79,11 @@ public class bookmarkFragment extends Fragment implements SwipeRefreshLayout.OnR
                 User user = userSnapshot.toObject(User.class);
                 final Map<String, Long> bookmarks = user.getBookmarkedRecipes();
                 adapterCounter = bookmarks.size();
+                if (adapterCounter == 0) {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    return;
+                }
+
                 for (final String recipeId : bookmarks.keySet()) {
                     final DocumentReference recipeDocumentReference = db.collection("recipes").document(recipeId);
                     recipeDocumentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -132,7 +137,6 @@ public class bookmarkFragment extends Fragment implements SwipeRefreshLayout.OnR
         mSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
-                mSwipeRefreshLayout.setRefreshing(true);
                 getData();
             }
         });

@@ -211,13 +211,17 @@ public class profileFragment extends Fragment implements SwipeRefreshLayout.OnRe
         mSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
-                mSwipeRefreshLayout.setRefreshing(true);
                 getData();
             }
         });
     }
 
     private void loadRecipeList(final List<String> rList) {
+        if (rList.size() < 1) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            return;
+        }
+
         mRecyclerView = getView().findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
 

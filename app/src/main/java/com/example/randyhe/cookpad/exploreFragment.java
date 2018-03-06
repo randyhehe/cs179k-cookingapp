@@ -68,7 +68,6 @@ public class exploreFragment extends Fragment implements SwipeRefreshLayout.OnRe
         mSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
-                mSwipeRefreshLayout.setRefreshing(true);
                 getData();
             }
         });
@@ -96,6 +95,11 @@ public class exploreFragment extends Fragment implements SwipeRefreshLayout.OnRe
                         View a = getLayoutInflater().inflate(R.layout.grid_imageview, null);
 
                         tempCounter = task.getResult().size();
+                        if (tempCounter == 0) {
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            return;
+                        }
+
                         for (final DocumentSnapshot document : task.getResult()) {
                             String path = document.getString("mainPhotoStoragePath");
                             storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {

@@ -68,7 +68,6 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
         mSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
-                mSwipeRefreshLayout.setRefreshing(true);
                 populateData();
             }
         });
@@ -121,6 +120,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
         final List<String> ids = getIntent().getExtras().getStringArrayList("ids");
         if (ids.size() < 1) {
             // show that none could be found
+            mSwipeRefreshLayout.setRefreshing(false);
         } else {
             adapterCounter = ids.size();
             for (int i = 0; i < ids.size(); i++) {
