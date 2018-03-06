@@ -6,28 +6,16 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.SearchView;
-import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -36,9 +24,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SearchActivity extends AppCompatActivity {
 
@@ -46,6 +35,11 @@ public class SearchActivity extends AppCompatActivity {
     private FirebaseFirestore fbFirestore;
     private FirebaseStorage fbStorage;
     private StorageReference storageReference;
+
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private int adapterCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +59,7 @@ public class SearchActivity extends AppCompatActivity {
 
     public boolean onOptionsItemSelected(MenuItem item) {
         int id =  item.getItemId();
+
         if (id == android.R.id.home) {
             finish();
             return true;
@@ -92,54 +87,51 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void populateData() {
+        mRecyclerView = findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+
+        mLayoutManager = new LinearLayoutManager(this); // maybe change to view
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        final List<RecipeCompactObject> recipeCompactObjectList = new ArrayList<>();
+
         final List<String> ids = getIntent().getExtras().getStringArrayList("ids");
         if (ids.size() < 1) {
             // show that none could be found
         } else {
-            final LinearLayout feed = findViewById(R.id.searchRecipeFeed);
+            adapterCounter = ids.size();
             for (int i = 0; i < ids.size(); i++) {
-                final View currView = getLayoutInflater().inflate(R.layout.layout_profile_recipebutton, null);
-
-                final DocumentReference doc1 = fbFirestore.collection("recipes").document(ids.get(i));
+                final String recipeId = ids.get(i);
+                final DocumentReference doc1 = fbFirestore.collection("recipes").document(recipeId);
                 doc1.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
-                    public void onSuccess(final DocumentSnapshot recipeDoc) {
-                        final DocumentReference doc2 = fbFirestore.collection("users").document(recipeDoc.getString("userId"));
+                    public void onSuccess(final DocumentSnapshot recipeSnapshot) {
+                        final DocumentReference doc2 = fbFirestore.collection("users").document(recipeSnapshot.getString("userId"));
                         doc2.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                             @Override
-                            public void onSuccess(final DocumentSnapshot userDoc) {
-                                final CircleImageView userImage = currView.findViewById(R.id.userPic);
-                                final TextView username = currView.findViewById(R.id.username);
-                                final TextView recipeName = currView.findViewById(R.id.recipeName);
-                                final TextView recipeTime = currView.findViewById(R.id.recipeTime);
-                                final TextView recipeServings = currView.findViewById(R.id.recipeServings);
-                                final TextView recipeBio = currView.findViewById(R.id.recipeBio);
-                                final ImageView recipePic  = currView.findViewById(R.id.imageView);
+                            public void onSuccess(final DocumentSnapshot recipeUserSnapshot) {
+                                String recipeName = recipeSnapshot.getString("title");
+                                String recipeTime = recipeSnapshot.getString("time");
+                                String recipeServings = recipeSnapshot.getString("servings");
+                                String recipeDescription = recipeSnapshot.getString("description");
+                                String recipeMainPhotoPath = recipeSnapshot.getString("mainPhotoStoragePath");
+                                User user = recipeUserSnapshot.toObject(User.class);
+                                String recipePublisher = user.getUsername();
+                                String recipePublisherPhotoPath = user.getProfilePhotoPath();
+                                long comparatorValue = recipeSnapshot.getLong("timeCreated");
+                                recipeCompactObjectList.add(new RecipeCompactObject(recipeId, recipeName, recipeTime, recipeServings, recipeDescription, recipeMainPhotoPath, recipePublisher, recipePublisherPhotoPath, comparatorValue));
 
-
-                                StorageReference ref = storageReference.child(recipeDoc.getString("mainPhotoStoragePath"));
-                                Glide.with(SearchActivity.this)
-                                        .using(new FirebaseImageLoader())
-                                        .load(ref)
-                                        .into(recipePic);
-
-                                userImage.setImageResource(R.drawable.kermit_cooking);
-                                username.setText(userDoc.getString("username"));
-                                recipeName.setText(recipeDoc.getString("title"));
-                                recipeBio.setText(recipeDoc.getString("description"));
-                                recipeTime.setText(recipeDoc.getString("time"));
-                                recipeServings.setText(recipeDoc.getString("servings"));
-                                feed.addView(currView);
-
-                                currView.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        Intent intent = new Intent(SearchActivity.this, Individual_Recipe.class);
-                                        intent.putExtra("ID", recipeDoc.getId());
-                                        startActivity(intent);
-                                        // view the recipe
-                                    }
-                                });
+                                if (--adapterCounter == 0) {
+                                    Collections.sort(recipeCompactObjectList, new Comparator<RecipeCompactObject>() {
+                                        @Override
+                                        public int compare(RecipeCompactObject a, RecipeCompactObject b) {
+                                            if (a.comparatorValue < b.comparatorValue) return -1;
+                                            else if (a.comparatorValue > b.comparatorValue)  return 1;
+                                            else return 0;
+                                        }
+                                    });
+                                    mAdapter = new RecipeCompactAdapter(recipeCompactObjectList, SearchActivity.this, true);
+                                    mRecyclerView.setAdapter(mAdapter);
+                                }
                             }
                         });
                     }

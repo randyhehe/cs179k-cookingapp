@@ -1,5 +1,6 @@
 package com.example.randyhe.cookpad;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
@@ -27,6 +28,7 @@ public class RecipeCompactAdapter extends RecyclerView.Adapter<RecipeCompactAdap
     private Context context;
     private FirebaseStorage fbStorage;
     private StorageReference storageReference;
+    private boolean viewOrManage;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public View view;
@@ -36,12 +38,13 @@ public class RecipeCompactAdapter extends RecyclerView.Adapter<RecipeCompactAdap
         }
     }
 
-    public RecipeCompactAdapter(List<RecipeCompactObject> myDataset, Context c) {
+    public RecipeCompactAdapter(List<RecipeCompactObject> myDataset, Context c, boolean viewOrManage) {
         mDataset = myDataset;
         context = c;
 
         fbStorage = FirebaseStorage.getInstance();
         storageReference = fbStorage.getReference();
+        this.viewOrManage = viewOrManage;
     }
 
     @Override
@@ -93,9 +96,16 @@ public class RecipeCompactAdapter extends RecyclerView.Adapter<RecipeCompactAdap
         recipeItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, Individual_Recipe.class);
-                intent.putExtra("ID", recipeCompactObject.recipeId);
-                context.startActivity(intent);
+                if (viewOrManage) {
+                    Intent intent = new Intent(context, Individual_Recipe.class);
+                    intent.putExtra("ID", recipeCompactObject.recipeId);
+                    context.startActivity(intent);
+                } else {
+                    Intent intent = new Intent(context, ManageRecipe.class);
+                    intent.putExtra("EDIT", true);
+                    intent.putExtra("ID", recipeCompactObject.recipeId);
+                    ((Activity) context).startActivityForResult(intent, 1);
+                }
             }
         });
     }

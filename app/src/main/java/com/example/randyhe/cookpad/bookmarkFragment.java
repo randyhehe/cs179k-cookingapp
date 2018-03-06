@@ -102,7 +102,7 @@ public class bookmarkFragment extends Fragment {
                                                 else return 0;
                                             }
                                         });
-                                        mAdapter = new RecipeCompactAdapter(recipeCompactObjectList, getContext());
+                                        mAdapter = new RecipeCompactAdapter(recipeCompactObjectList, getContext(), true);
                                         mRecyclerView.setAdapter(mAdapter);
                                     }
                                 }

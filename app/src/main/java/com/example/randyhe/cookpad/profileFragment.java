@@ -6,24 +6,23 @@ package com.example.randyhe.cookpad;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -34,6 +33,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -50,6 +51,10 @@ public class profileFragment extends Fragment {
     private final FirebaseStorage fbStorage = FirebaseStorage.getInstance();
     private final StorageReference storageReference = fbStorage.getReference();
 
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private int adapterCounter;
 
     private TextView tvProfileName;
     private TextView tvProfileBio;
@@ -71,12 +76,12 @@ public class profileFragment extends Fragment {
     }
 
     private void setupViews(View view) {
-        tvProfileName = (TextView) view.findViewById(R.id.profileName);
-        tvProfileBio = (TextView) view.findViewById(R.id.profileBio);
-        tvNumRecipes = (TextView) view.findViewById(R.id.textViewRecipes);
-        tvNumFollowers = (TextView) view.findViewById(R.id.textViewFollowers);
-        tvNumFollowing = (TextView) view.findViewById(R.id.textViewFollowing);
-        profileImg = (CircleImageView) view.findViewById(R.id.profileImg);
+        tvProfileName = view.findViewById(R.id.profileName);
+        tvProfileBio = view.findViewById(R.id.profileBio);
+        tvNumRecipes = view.findViewById(R.id.textViewRecipes);
+        tvNumFollowers = view.findViewById(R.id.textViewFollowers);
+        tvNumFollowing = view.findViewById(R.id.textViewFollowing);
+        profileImg = view.findViewById(R.id.profileImg);
 
         // Removes Follow button
         ConstraintLayout profileTop = (ConstraintLayout) view.findViewById(R.id.constraintLayout1);
@@ -125,6 +130,7 @@ public class profileFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
     }
 
     @Override
@@ -135,7 +141,7 @@ public class profileFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        checkIfUpdated();
+        getData();
     }
 
     private void checkIfUpdated() {
@@ -233,56 +239,47 @@ public class profileFragment extends Fragment {
         setupViews(view);
         setupEditProfileBtn(view);
         setupTopInfo(view);
-        getData();
     }
 
     private void loadRecipeList(final List<String> rList) {
-        final LinearLayout feed = (LinearLayout) getView().findViewById(R.id.profileRecipeFeed);
+        mRecyclerView = getView().findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
 
-        for(int i = 0; i < rList.size(); i++) {
-            final View a = getLayoutInflater().inflate(R.layout.layout_profile_recipebutton, null);
+        mLayoutManager = new LinearLayoutManager(getContext()); // maybe change to view
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        final List<RecipeCompactObject> recipeCompactObjectList = new ArrayList<>();
 
-            DocumentReference docRef = db.collection("recipes").document(rList.get(i));
-            final String t = rList.get(i);
-            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        adapterCounter = rList.size();
+        for (int i = 0; i < rList.size(); i++) {
+            final String recipeId = rList.get(i);
+            DocumentReference recipeDocumentReference = db.collection("recipes").document(rList.get(i));
+            recipeDocumentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if(task.isSuccessful()) {
-//                        Log.d(TAG, t);
-//                        Log.d(TAG, "DocumentSnapshot data: " + task.getResult().getData());
-                        DocumentSnapshot document = task.getResult();
-//                        Recipe r = document.toObject(Recipe.class);
-                        CircleImageView userPic = (CircleImageView) a.findViewById(R.id.userPic);
-                        TextView userName = (TextView) a.findViewById(R.id.username);
-                        TextView recipeName = (TextView) a.findViewById(R.id.recipeName);
-                        TextView recipeTime = (TextView) a.findViewById(R.id.recipeTime);
-                        TextView recipeServings = (TextView) a.findViewById(R.id.recipeServings);
-                        TextView recipeBio = (TextView) a.findViewById(R.id.recipeBio);
-                        ImageView recipePic = (ImageView) a.findViewById(R.id.imageView);
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    String recipeName = documentSnapshot.getString("title");
+                    String recipeTime = documentSnapshot.getString("time");
+                    String recipeServings = documentSnapshot.getString("servings");
+                    String recipeDescription = documentSnapshot.getString("description");
+                    String recipeMainPhotoPath = documentSnapshot.getString("mainPhotoStoragePath");
+                    String recipePublisher = username;
+                    String recipePublisherPhotoPath = profileImgPath;
+                    long comparatorValue = documentSnapshot.getLong("timeCreated");
+                    recipeCompactObjectList.add(new RecipeCompactObject(recipeId, recipeName, recipeTime, recipeServings, recipeDescription, recipeMainPhotoPath, recipePublisher, recipePublisherPhotoPath, comparatorValue));
 
-                        userName.setText(username);
-                        recipeName.setText(document.getString("title"));
-                        recipeBio.setText(document.getString("description"));
-                        recipeTime.setText(document.getString("time"));
-                        recipeServings.setText(document.getString("servings"));
-                        feed.addView(a);
-
-                        //  TO-DO: Open Edit recipe
-                        a.setOnClickListener(new View.OnClickListener() {
+                    if (--adapterCounter == 0) {
+                        Collections.sort(recipeCompactObjectList, new Comparator<RecipeCompactObject>() {
                             @Override
-                            public void onClick(View v) {
-                                Intent intent = new Intent(getActivity(), ManageRecipe.class);
-                                intent.putExtra("EDIT", true);
-                                intent.putExtra("ID", t);
-                                startActivity(intent);
+                            public int compare(RecipeCompactObject a, RecipeCompactObject b) {
+                                if (a.comparatorValue < b.comparatorValue) return -1;
+                                else if (a.comparatorValue > b.comparatorValue)  return 1;
+                                else return 0;
                             }
                         });
-                    } else {
-                        Log.d(TAG, "get failed with ", task.getException());
+                        mAdapter = new RecipeCompactAdapter(recipeCompactObjectList, getContext(), false);
+                        mRecyclerView.setAdapter(mAdapter);
                     }
                 }
             });
-
         }
     }
 }
