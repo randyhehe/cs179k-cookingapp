@@ -1,60 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<android.support.v4.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/swipe_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_above="@+id/bottomNavBar"
-    android:layout_alignParentLeft="true"
-    android:layout_alignParentStart="true"
-    android:layout_below="@+id/topNavBar"
-    android:id="@+id/scrollFeed"
-    android:scrollbars="none">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:id="@+id/recipesScrollView">
-
-            <TextView
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="5dp"
-                android:id="@+id/activityFeedTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Explore recipes"
-                android:gravity="center"
-                android:textSize="25sp"
-                android:textColor="#000000"/>
-            <TextView
-                android:id="@+id/activityFeedDesc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:text="Find new recipes from people around the world!"
-                android:gravity="center"
-                android:textSize="15sp"/>
-
-        </LinearLayout>
-
-
-    <Space
-        android:id="@+id/space"
-        android:layout_width="match_parent"
-        android:layout_height="20sp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/grid" />
-
-    <GridView
-        android:id="@+id/grid"
+    android:layout_height="match_parent">
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:numColumns="3"
-        android:verticalSpacing="1dp"
-        android:horizontalSpacing="1dp"
-        android:layout_below="@id/recipesScrollView"
-        android:scrollbars="none"
-        android:stretchMode="columnWidth"
-        android:gravity="center">
+        android:layout_above="@+id/bottomNavBar"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/topNavBar"
+        android:id="@+id/scrollFeed"
+        android:scrollbars="none">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:id="@+id/recipesScrollView">
 
-    </GridView>
-</RelativeLayout>
+                <TextView
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="5dp"
+                    android:id="@+id/activityFeedTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Explore recipes"
+                    android:gravity="center"
+                    android:textSize="25sp"
+                    android:textColor="#000000"/>
+                <TextView
+                    android:id="@+id/activityFeedDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:text="Find new recipes from people around the world!"
+                    android:gravity="center"
+                    android:textSize="15sp"/>
+
+            </LinearLayout>
+
+
+        <Space
+            android:id="@+id/space"
+            android:layout_width="match_parent"
+            android:layout_height="20sp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/grid" />
+
+        <GridView
+            android:id="@+id/grid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:numColumns="3"
+            android:verticalSpacing="1dp"
+            android:horizontalSpacing="1dp"
+            android:layout_below="@id/recipesScrollView"
+            android:scrollbars="none"
+            android:stretchMode="columnWidth"
+            android:gravity="center">
+
+        </GridView>
+    </RelativeLayout>
+</android.support.v4.widget.SwipeRefreshLayout>

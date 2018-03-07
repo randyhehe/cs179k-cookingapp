@@ -62,6 +62,7 @@ public class ManageRecipe extends AppCompatActivity {
     private int tagNumber = 0;
     private int methodNumber = 1;
     private int ingrNumber = 1;
+    private int deleteTempVar = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,7 +111,7 @@ public class ManageRecipe extends AppCompatActivity {
     }
 
     private void deleteRecipe(final DocumentSnapshot recipeSnapshot) {
-        Map<String, Object> recipeData = recipeSnapshot.getData();
+        final Map<String, Object> recipeData = recipeSnapshot.getData();
 
         // delete images from database
         deleteImageFromStorage((String) recipeData.get("mainPhotoStoragePath"));
@@ -121,26 +122,57 @@ public class ManageRecipe extends AppCompatActivity {
             else deleteImageFromStorage(storagePath);
         }
 
-        // delete recipe from users collection
         final DocumentReference userDoc = fbFirestore.collection("users").document(fbUser.getUid());
         userDoc.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 Map<String, Object> userData = documentSnapshot.getData();
                 Map<String, Boolean> recipes = (HashMap<String, Boolean>) userData.get("recipes");
+                // delete recipe from users collection
                 recipes.remove(recipeSnapshot.getId());
                 userDoc.update("recipes", recipes).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        // delete recipe from recipes collection
-                        fbFirestore.collection("recipes").document(recipeSnapshot.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                progressDialog.dismiss();
-                                Toast.makeText(getApplicationContext(), "Successfully deleted recipe!", Toast.LENGTH_LONG).show();
-                                finish();
+                        // delete all entries of this recipe in other's users "bookmarkedRecipes if exists"
+                        Map<String, Boolean> bookmarkedUsers = (HashMap<String, Boolean>) recipeData.get("bookmarkedUsers");
+                        if (bookmarkedUsers == null || bookmarkedUsers.size() == 0) {
+                            fbFirestore.collection("recipes").document(recipeSnapshot.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    progressDialog.dismiss();
+                                    Toast.makeText(getApplicationContext(), "Successfully deleted recipe!", Toast.LENGTH_LONG).show();
+                                    finish();
+                                }
+                            });
+                        } else {
+                            deleteTempVar = bookmarkedUsers.size();
+                            for (final String s : bookmarkedUsers.keySet()) {
+                                fbFirestore.collection("users").document(s).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        User user = documentSnapshot.toObject(User.class);
+                                        Map<String, Long> bookmarkedRecipes = user.getBookmarkedRecipes();
+                                        bookmarkedRecipes.remove(recipeSnapshot.getId());
+                                        fbFirestore.collection("users").document(s).update("bookmarkedRecipes", bookmarkedRecipes).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                // delete recipe from recipes collection
+                                                if (--deleteTempVar == 0) {
+                                                    fbFirestore.collection("recipes").document(recipeSnapshot.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            progressDialog.dismiss();
+                                                            Toast.makeText(getApplicationContext(), "Successfully deleted recipe!", Toast.LENGTH_LONG).show();
+                                                            finish();
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
                             }
-                        });
+                        }
                     }
                 });
             }

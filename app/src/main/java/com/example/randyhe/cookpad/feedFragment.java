@@ -26,6 +26,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +49,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,8 +62,10 @@ public class feedFragment extends Fragment {
     final private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final FirebaseStorage fbStorage = FirebaseStorage.getInstance();
     private final StorageReference storageReference = fbStorage.getReference();
-    List<String> origbookmarks;
+    Map<String, Long> origbookmarks;
+    Map<String, Long> bookmarks;
     List<String> listRecipes = new ArrayList<String>();
+    private RatingBar avgStarsDisp;
 
     public static feedFragment newInstance() {
         feedFragment fragment = new feedFragment();
@@ -120,7 +124,6 @@ public class feedFragment extends Fragment {
                     if(document.exists())
                     {
                         User user = document.toObject(User.class);
-                        List<String> bookmarks = user.getBookmarkedRecipes();
                         Map<String, Object> data = document.getData();
                         final String us = (String) data.get("username");
 
@@ -129,13 +132,7 @@ public class feedFragment extends Fragment {
 
                         if (bookmarks != null)
                         { //adds bookmarked recipes to the map
-                            for (int i = 0; i < bookmarks.size(); ++i)
-                            {
-                                if(!recipes.contains(bookmarks.get(i)))
-                                {
-                                    recipes.add(bookmarks.get(i)); //get that bookmarked recipe
-                                }
-                            }
+                            recipes.addAll(bookmarks.keySet());
                         }
 
                         String profileUrl = user.getProfilePhotoPath();
@@ -203,6 +200,13 @@ public class feedFragment extends Fragment {
                         TextView notificationDesc = (TextView) a.findViewById(R.id.notificationDesc);
                         final ImageView recipePic = (ImageView) a.findViewById(R.id.foodPic);
                         final ImageButton bookmark = (ImageButton) a.findViewById(R.id.bookmarkButton);
+                        avgStarsDisp = a.findViewById(R.id.avg_stars_disp);
+
+                        float avgS = 0;
+                        if(documentSnapshot.getString("total") != null && documentSnapshot.getString("total") != "") {
+                            avgS = Float.parseFloat(documentSnapshot.getString("total")) / Integer.parseInt(documentSnapshot.getString("number"));
+                        }
+                        avgStarsDisp.setRating(avgS);
 
                         recipeName.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -221,13 +225,13 @@ public class feedFragment extends Fragment {
                         {
                             recipeName.setText((String) data.get("title"));
                         }
-                        if((String) data.get("desciption") == null || (String) data.get("desciption") == "")
+                        if((String) data.get("description") == null || (String) data.get("description") == "")
                         {
                             recipeDesc.setText("No description available");
                         }
                         else
                         {
-                            recipeDesc.setText((String) data.get("desciption"));
+                            recipeDesc.setText((String) data.get("description"));
                         }
 
                         String profileP = profileUrl;
@@ -301,7 +305,7 @@ public class feedFragment extends Fragment {
                                 }
                             });
                         }
-                        if(origbookmarks.contains(documentSnapshot.getId()))
+                        if(origbookmarks.containsKey(documentSnapshot.getId()))
                         {
                             bookmark.setImageResource(R.drawable.ic_bookmark_black_24dp);
                         }
@@ -316,52 +320,52 @@ public class feedFragment extends Fragment {
                             {
                                 final DocumentReference docRef = db.collection("users").document(fbAuth.getCurrentUser().getUid());
                                 final DocumentReference recipeDocRef = db.collection("recipes").document(recipeID);
+
                                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task)
-                                    {
-                                        if (task.isSuccessful()) {
-                                                        if(origbookmarks.contains(documentSnapshot.getId()))
-                                                        {
-                                                            origbookmarks.remove(documentSnapshot.getId());
-                                                            docRef.update("bookmarkedRecipes",origbookmarks);
-                                                            bookmark.setImageResource(R.drawable.ic_bookmark_border_black_24dp);
-                                                            Toast.makeText(c,"Recipe has been unbookmarked.",Toast.LENGTH_SHORT).show();
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if(task.isSuccessful()) {
+                                            if(origbookmarks.containsKey(documentSnapshot.getId()))
+                                            {
+                                                origbookmarks.remove(documentSnapshot.getId());
+                                                docRef.update("bookmarkedRecipes",origbookmarks);
+                                                bookmark.setImageResource(R.drawable.ic_bookmark_border_black_24dp);
+                                                Toast.makeText(c,"Recipe has been unbookmarked.",Toast.LENGTH_SHORT).show();
 
-                                                            recipeDocRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                                                @Override
-                                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                                                    Map<String, Object> recipeData = documentSnapshot.getData();
-                                                                    Map<String, Boolean> bookmarkedUsers = (HashMap<String, Boolean>) recipeData.get("bookmarkedUsers");
-                                                                    bookmarkedUsers.remove(fbAuth.getCurrentUser().getUid());
-                                                                    recipeDocRef.update("bookmarkedUsers", bookmarkedUsers);
-                                                                }
-                                                            });
-                                                        }
-                                                        else
-                                                        {
-                                                            origbookmarks.add(documentSnapshot.getId());
-                                                            docRef.update("bookmarkedRecipes", origbookmarks);
-                                                            bookmark.setImageResource(R.drawable.ic_bookmark_black_24dp);
-                                                            Toast.makeText(c, "Recipe has been bookmarked!", Toast.LENGTH_SHORT).show();
-
-                                                            recipeDocRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                                                @Override
-                                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                                                    Map<String, Object> recipeData = documentSnapshot.getData();
-                                                                    Map<String, Boolean> bookmarkedUsers = (HashMap<String, Boolean>) recipeData.get("bookmarkedUsers");
-                                                                    bookmarkedUsers.put(fbAuth.getCurrentUser().getUid(), true);
-                                                                    recipeDocRef.update("bookmarkedUsers", bookmarkedUsers);
-                                                                }
-                                                            });
-                                                        }
-                                                    } else {
-                                                        Log.d(TAG, "get failed with ", task.getException());
+                                                recipeDocRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                        Map<String, Object> recipeData = documentSnapshot.getData();
+                                                        Map<String, Boolean> bookmarkedUsers = (HashMap<String, Boolean>) recipeData.get("bookmarkedUsers");
+                                                        bookmarkedUsers.put(fbAuth.getCurrentUser().getUid(), true);
+                                                        recipeDocRef.update("bookmarkedUsers", bookmarkedUsers);
                                                     }
+                                                });
+                                            }
+                                            else {
+                                                origbookmarks.put(documentSnapshot.getId(), new Date().getTime());
+                                                docRef.update("bookmarkedRecipes", origbookmarks);
+                                                bookmark.setImageResource(R.drawable.ic_bookmark_black_24dp);
+                                                Toast.makeText(c, "Recipe has been bookmarked!", Toast.LENGTH_SHORT).show();
+
+                                                recipeDocRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                        Map<String, Object> recipeData = documentSnapshot.getData();
+                                                        Map<String, Boolean> bookmarkedUsers = (HashMap<String, Boolean>) recipeData.get("bookmarkedUsers");
+                                                        bookmarkedUsers.remove(fbAuth.getCurrentUser().getUid());
+                                                        recipeDocRef.update("bookmarkedUsers", bookmarkedUsers);
+                                                    }
+                                                });
+                                            }
+                                        } else {
+                                            Log.d(TAG, "get failed with ", task.getException());
+                                        }
                                     }
                                 });
                             }
                         });
+
                         feed.addView(a);
                     }
                 }

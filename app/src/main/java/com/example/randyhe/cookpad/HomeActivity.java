@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -168,9 +167,12 @@ public class HomeActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
+        checkIfLoggedIn();
+    }
+
+    public void checkIfLoggedIn() {
         currentUser = mAuth.getCurrentUser();
-        if (currentUser == null)
-        { // not signed in
+        if (currentUser == null) {
             startActivity(new Intent(this, LoginActivity.class));
         }
     }
