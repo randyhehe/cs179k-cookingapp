@@ -10,6 +10,7 @@ Array.prototype.diff = function (a) {
 };
 
 exports.sendNotification = functions.firestore.document('/users/{userId}').onWrite(event => {
+  	var flag = 1;
 	var tkn = "tmp";
   
     var newData = event.data.data();
@@ -17,16 +18,37 @@ exports.sendNotification = functions.firestore.document('/users/{userId}').onWri
     var oldData = event.data.previous.data();
 
     //checks for new followings
-    var newDataArray = Object.keys(newData.following).map(function(key) {
-        return String(key);
-    })
+  	var newDAL = 0;
+  	var oldDAL = 0;
+    try {	//try getting following list
+      	var newDataArray = Object.keys(newData.following).map(function(key) {
+        	return String(key);
+    		})
+        newDAL = newDataArray.length;
+    }
+  	catch (e) {
+      	console.log("No following");
+      	flag = 0; //dont check followers if theres no list
+    }
 
-    var oldDataArray = Object.keys(oldData.following).map(function(key) {
-        return String(key);
-    })
+  	try { //try getting previous following list
+    	var oldDataArray = Object.keys(oldData.following).map(function(key) {
+        	return String(key);
+    		})
+        oldDAL = oldDataArray.length;
+    }
+  	catch (e) { //if one didnt exist, set to 0
+      	console.log("no followers previously, set to 0");
+      	oldDAL = 0;
+    }
 
-    if (newDataArray.length > oldDataArray.length) { //there is a new follower
-        var result = newDataArray.diff(oldDataArray); //get that new followers ID
+    if ((newDAL > oldDAL) && flag) { //there is a new follower
+        if (oldDAL == 0) {
+          var result = newDataArray[0]; //get the only follower ID
+        }
+      	else {
+          var result = newDataArray.diff(oldDataArray); //get that new followers ID
+        }
         console.log("Person to recieve it: " + result);
 
         const senderId = event.params.userId; //get the sender ID
@@ -71,17 +93,39 @@ exports.sendNotification = functions.firestore.document('/users/{userId}').onWri
       	
     }
   
+  	flag = 1;
   	//check for new bookmarks
-  	var newBookArray = Object.keys(newData.bookmarkedRecipes).map(function(key) {
-        return String(key);
-    })
+  	var newBAL = 0;
+  	var oldBAL = 0;
+  	try { //try to get new list of bookmarks
+      	var newBookArray = Object.keys(newData.bookmarkedRecipes).map(function(key) {
+        	return String(key);
+    		})
+        newBAL = newBookArray.length;
+        }
+  	catch (e) {
+      	console.log("No bookmarks");
+      	flag = 0; //dont check bookmarks
+    }
 
-    var oldBookArray = Object.keys(oldData.bookmarkedRecipes).map(function(key) {
-        return String(key);
-    })
+    try {
+      	var oldBookArray = Object.keys(oldData.bookmarkedRecipes).map(function(key) {
+        	return String(key);
+    		})
+        oldBAL = oldBookArray.length;
+        }
+  	catch (e) {
+      	console.log("No prevous bookmarks");
+      	oldBAL = 0; //set to 0 
+    }
     
-    if (newBookArray.length > oldBookArray.length) { //there is a new bookmark
-        var recipe = newBookArray.diff(oldBookArray); //get that new bookmarks recipe ID
+    if ((newBAL > oldBAL) && flag) { //there is a new bookmark
+        if (oldBAL == 0) {
+          var recipe = newBookArray[0]; //get the only bookmark ID
+        }
+      	else {
+          var recipe = newBookArray.diff(oldBookArray); //get new bookmarks recipe ID
+        }
         console.log("Recipe ID: " + recipe);
 
         var bsenderName = newData.username; //get senders username
