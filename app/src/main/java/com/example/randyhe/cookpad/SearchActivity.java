@@ -153,8 +153,8 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
                                     Collections.sort(recipeCompactObjectList, new Comparator<RecipeCompactObject>() {
                                         @Override
                                         public int compare(RecipeCompactObject a, RecipeCompactObject b) {
-                                            if (a.comparatorValue < b.comparatorValue) return -1;
-                                            else if (a.comparatorValue > b.comparatorValue)  return 1;
+                                            if (a.comparatorValue > b.comparatorValue) return -1;
+                                            else if (a.comparatorValue < b.comparatorValue)  return 1;
                                             else return 0;
                                         }
                                     });
