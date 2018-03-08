@@ -16,7 +16,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 app:layout_constraintDimensionRatio="1:1"
-                android:src="@drawable/paitan"
                 android:scaleType="fitXY"
                 android:paddingLeft="2dp"
                 android:paddingTop="2dp"
@@ -35,7 +34,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 app:layout_constraintDimensionRatio="1:1"
-                android:src="@drawable/paitan"
                 android:scaleType="fitXY"
                 android:padding="2dp"
                 />
@@ -52,7 +50,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 app:layout_constraintDimensionRatio="1:1"
-                android:src="@drawable/paitan"
                 android:scaleType="fitXY"
                 android:paddingRight="2dp"
                 android:paddingTop="2dp"
