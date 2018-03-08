@@ -92,6 +92,11 @@ public class bookmarkFragment extends Fragment implements SwipeRefreshLayout.OnR
                             db.collection("users").document(recipeSnapshot.getString("userId")).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                 @Override
                                 public void onSuccess(DocumentSnapshot recipeUserSnapshot) {
+                                    float recipeAvgRating = 0;
+                                    if(recipeSnapshot.getString("total") != null && recipeSnapshot.getString("total") != "") {
+                                        recipeAvgRating = Float.parseFloat(recipeSnapshot.getString("total")) / Integer.parseInt(recipeSnapshot.getString("number"));
+                                    }
+
                                     String recipeName = recipeSnapshot.getString("title");
                                     String recipeTime = recipeSnapshot.getString("time");
                                     String recipeServings = recipeSnapshot.getString("servings");
@@ -101,7 +106,7 @@ public class bookmarkFragment extends Fragment implements SwipeRefreshLayout.OnR
                                     String recipePublisher = user.getUsername();
                                     String recipePublisherPhotoPath = user.getProfilePhotoPath();
                                     long comparatorValue = bookmarks.get(recipeId);
-                                    recipeCompactObjectList.add(new RecipeCompactObject(recipeId, recipeName, recipeTime, recipeServings, recipeDescription, recipeMainPhotoPath, recipePublisher, recipePublisherPhotoPath, comparatorValue));
+                                    recipeCompactObjectList.add(new RecipeCompactObject(recipeId, recipeName, recipeTime, recipeServings, recipeDescription, recipeMainPhotoPath, recipePublisher, recipePublisherPhotoPath, recipeAvgRating, comparatorValue));
 
                                     if (--adapterCounter == 0) {
                                         Collections.sort(recipeCompactObjectList, new Comparator<RecipeCompactObject>() {

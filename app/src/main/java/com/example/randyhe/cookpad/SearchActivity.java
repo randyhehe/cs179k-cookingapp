@@ -133,6 +133,11 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
                         doc2.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                             @Override
                             public void onSuccess(final DocumentSnapshot recipeUserSnapshot) {
+                                float recipeAvgRating = 0;
+                                if(recipeSnapshot.getString("total") != null && recipeSnapshot.getString("total") != "") {
+                                    recipeAvgRating = Float.parseFloat(recipeSnapshot.getString("total")) / Integer.parseInt(recipeSnapshot.getString("number"));
+                                }
+
                                 String recipeName = recipeSnapshot.getString("title");
                                 String recipeTime = recipeSnapshot.getString("time");
                                 String recipeServings = recipeSnapshot.getString("servings");
@@ -142,7 +147,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
                                 String recipePublisher = user.getUsername();
                                 String recipePublisherPhotoPath = user.getProfilePhotoPath();
                                 long comparatorValue = recipeSnapshot.getLong("timeCreated");
-                                recipeCompactObjectList.add(new RecipeCompactObject(recipeId, recipeName, recipeTime, recipeServings, recipeDescription, recipeMainPhotoPath, recipePublisher, recipePublisherPhotoPath, comparatorValue));
+                                recipeCompactObjectList.add(new RecipeCompactObject(recipeId, recipeName, recipeTime, recipeServings, recipeDescription, recipeMainPhotoPath, recipePublisher, recipePublisherPhotoPath, recipeAvgRating, comparatorValue));
 
                                 if (--adapterCounter == 0) {
                                     Collections.sort(recipeCompactObjectList, new Comparator<RecipeCompactObject>() {
