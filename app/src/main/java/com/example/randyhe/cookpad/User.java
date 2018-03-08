@@ -43,7 +43,7 @@ public class User {
 
     public Map<String, Long> getBookmarkedRecipes() {
         if (bookmarkedRecipes == null) {
-            bookmarkedRecipes = new HashMap<>();
+            bookmarkedRecipes = new HashMap<String, Long>();
         }
         return bookmarkedRecipes;
     }

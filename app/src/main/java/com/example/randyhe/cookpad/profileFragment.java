@@ -180,7 +180,9 @@ public class profileFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                     tvNumFollowers.setText(Integer.toString(numFollowers));
                     tvNumFollowing.setText(Integer.toString(numFollowing));
-                    loadRecipeList(recipeList);
+                    if(recipeList != null) {
+                        loadRecipeList(recipeList);
+                    }
 
                 } else {
                     Log.d(TAG, "get failed with ", task.getException());
@@ -236,28 +238,35 @@ public class profileFragment extends Fragment implements SwipeRefreshLayout.OnRe
             recipeDocumentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    String recipeName = documentSnapshot.getString("title");
-                    String recipeTime = documentSnapshot.getString("time");
-                    String recipeServings = documentSnapshot.getString("servings");
-                    String recipeDescription = documentSnapshot.getString("description");
-                    String recipeMainPhotoPath = documentSnapshot.getString("mainPhotoStoragePath");
-                    String recipePublisher = username;
-                    String recipePublisherPhotoPath = profileImgPath;
-                    long comparatorValue = documentSnapshot.getLong("timeCreated");
-                    recipeCompactObjectList.add(new RecipeCompactObject(recipeId, recipeName, recipeTime, recipeServings, recipeDescription, recipeMainPhotoPath, recipePublisher, recipePublisherPhotoPath, comparatorValue));
+                    if(documentSnapshot.exists()) {
+                        float recipeAvgRating = 0;
+                        if(documentSnapshot.getString("total") != null && documentSnapshot.getString("total") != "") {
+                            recipeAvgRating = Float.parseFloat(documentSnapshot.getString("total")) / Integer.parseInt(documentSnapshot.getString("number"));
+                        }
 
-                    if (--adapterCounter == 0) {
-                        Collections.sort(recipeCompactObjectList, new Comparator<RecipeCompactObject>() {
-                            @Override
-                            public int compare(RecipeCompactObject a, RecipeCompactObject b) {
-                                if (a.comparatorValue < b.comparatorValue) return -1;
-                                else if (a.comparatorValue > b.comparatorValue)  return 1;
-                                else return 0;
-                            }
-                        });
-                        mAdapter = new RecipeCompactAdapter(recipeCompactObjectList, getContext(), false);
-                        mRecyclerView.setAdapter(mAdapter);
-                        mSwipeRefreshLayout.setRefreshing(false);
+                        String recipeName = documentSnapshot.getString("title");
+                        String recipeTime = documentSnapshot.getString("time");
+                        String recipeServings = documentSnapshot.getString("servings");
+                        String recipeDescription = documentSnapshot.getString("description");
+                        String recipeMainPhotoPath = documentSnapshot.getString("mainPhotoStoragePath");
+                        String recipePublisher = username;
+                        String recipePublisherPhotoPath = profileImgPath;
+                        long comparatorValue = documentSnapshot.getLong("timeCreated");
+                        recipeCompactObjectList.add(new RecipeCompactObject(recipeId, recipeName, recipeTime, recipeServings, recipeDescription, recipeMainPhotoPath, recipePublisher, recipePublisherPhotoPath, recipeAvgRating, comparatorValue));
+
+                        if (--adapterCounter == 0) {
+                            Collections.sort(recipeCompactObjectList, new Comparator<RecipeCompactObject>() {
+                                @Override
+                                public int compare(RecipeCompactObject a, RecipeCompactObject b) {
+                                    if (a.comparatorValue > b.comparatorValue) return -1;
+                                    else if (a.comparatorValue < b.comparatorValue) return 1;
+                                    else return 0;
+                                }
+                            });
+                            mAdapter = new RecipeCompactAdapter(recipeCompactObjectList, getContext(), false);
+                            mRecyclerView.setAdapter(mAdapter);
+                            mSwipeRefreshLayout.setRefreshing(false);
+                        }
                     }
                 }
             });
