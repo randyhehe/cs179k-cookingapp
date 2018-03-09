@@ -17,6 +17,11 @@
 
     </ScrollView>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="@drawable/shadowbottom" />
+
     <android.support.v7.widget.Toolbar
         android:id="@+id/indiv_toolbar"
         android:layout_width="match_parent"

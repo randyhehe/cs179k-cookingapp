@@ -118,6 +118,21 @@
             />
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/delete_rev"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/review_date"
+        android:paddingBottom="20dp">
+
+        <Button
+            android:id="@+id/delete_rev_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="Delete"
+            android:textSize="10dp" />
+    </LinearLayout>
 
 
 </RelativeLayout>

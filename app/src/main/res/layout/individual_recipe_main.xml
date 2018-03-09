@@ -187,7 +187,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingLeft="20dp"
-        android:paddingTop="20dp"
         android:focusableInTouchMode="true"
         android:layout_below="@id/main_block">
 
@@ -467,34 +466,35 @@
             android:paddingLeft="20dp"
             android:gravity="center_vertical"/>
 
-
     </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/review_message"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/rev"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/no_review_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15dp"
+            android:text="No reviews"
+            android:visibility="gone"
+            />
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/reviews"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/rev"
+        android:layout_below="@+id/review_message"
         android:orientation="vertical"
         android:paddingBottom="20dp">
 
 
     </LinearLayout>
-
-    <!--
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/reviews">
-
-            <ImageView
-                android:layout_width="fill_parent"
-                android:layout_height="50dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/white_rectangle"
-                />
-
-        </RelativeLayout>
-    -->
 
 </RelativeLayout>
