@@ -503,7 +503,7 @@ public class Individual_Recipe extends AppCompatActivity {
 
                                 if((String) document2.get("profilePhotoPath") == null || (String) document2.get("profilePhotoPath") == "")
                                 {
-                                    mainAvatar.setImageResource(R.drawable.kermit_cooking);
+                                    // default image
                                 }
                                 else
                                 {
@@ -569,7 +569,7 @@ public class Individual_Recipe extends AppCompatActivity {
             if(reviewList.get(i).photoOne == null && reviewList.get(i).photoTwo == null && reviewList.get(i).photoThree == null) {
                 if(reviewList.get(i).reviewPublisherPhotoPath == null || reviewList.get(i).reviewPublisherPhotoPath == "")
                 {
-                    reviewAvatar2.setImageResource(R.drawable.kermit_cooking);
+
                 }
                 else
                 {

@@ -112,8 +112,8 @@ public class bookmarkFragment extends Fragment implements SwipeRefreshLayout.OnR
                                         Collections.sort(recipeCompactObjectList, new Comparator<RecipeCompactObject>() {
                                             @Override
                                             public int compare(RecipeCompactObject a, RecipeCompactObject b) {
-                                                if (a.comparatorValue < b.comparatorValue) return -1;
-                                                else if (a.comparatorValue > b.comparatorValue)  return 1;
+                                                if (a.comparatorValue > b.comparatorValue) return -1;
+                                                else if (a.comparatorValue < b.comparatorValue)  return 1;
                                                 else return 0;
                                             }
                                         });
@@ -129,6 +129,13 @@ public class bookmarkFragment extends Fragment implements SwipeRefreshLayout.OnR
             }
         });
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getData();
+    }
+
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState)
