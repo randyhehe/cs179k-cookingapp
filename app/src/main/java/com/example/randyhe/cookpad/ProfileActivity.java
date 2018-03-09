@@ -45,7 +45,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Created by mcast on 1/28/2018.
  */
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     // publish and uploading
     private static final String TAG = "ProfileActivity";
@@ -88,22 +88,26 @@ public class ProfileActivity extends AppCompatActivity {
 //        String user = "eqCQpG2FgNcVire6kuB41YsWjQ42";
         setupViews();
         setupBtn(user, currentFirebaseUser.getUid());
-        getData(user);
 
-//        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
-//        mSwipeRefreshLayout.setOnRefreshListener(ProfileActivity.this);
-//        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
-//                android.R.color.holo_green_dark,
-//                android.R.color.holo_orange_dark,
-//                android.R.color.holo_blue_dark);
-//        mSwipeRefreshLayout.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                getData(user);
-//            }
-//        });
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        mSwipeRefreshLayout.setOnRefreshListener(ProfileActivity.this);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                getData(user);
+            }
+        });
 
         setupTopInfo(user);
+    }
+
+    @Override
+    public void onRefresh() {
+        getData(user);
     }
 
     @Override
@@ -260,6 +264,7 @@ public class ProfileActivity extends AppCompatActivity {
 //    }
 
     private void getData(String uID) {
+        mSwipeRefreshLayout.setRefreshing(true);
 //        mSwipeRefreshLayout.setRefreshing(true);
         DocumentReference docRef = db.collection("users").document(uID);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -346,7 +351,7 @@ public class ProfileActivity extends AppCompatActivity {
                             });
                             mAdapter = new RecipeCompactAdapter(recipeCompactObjectList, ProfileActivity.this, false);
                             mRecyclerView.setAdapter(mAdapter);
-//                            mSwipeRefreshLayout.setRefreshing(false);
+                            mSwipeRefreshLayout.setRefreshing(false);
                         }
                     }
                 }
