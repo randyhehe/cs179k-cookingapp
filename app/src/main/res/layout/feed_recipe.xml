@@ -28,7 +28,7 @@
             android:layout_centerVertical="true"
             android:layout_toEndOf="@+id/profile"
             android:layout_toRightOf="@+id/profile"
-            android:text="Leo bookmarked a recipe for:"
+            android:text=""
             android:textSize="15sp"/>
     </RelativeLayout>
 
@@ -92,7 +92,6 @@
             android:layout_marginLeft="10dp"
             android:layout_marginStart="10dp"
             android:textStyle="bold"
-            android:text="Tori Paitan Ramen"
             android:textColor="#000000"
             android:textSize="30sp" />
 
@@ -101,7 +100,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/recipeTitle"
-            android:text="by Jeremy"
             android:textSize="12sp"
             android:paddingLeft="5dp"
             android:paddingStart="5dp"/>
@@ -114,7 +112,6 @@
             android:layout_alignStart="@+id/recipeTitle"
             android:layout_below="@+id/recipePoster"
             android:layout_marginTop="2dp"
-            android:text="This is a simple eorijgoerigjeorig fokwepofkwpeofkwpeofkorog  oerkeorgkerogk"
             tools:textSize="14sp"
             android:ellipsize="end"
             android:maxLines ="3"
