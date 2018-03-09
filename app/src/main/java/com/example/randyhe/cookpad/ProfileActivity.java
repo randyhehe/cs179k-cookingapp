@@ -77,7 +77,6 @@ public class ProfileActivity extends AppCompatActivity {
     private String user;
 
     private TextView followButton;
-//    private String profilePhotoPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,23 +84,26 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.layout_center_profile);
 
         user = getIntent().getExtras().getString("ID");
-//        String user = "eqCQpG2FgNcVire6kuB41YsWjQ42";
         setupViews();
         setupBtn(user, currentFirebaseUser.getUid());
-        getData(user);
 
-//        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
-//        mSwipeRefreshLayout.setOnRefreshListener(ProfileActivity.this);
-//        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
-//                android.R.color.holo_green_dark,
-//                android.R.color.holo_orange_dark,
-//                android.R.color.holo_blue_dark);
-//        mSwipeRefreshLayout.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                getData(user);
-//            }
-//        });
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getData(user);
+            }
+        });
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                getData(user);
+            }
+        });
 
         setupTopInfo(user);
     }
@@ -116,12 +118,6 @@ public class ProfileActivity extends AppCompatActivity {
         super.onResume();
         getData(user);
     }
-
-//    @Override
-//    public void onRefresh() {
-//
-//        getData();
-//    }
 
     private void setupBtn(final String profileUID, final String currentUID) {
         // Removes edit profile button from layout, leaving just the follow button
@@ -224,43 +220,8 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
-//    private void getData(String uID) {
-//        DocumentReference docRef = db.collection("users").document(uID);
-//        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                if(task.isSuccessful()) {
-//                    Log.d(TAG, "DocumentSnapshot data: " + task.getResult().getData());
-//                    DocumentSnapshot document = task.getResult();
-//                    User user = document.toObject(User.class);
-//                    List<String> recipes = user.getRecipes();
-//                    tvProfileName.setText(user.getUsername());
-//                    tvNumRecipes.setText(Integer.toString(recipes.size()));
-//                    tvProfileBio.setText(user.getBio());
-//                    tvNumFollowers.setText(Integer.toString(user.getNumFollowers()));
-//                    tvNumFollowing.setText(Integer.toString(user.getNumFollowing()));
-//                    String profilePhotoPath = user.getProfilePhotoPath();
-//                    if(profilePhotoPath != null) {
-//                        Glide.with(ProfileActivity.this)
-//                                .using(new FirebaseImageLoader())
-//                                .load(storageReference.child(profilePhotoPath))
-//                                .into(profileImg);
-//                    }
-//                    else {
-//                        profileImg.setImageResource(R.drawable.profile_g);
-//                    }
-//                    loadRecipeList(recipes, user.getUsername(), profilePhotoPath);
-//
-//                } else {
-//                    Log.d(TAG, "get failed with ", task.getException());
-//                }
-//            }
-//        });
-//
-//    }
-
     private void getData(String uID) {
-//        mSwipeRefreshLayout.setRefreshing(true);
+        mSwipeRefreshLayout.setRefreshing(true);
         DocumentReference docRef = db.collection("users").document(uID);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -300,10 +261,10 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void loadRecipeList(final List<String> rList) {
-//        if (rList.size() < 1) {
-//            mSwipeRefreshLayout.setRefreshing(false);
-//            return;
-//        }
+        if (rList.size() < 1) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            return;
+        }
 
         mRecyclerView = findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -344,76 +305,15 @@ public class ProfileActivity extends AppCompatActivity {
                                     else return 0;
                                 }
                             });
-                            mAdapter = new RecipeCompactAdapter(recipeCompactObjectList, ProfileActivity.this, false);
+                            mAdapter = new RecipeCompactAdapter(recipeCompactObjectList, ProfileActivity.this, true);
                             mRecyclerView.setAdapter(mAdapter);
-//                            mSwipeRefreshLayout.setRefreshing(false);
+                            mSwipeRefreshLayout.setRefreshing(false);
                         }
                     }
                 }
             });
         }
     }
-//    private void loadRecipeList(final List<String> rList, final String user, final String profilePhotoPath) {
-//        final LinearLayout feed = (LinearLayout) findViewById(R.id.profileRecipeFeed);
-//
-//        for(int i = 0; i < rList.size(); i++) {
-//            final View a = getLayoutInflater().inflate(R.layout.layout_profile_recipebutton, null);
-//
-//            DocumentReference docRef = db.collection("recipes").document(rList.get(i));
-//            final String t = rList.get(i);
-//            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//                @Override
-//                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                    if(task.isSuccessful()) {
-//                        DocumentSnapshot document = task.getResult();
-//                        CircleImageView userPic = (CircleImageView) a.findViewById(R.id.userPic);
-//                        TextView username = (TextView) a.findViewById(R.id.username);
-//                        TextView recipeName = (TextView) a.findViewById(R.id.recipeName);
-//                        TextView recipeTime = (TextView) a.findViewById(R.id.recipeTime);
-//                        TextView recipeServings = (TextView) a.findViewById(R.id.recipeServings);
-//                        TextView recipeBio = (TextView) a.findViewById(R.id.recipeBio);
-//                        ImageView recipePic = (ImageView) a.findViewById(R.id.imageView);
-//
-//                        if (document.getString("mainPhotoStoragePath") != null) {
-//                            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(document.getString("mainPhotoStoragePath"));
-//
-//                            Glide.with(ProfileActivity.this /* context */)
-//                                    .using(new FirebaseImageLoader())
-//                                    .load(storageReference)
-//                                    .into(recipePic);
-//                        }
-//
-//                        if(profilePhotoPath != null) {
-//                            Glide.with(ProfileActivity.this)
-//                                    .using(new FirebaseImageLoader())
-//                                    .load(storageReference.child(profilePhotoPath))
-//                                    .into(userPic);
-//                        }
-//                        else {
-//                            userPic.setImageResource(R.drawable.profile_g);
-//                        }
-//                        username.setText(user);
-//                        recipeName.setText(document.getString("title"));
-//                        recipeBio.setText(document.getString("description"));
-//                        feed.addView(a);
-//
-//                        //  TO-DO: Open Edit recipe
-//                        a.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View v) {
-//                                Intent intent = new Intent(ProfileActivity.this, Individual_Recipe.class);
-//                                intent.putExtra("ID", t);
-//                                startActivity(intent);
-//                            }
-//                        });
-//                    } else {
-//                        Log.d(TAG, "get failed with ", task.getException());
-//                    }
-//                }
-//            });
-//
-//        }
-//    }
 
     private void followAction(final String profileUID, final String currentUID) {
         final DocumentReference currUserDoc = db.collection("users").document(currentUID);
