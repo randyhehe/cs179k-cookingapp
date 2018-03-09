@@ -131,6 +131,13 @@ public class bookmarkFragment extends Fragment implements SwipeRefreshLayout.OnR
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        getData();
+    }
+
+
+    @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState)
     {
         mSwipeRefreshLayout = view.findViewById(R.id.swipe_container);

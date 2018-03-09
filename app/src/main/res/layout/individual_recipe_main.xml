@@ -73,6 +73,7 @@
             android:layout_centerVertical="true"
             android:layout_below="@+id/avg_stars"
             android:paddingLeft="20dp"
+            android:src="@drawable/profile_g"
             />
 
         <TextView

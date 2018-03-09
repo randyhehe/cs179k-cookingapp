@@ -93,7 +93,6 @@ public class RecipeCompactAdapter extends RecyclerView.Adapter<RecipeCompactAdap
                     .load(storageReference.child(profilePhotoPath))
                     .into(userPic);
         } else { // load with default image
-            userPic.setImageResource(R.drawable.kermit_cooking);
         }
 
         // onclick recipe
