@@ -69,22 +69,12 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
     @Override
     public void onResume() {
         super.onResume();
-        mSwipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                populateData();
-            }
-        });
+        populateData();
     }
 
     @Override
     public void onRefresh() {
-        mSwipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                populateData();
-            }
-        });
+        populateData();
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {

@@ -17,7 +17,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.Button;
+import android.widget.GridView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -147,7 +150,6 @@ public class profileFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     @Override
     public void onRefresh() {
-
         getData();
     }
 
@@ -210,12 +212,6 @@ public class profileFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
-        mSwipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                getData();
-            }
-        });
     }
 
     private void loadRecipeList(final List<String> rList) {

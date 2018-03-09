@@ -314,10 +314,16 @@ public class Individual_Recipe extends AppCompatActivity {
                         final String path = (String) document.get("mainPhotoStoragePath");
                         storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
-                            public void onSuccess(Uri uri) {
+                            public void onSuccess(final Uri uri) {
                                 Glide.with(c)
                                         .load(uri.toString())
                                         .into(mainImage);
+                                mainImage.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        expandPhoto(uri);
+                                    }
+                                });
                             }
                         });
                     }

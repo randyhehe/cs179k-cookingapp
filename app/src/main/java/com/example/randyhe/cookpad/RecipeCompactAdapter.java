@@ -3,7 +3,6 @@ package com.example.randyhe.cookpad;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.media.Rating;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -93,6 +92,7 @@ public class RecipeCompactAdapter extends RecyclerView.Adapter<RecipeCompactAdap
                     .load(storageReference.child(profilePhotoPath))
                     .into(userPic);
         } else { // load with default image
+
         }
 
         // onclick recipe

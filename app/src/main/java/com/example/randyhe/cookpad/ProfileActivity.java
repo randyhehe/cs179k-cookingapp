@@ -45,7 +45,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Created by mcast on 1/28/2018.
  */
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     // publish and uploading
     private static final String TAG = "ProfileActivity";
@@ -106,6 +106,11 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         setupTopInfo(user);
+    }
+
+    @Override
+    public void onRefresh() {
+        getData(user);
     }
 
     @Override
