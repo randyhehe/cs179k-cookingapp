@@ -17,9 +17,6 @@
                 android:layout_height="0dp"
                 app:layout_constraintDimensionRatio="1:1"
                 android:scaleType="fitXY"
-                android:paddingLeft="2dp"
-                android:paddingTop="2dp"
-                android:paddingBottom="2dp"
                 />
 
         </android.support.constraint.ConstraintLayout>
@@ -35,7 +32,6 @@
                 android:layout_height="0dp"
                 app:layout_constraintDimensionRatio="1:1"
                 android:scaleType="fitXY"
-                android:padding="2dp"
                 />
 
         </android.support.constraint.ConstraintLayout>
@@ -51,9 +47,7 @@
                 android:layout_height="0dp"
                 app:layout_constraintDimensionRatio="1:1"
                 android:scaleType="fitXY"
-                android:paddingRight="2dp"
-                android:paddingTop="2dp"
-                android:paddingBottom="2dp"
+                android:padding="10dp"
                 />
 
         </android.support.constraint.ConstraintLayout>
