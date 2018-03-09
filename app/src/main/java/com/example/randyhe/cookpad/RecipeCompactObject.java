@@ -14,8 +14,9 @@ public class RecipeCompactObject {
     public String recipePublisher;
     public String recipePublisherPhotoPath;
     public long comparatorValue;
+    public float recipeAvgRating;
 
-    public RecipeCompactObject(String recipeId, String recipeTitle, String recipeTimeToCook, String recipeServings, String recipeDescription, String recipeMainPhotoPath, String recipePublisher, String recipePublisherPhotoPath, long comparatorValue) {
+    public RecipeCompactObject(String recipeId, String recipeTitle, String recipeTimeToCook, String recipeServings, String recipeDescription, String recipeMainPhotoPath, String recipePublisher, String recipePublisherPhotoPath, float recipeAvgRating, long comparatorValue) {
         this.recipeId = recipeId;
         this.recipeTitle = recipeTitle;
         this.recipeTimeToCook = recipeTimeToCook;
@@ -25,5 +26,6 @@ public class RecipeCompactObject {
         this.recipePublisher = recipePublisher;
         this.recipePublisherPhotoPath = recipePublisherPhotoPath;
         this.comparatorValue = comparatorValue;
+        this.recipeAvgRating = recipeAvgRating;
     }
 }

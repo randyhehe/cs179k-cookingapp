@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -510,10 +511,11 @@ public class ManageRecipe extends AppCompatActivity {
             Log.d(TAG, "Either uri or url should be null.");
             return;
         } else if (uri != null) {
+            imageButton.setScaleType(ImageButton.ScaleType.FIT_XY);
             imageButton.setImageURI(uri);
             imageButton.setTag(uri); // only set the uri tag if uploaded/took image from phone
         } else { // use url instead
-
+            imageButton.setScaleType(ImageButton.ScaleType.FIT_XY);
             Glide.with(ManageRecipe.this)
                     .using(new FirebaseImageLoader())
                     .load(storageReference.child(url))
@@ -544,6 +546,7 @@ public class ManageRecipe extends AppCompatActivity {
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int button) {
+                                imageButton.setScaleType(ImageButton.ScaleType.CENTER);
                                 photoOptions.setVisibility(View.GONE);
                                 imageButton.setTag(null);
                                 imageButton.setImageResource(android.R.drawable.ic_menu_camera);

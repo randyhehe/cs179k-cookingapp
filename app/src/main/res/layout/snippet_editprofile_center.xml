@@ -20,9 +20,9 @@
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="15dp"
-            android:src="@drawable/the_legend" />
+            android:src="@drawable/profile_g" />
 
-        <!--TO-DO: Make text clickable and go to upload photo activity-->
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -117,47 +117,6 @@
                 android:background="@null"
                 android:inputType="textMultiLine"
                 android:maxLines="3"/>
-
-
-        </RelativeLayout>
-
-        <!--Edit email field-->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/relLayout4"
-            android:text="Private Information"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:textSize="16sp"
-            android:id="@+id/textView1"
-            android:layout_marginTop="20dp"/>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/relLayout6"
-            android:layout_below="@id/textView1"
-            android:layout_marginTop="10dp"
-            android:padding="10dp"
-            android:background="@color/cardview_light_background">
-
-            <TextView
-                android:layout_width="66dp"
-                android:layout_height="35dp"
-                android:text="Email"
-                />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:id="@+id/editEmail"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="80dp"
-                android:background="@null"
-                android:inputType="textNoSuggestions"/>
-
-
         </RelativeLayout>
 
         <TextView
@@ -165,7 +124,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="Save Changes"
-            android:layout_below="@id/relLayout6"
+            android:layout_below="@id/relLayout4"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
             android:padding="10dp"

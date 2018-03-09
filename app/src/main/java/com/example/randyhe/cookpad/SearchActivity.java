@@ -56,7 +56,6 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
         fbAuth = FirebaseAuth.getInstance();
         fbStorage = FirebaseStorage.getInstance();
         storageReference = fbStorage.getReference();
-//        populateData();
 
         mSwipeRefreshLayout = findViewById(R.id.swipe_container);
         mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -65,6 +64,11 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         mSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
@@ -75,7 +79,12 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
 
     @Override
     public void onRefresh() {
-        populateData();
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                populateData();
+            }
+        });
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -133,6 +142,11 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
                         doc2.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                             @Override
                             public void onSuccess(final DocumentSnapshot recipeUserSnapshot) {
+                                float recipeAvgRating = 0;
+                                if(recipeSnapshot.getString("total") != null && recipeSnapshot.getString("total") != "") {
+                                    recipeAvgRating = Float.parseFloat(recipeSnapshot.getString("total")) / Integer.parseInt(recipeSnapshot.getString("number"));
+                                }
+
                                 String recipeName = recipeSnapshot.getString("title");
                                 String recipeTime = recipeSnapshot.getString("time");
                                 String recipeServings = recipeSnapshot.getString("servings");
@@ -142,14 +156,14 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
                                 String recipePublisher = user.getUsername();
                                 String recipePublisherPhotoPath = user.getProfilePhotoPath();
                                 long comparatorValue = recipeSnapshot.getLong("timeCreated");
-                                recipeCompactObjectList.add(new RecipeCompactObject(recipeId, recipeName, recipeTime, recipeServings, recipeDescription, recipeMainPhotoPath, recipePublisher, recipePublisherPhotoPath, comparatorValue));
+                                recipeCompactObjectList.add(new RecipeCompactObject(recipeId, recipeName, recipeTime, recipeServings, recipeDescription, recipeMainPhotoPath, recipePublisher, recipePublisherPhotoPath, recipeAvgRating, comparatorValue));
 
                                 if (--adapterCounter == 0) {
                                     Collections.sort(recipeCompactObjectList, new Comparator<RecipeCompactObject>() {
                                         @Override
                                         public int compare(RecipeCompactObject a, RecipeCompactObject b) {
-                                            if (a.comparatorValue < b.comparatorValue) return -1;
-                                            else if (a.comparatorValue > b.comparatorValue)  return 1;
+                                            if (a.comparatorValue > b.comparatorValue) return -1;
+                                            else if (a.comparatorValue < b.comparatorValue)  return 1;
                                             else return 0;
                                         }
                                     });

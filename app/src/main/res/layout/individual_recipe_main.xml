@@ -73,6 +73,7 @@
             android:layout_centerVertical="true"
             android:layout_below="@+id/avg_stars"
             android:paddingLeft="20dp"
+            android:src="@drawable/profile_g"
             />
 
         <TextView
@@ -267,7 +268,7 @@
                             android:layout_width="30dp"
                             android:layout_height="match_parent"
                             android:src="@android:drawable/ic_menu_camera"
-                             />
+                            />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -471,25 +472,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/rev"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="20dp">
 
 
     </LinearLayout>
 
-<!--
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/reviews">
+    <!--
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/reviews">
 
-        <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="50dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/white_rectangle"
-            />
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="50dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/white_rectangle"
+                />
 
-    </RelativeLayout>
--->
+        </RelativeLayout>
+    -->
 
 </RelativeLayout>

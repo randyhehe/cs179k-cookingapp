@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -13,14 +14,17 @@ import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +38,7 @@ public class HomeActivity extends AppCompatActivity
     final private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     final private FirebaseFirestore fbFirestore = FirebaseFirestore.getInstance();
     private FirebaseUser currentUser;
+    private static final String TAG = "TokenCreationInHome";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +47,8 @@ public class HomeActivity extends AppCompatActivity
         setContentView(R.layout.activity_home);
 
         final ImageButton topOptionsButton = (ImageButton) findViewById(R.id.options);
+
+        initFCM();
 
         topOptionsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,15 +70,6 @@ public class HomeActivity extends AppCompatActivity
                         if(item.getTitle().toString().equals("Create recipe"))
                         {
                             startActivity(new Intent(c, ManageRecipe.class));
-                        }
-                        if(item.getTitle().toString().equals("Account settings")) {
-//                            startActivity(new Intent(c, ProfileActivity.class));
-                            Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
-                            intent.putExtra("ID", "cPcTL3Xke2g2n0lILhKrLSzTDFV2");
-                            startActivity(intent);
-                        }
-                        if(item.getTitle().toString().equals("Individual Recipe")) {
-                            startActivity(new Intent(c, Individual_Recipe.class));
                         }
                         return true;
                     }
@@ -176,4 +174,34 @@ public class HomeActivity extends AppCompatActivity
             startActivity(new Intent(this, LoginActivity.class));
         }
     }
+
+    private void sendRegistrationToServer(String token) {
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final FirebaseUser currentFirebaseUser = mAuth.getCurrentUser();
+        Map<String, Object> tokens = new HashMap<>();
+        tokens.put("token", token);
+        db.collection("users").document(currentFirebaseUser.getUid()).update(tokens)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error writing document", e);
+                    }
+                });
+    }
+
+
+    private void initFCM(){
+        String token = FirebaseInstanceId.getInstance().getToken();
+        //Log.d(TAG, "initFCM: token: " + token);
+        sendRegistrationToServer(token);
+
+    }
+
+
 }

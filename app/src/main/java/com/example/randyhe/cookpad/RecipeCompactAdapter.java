@@ -3,11 +3,13 @@ package com.example.randyhe.cookpad;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.media.Rating;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -66,6 +68,7 @@ public class RecipeCompactAdapter extends RecyclerView.Adapter<RecipeCompactAdap
         final TextView recipeTime = recipeItem.findViewById(R.id.recipeTime);
         final TextView recipeServings = recipeItem.findViewById(R.id.recipeServings);
         final TextView recipeBio = recipeItem.findViewById(R.id.recipeBio);
+        final RatingBar recipeRating = recipeItem.findViewById(R.id.recipeRating);
 
         final RecipeCompactObject recipeCompactObject = mDataset.get(position);
 
@@ -74,6 +77,7 @@ public class RecipeCompactAdapter extends RecyclerView.Adapter<RecipeCompactAdap
         recipeServings.setText(recipeCompactObject.recipeServings);
         recipeBio.setText(recipeCompactObject.recipeDescription);
         userName.setText(recipeCompactObject.recipePublisher);
+        recipeRating.setRating(recipeCompactObject.recipeAvgRating);
 
         // load recipe image
         Glide.with(context)
@@ -89,7 +93,6 @@ public class RecipeCompactAdapter extends RecyclerView.Adapter<RecipeCompactAdap
                     .load(storageReference.child(profilePhotoPath))
                     .into(userPic);
         } else { // load with default image
-            userPic.setImageResource(R.drawable.kermit_cooking);
         }
 
         // onclick recipe

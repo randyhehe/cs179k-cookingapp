@@ -15,6 +15,7 @@
             android:layout_height="55dp"
             android:paddingLeft="20dp"
             android:layout_centerVertical="true"
+            android:src="@drawable/profile_g"
             />
 
         <TextView
@@ -60,6 +61,7 @@
             android:layout_height="wrap_content"
             android:textSize="15dp"
             android:paddingLeft="20dp"
+            android:paddingRight="20dp"
             android:paddingTop="10dp"
             />
 
@@ -88,7 +90,6 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:scaleType="fitXY"
-            android:src="@drawable/kermit_cooking"
             android:layout_marginRight="10dp"
             android:background="@null"/>
 
@@ -97,7 +98,6 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:scaleType="fitXY"
-            android:src="@drawable/kermit_cooking"
             android:background="@null"/>
 
     </LinearLayout>

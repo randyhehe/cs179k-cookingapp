@@ -61,8 +61,10 @@ public class FollowActivity extends AppCompatActivity {
         setContentView(R.layout.layout_followlist);
         final LinearLayout feed = (LinearLayout) findViewById(R.id.followfeed);
 
+        final TextView FollowTopBar = (TextView) findViewById(R.id.tvFollowList);
         String user = getIntent().getExtras().getString("ID");
         if(getIntent().getExtras().getBoolean("Followers")) {
+            FollowTopBar.setText("Followers");
             loadFollowersList(user, feed);
         }
         else {

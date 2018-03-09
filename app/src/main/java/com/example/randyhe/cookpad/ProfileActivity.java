@@ -1,9 +1,13 @@
 package com.example.randyhe.cookpad;
 
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -14,6 +18,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,6 +30,11 @@ import com.google.firebase.storage.StorageReference;
 
 import android.content.Intent;
 
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +55,12 @@ public class ProfileActivity extends AppCompatActivity {
     private final FirebaseStorage fbStorage = FirebaseStorage.getInstance();
     private final StorageReference storageReference = fbStorage.getReference();
 
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private int adapterCounter;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+
 
     private TextView tvProfileName;
     private TextView tvProfileBio;
@@ -52,7 +68,15 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView tvNumRecipes;
     private TextView tvNumFollowers;
     private TextView tvNumFollowing;
-    private Button followButton;
+    private List<String> recipeList;
+    private String profileImgPath;
+    private String username;
+    private String bio;
+    private int numFollowers;
+    private int numFollowing;
+    private String user;
+
+    private TextView followButton;
 //    private String profilePhotoPath;
 
     @Override
@@ -60,47 +84,44 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_center_profile);
 
-        String user = getIntent().getExtras().getString("ID");
+        user = getIntent().getExtras().getString("ID");
 //        String user = "eqCQpG2FgNcVire6kuB41YsWjQ42";
         setupViews();
         setupBtn(user, currentFirebaseUser.getUid());
         getData(user);
+
+//        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+//        mSwipeRefreshLayout.setOnRefreshListener(ProfileActivity.this);
+//        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+//                android.R.color.holo_green_dark,
+//                android.R.color.holo_orange_dark,
+//                android.R.color.holo_blue_dark);
+//        mSwipeRefreshLayout.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                getData(user);
+//            }
+//        });
+
         setupTopInfo(user);
     }
 
-
-    private Boolean isFollowing(final String profileUID, final String currentUID) {
-        DocumentReference docRef = db.collection("users").document(currentUID);
-        final Boolean[] isFollowingBool = {false};
-        final OnCompleteListener<DocumentSnapshot> isFollowing = new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful() && task.getResult() != null) {
-                    final DocumentSnapshot document = task.getResult();
-                    final Map<String, Object> docData = document.getData();
-                    if(docData.get("following") == null) {
-                        isFollowingBool[0] = false;
-                    }
-                    else {
-                        final Map<String, Boolean> followersList = (HashMap<String, Boolean>) docData.get("following");
-
-                        if (followersList.containsKey(profileUID)) {
-                            isFollowingBool[0] = true;
-                        } else {
-                            isFollowingBool[0] = false;
-                        }
-                    }
-                } else {
-                    /* Else possible errors below
-                    // !task.isSucessful(): document failed with exception: task.getException()
-                    // task.getResult() == null: document does not exist
-                    */
-                }
-            }
-        };
-        docRef.get().addOnCompleteListener(isFollowing);
-        return isFollowingBool[0];
+    @Override
+    public void onStart() {
+        super.onStart();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getData(user);
+    }
+
+//    @Override
+//    public void onRefresh() {
+//
+//        getData();
+//    }
 
     private void setupBtn(final String profileUID, final String currentUID) {
         // Removes edit profile button from layout, leaving just the follow button
@@ -117,7 +138,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Sets up follow button
         DocumentReference docRef = db.collection("users").document(currentUID);
-        final Boolean[] isFollowingBool = {false};
         final OnCompleteListener<DocumentSnapshot> isFollowing = new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -179,7 +199,7 @@ public class ProfileActivity extends AppCompatActivity {
         tvNumFollowers = (TextView) findViewById(R.id.textViewFollowers);
         tvNumFollowing = (TextView) findViewById(R.id.textViewFollowing);
         profileImg = (CircleImageView) findViewById(R.id.profileImg);
-        followButton = (Button) findViewById(R.id.follow);
+        followButton = (TextView) findViewById(R.id.follow);
     }
 
     private void setupTopInfo(final String profileUID) {
@@ -204,7 +224,43 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
+//    private void getData(String uID) {
+//        DocumentReference docRef = db.collection("users").document(uID);
+//        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                if(task.isSuccessful()) {
+//                    Log.d(TAG, "DocumentSnapshot data: " + task.getResult().getData());
+//                    DocumentSnapshot document = task.getResult();
+//                    User user = document.toObject(User.class);
+//                    List<String> recipes = user.getRecipes();
+//                    tvProfileName.setText(user.getUsername());
+//                    tvNumRecipes.setText(Integer.toString(recipes.size()));
+//                    tvProfileBio.setText(user.getBio());
+//                    tvNumFollowers.setText(Integer.toString(user.getNumFollowers()));
+//                    tvNumFollowing.setText(Integer.toString(user.getNumFollowing()));
+//                    String profilePhotoPath = user.getProfilePhotoPath();
+//                    if(profilePhotoPath != null) {
+//                        Glide.with(ProfileActivity.this)
+//                                .using(new FirebaseImageLoader())
+//                                .load(storageReference.child(profilePhotoPath))
+//                                .into(profileImg);
+//                    }
+//                    else {
+//                        profileImg.setImageResource(R.drawable.profile_g);
+//                    }
+//                    loadRecipeList(recipes, user.getUsername(), profilePhotoPath);
+//
+//                } else {
+//                    Log.d(TAG, "get failed with ", task.getException());
+//                }
+//            }
+//        });
+//
+//    }
+
     private void getData(String uID) {
+//        mSwipeRefreshLayout.setRefreshing(true);
         DocumentReference docRef = db.collection("users").document(uID);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -213,93 +269,151 @@ public class ProfileActivity extends AppCompatActivity {
                     Log.d(TAG, "DocumentSnapshot data: " + task.getResult().getData());
                     DocumentSnapshot document = task.getResult();
                     User user = document.toObject(User.class);
-                    List<String> recipes = user.getRecipes();
-                    tvProfileName.setText(user.getUsername());
-                    tvNumRecipes.setText(Integer.toString(recipes.size()));
-                    tvProfileBio.setText(user.getBio());
-                    tvNumFollowers.setText(Integer.toString(user.getNumFollowers()));
-                    tvNumFollowing.setText(Integer.toString(user.getNumFollowing()));
-                    String profilePhotoPath = user.getProfilePhotoPath();
-                    if(profilePhotoPath != null) {
+                    recipeList = user.getRecipes();
+                    username = user.getUsername();
+                    bio = user.getBio();
+                    numFollowers = user.getNumFollowers();
+                    numFollowing = user.getNumFollowing();
+                    tvProfileName.setText(username);
+                    tvNumRecipes.setText(Integer.toString(recipeList.size()));
+                    tvProfileBio.setText(bio);
+
+                    profileImgPath = user.getProfilePhotoPath();
+                    if (profileImgPath != null && !profileImgPath.equals("")) {
                         Glide.with(ProfileActivity.this)
                                 .using(new FirebaseImageLoader())
-                                .load(storageReference.child(profilePhotoPath))
+                                .load(storageReference.child(profileImgPath))
                                 .into(profileImg);
                     }
-                    else {
-                        profileImg.setImageResource(R.drawable.profile_g);
+
+                    tvNumFollowers.setText(Integer.toString(numFollowers));
+                    tvNumFollowing.setText(Integer.toString(numFollowing));
+                    if(recipeList != null) {
+                        loadRecipeList(recipeList);
                     }
-                    loadRecipeList(recipes, user.getUsername(), profilePhotoPath);
 
                 } else {
                     Log.d(TAG, "get failed with ", task.getException());
                 }
             }
         });
-
     }
 
-    private void loadRecipeList(final List<String> rList, final String user, final String profilePhotoPath) {
-        final LinearLayout feed = (LinearLayout) findViewById(R.id.profileRecipeFeed);
+    private void loadRecipeList(final List<String> rList) {
+//        if (rList.size() < 1) {
+//            mSwipeRefreshLayout.setRefreshing(false);
+//            return;
+//        }
 
-        for(int i = 0; i < rList.size(); i++) {
-            final View a = getLayoutInflater().inflate(R.layout.layout_profile_recipebutton, null);
+        mRecyclerView = findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
 
-            DocumentReference docRef = db.collection("recipes").document(rList.get(i));
-            final String t = rList.get(i);
-            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        mLayoutManager = new LinearLayoutManager(ProfileActivity.this); // maybe change to view
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        final List<RecipeCompactObject> recipeCompactObjectList = new ArrayList<>();
+
+        adapterCounter = rList.size();
+        for (int i = 0; i < rList.size(); i++) {
+            final String recipeId = rList.get(i);
+            DocumentReference recipeDocumentReference = db.collection("recipes").document(rList.get(i));
+            recipeDocumentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if(task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        CircleImageView userPic = (CircleImageView) a.findViewById(R.id.userPic);
-                        TextView username = (TextView) a.findViewById(R.id.username);
-                        TextView recipeName = (TextView) a.findViewById(R.id.recipeName);
-                        TextView recipeTime = (TextView) a.findViewById(R.id.recipeTime);
-                        TextView recipeServings = (TextView) a.findViewById(R.id.recipeServings);
-                        TextView recipeBio = (TextView) a.findViewById(R.id.recipeBio);
-                        ImageView recipePic = (ImageView) a.findViewById(R.id.imageView);
-
-                        if (document.getString("mainPhotoStoragePath") != null) {
-                            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(document.getString("mainPhotoStoragePath"));
-
-                            Glide.with(ProfileActivity.this /* context */)
-                                    .using(new FirebaseImageLoader())
-                                    .load(storageReference)
-                                    .into(recipePic);
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if(documentSnapshot.exists()) {
+                        float recipeAvgRating = 0;
+                        if(documentSnapshot.getString("total") != null && documentSnapshot.getString("total") != "") {
+                            recipeAvgRating = Float.parseFloat(documentSnapshot.getString("total")) / Integer.parseInt(documentSnapshot.getString("number"));
                         }
 
-                        if(profilePhotoPath != null) {
-                            Glide.with(ProfileActivity.this)
-                                    .using(new FirebaseImageLoader())
-                                    .load(storageReference.child(profilePhotoPath))
-                                    .into(userPic);
-                        }
-                        else {
-                            userPic.setImageResource(R.drawable.profile_g);
-                        }
-                        username.setText(user);
-                        recipeName.setText(document.getString("title"));
-                        recipeBio.setText(document.getString("description"));
-                        feed.addView(a);
+                        String recipeName = documentSnapshot.getString("title");
+                        String recipeTime = documentSnapshot.getString("time");
+                        String recipeServings = documentSnapshot.getString("servings");
+                        String recipeDescription = documentSnapshot.getString("description");
+                        String recipeMainPhotoPath = documentSnapshot.getString("mainPhotoStoragePath");
+                        String recipePublisher = username;
+                        String recipePublisherPhotoPath = profileImgPath;
+                        long comparatorValue = documentSnapshot.getLong("timeCreated");
+                        recipeCompactObjectList.add(new RecipeCompactObject(recipeId, recipeName, recipeTime, recipeServings, recipeDescription, recipeMainPhotoPath, recipePublisher, recipePublisherPhotoPath, recipeAvgRating, comparatorValue));
 
-                        //  TO-DO: Open Edit recipe
-                        a.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Intent intent = new Intent(ProfileActivity.this, Individual_Recipe.class);
-                                intent.putExtra("ID", t);
-                                startActivity(intent);
-                            }
-                        });
-                    } else {
-                        Log.d(TAG, "get failed with ", task.getException());
+                        if (--adapterCounter == 0) {
+                            Collections.sort(recipeCompactObjectList, new Comparator<RecipeCompactObject>() {
+                                @Override
+                                public int compare(RecipeCompactObject a, RecipeCompactObject b) {
+                                    if (a.comparatorValue > b.comparatorValue) return -1;
+                                    else if (a.comparatorValue < b.comparatorValue) return 1;
+                                    else return 0;
+                                }
+                            });
+                            mAdapter = new RecipeCompactAdapter(recipeCompactObjectList, ProfileActivity.this, false);
+                            mRecyclerView.setAdapter(mAdapter);
+//                            mSwipeRefreshLayout.setRefreshing(false);
+                        }
                     }
                 }
             });
-
         }
     }
+//    private void loadRecipeList(final List<String> rList, final String user, final String profilePhotoPath) {
+//        final LinearLayout feed = (LinearLayout) findViewById(R.id.profileRecipeFeed);
+//
+//        for(int i = 0; i < rList.size(); i++) {
+//            final View a = getLayoutInflater().inflate(R.layout.layout_profile_recipebutton, null);
+//
+//            DocumentReference docRef = db.collection("recipes").document(rList.get(i));
+//            final String t = rList.get(i);
+//            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                @Override
+//                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                    if(task.isSuccessful()) {
+//                        DocumentSnapshot document = task.getResult();
+//                        CircleImageView userPic = (CircleImageView) a.findViewById(R.id.userPic);
+//                        TextView username = (TextView) a.findViewById(R.id.username);
+//                        TextView recipeName = (TextView) a.findViewById(R.id.recipeName);
+//                        TextView recipeTime = (TextView) a.findViewById(R.id.recipeTime);
+//                        TextView recipeServings = (TextView) a.findViewById(R.id.recipeServings);
+//                        TextView recipeBio = (TextView) a.findViewById(R.id.recipeBio);
+//                        ImageView recipePic = (ImageView) a.findViewById(R.id.imageView);
+//
+//                        if (document.getString("mainPhotoStoragePath") != null) {
+//                            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(document.getString("mainPhotoStoragePath"));
+//
+//                            Glide.with(ProfileActivity.this /* context */)
+//                                    .using(new FirebaseImageLoader())
+//                                    .load(storageReference)
+//                                    .into(recipePic);
+//                        }
+//
+//                        if(profilePhotoPath != null) {
+//                            Glide.with(ProfileActivity.this)
+//                                    .using(new FirebaseImageLoader())
+//                                    .load(storageReference.child(profilePhotoPath))
+//                                    .into(userPic);
+//                        }
+//                        else {
+//                            userPic.setImageResource(R.drawable.profile_g);
+//                        }
+//                        username.setText(user);
+//                        recipeName.setText(document.getString("title"));
+//                        recipeBio.setText(document.getString("description"));
+//                        feed.addView(a);
+//
+//                        //  TO-DO: Open Edit recipe
+//                        a.setOnClickListener(new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View v) {
+//                                Intent intent = new Intent(ProfileActivity.this, Individual_Recipe.class);
+//                                intent.putExtra("ID", t);
+//                                startActivity(intent);
+//                            }
+//                        });
+//                    } else {
+//                        Log.d(TAG, "get failed with ", task.getException());
+//                    }
+//                }
+//            });
+//
+//        }
+//    }
 
     private void followAction(final String profileUID, final String currentUID) {
         final DocumentReference currUserDoc = db.collection("users").document(currentUID);

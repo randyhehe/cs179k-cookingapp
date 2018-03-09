@@ -74,7 +74,6 @@ public class EditProfileActivity extends AppCompatActivity {
         etName = findViewById(R.id.editName);
         etUsername = findViewById(R.id.editUsername);
         etBio = findViewById(R.id.editBio);
-        etEmail = findViewById(R.id.editEmail);
         confirmBtn = findViewById(R.id.confirmChanges);
 
         civProfile = findViewById(R.id.editProfilePhoto);
@@ -123,7 +122,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 Map<String, Object> updates = new HashMap<>();
                 updates.put("name", etName.getText().toString());
                 updates.put("username", etUsername.getText().toString());
-                updates.put("email", etEmail.getText().toString());
                 updates.put("bio", etBio.getText().toString());
 
                 final String picturePath  = "images/" + UUID.randomUUID().toString();
@@ -189,7 +187,6 @@ public class EditProfileActivity extends AppCompatActivity {
                     etName.setText(user.getName());
                     etUsername.setText(user.getUsername());
                     etBio.setText(user.getBio());
-                    etEmail.setText(user.getEmail());
 
                     if (user.getProfilePhotoPath() == null) {
                         // default image

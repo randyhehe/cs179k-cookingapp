@@ -44,6 +44,8 @@ import com.google.firebase.storage.StorageReference;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import java.util.HashMap;
@@ -113,6 +115,10 @@ public class Individual_Recipe extends AppCompatActivity {
     private Uri photo1Uri;
     private Uri photo2Uri;
     private Uri photo3Uri;
+
+    private Toolbar myToolbar;
+
+    private int cnt;
 
 
     private void setupBtn(final String profileUID, final String currentUID) {
@@ -267,7 +273,8 @@ public class Individual_Recipe extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_individual_recipe);
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.indiv_toolbar);
+
+        myToolbar = (Toolbar) findViewById(R.id.indiv_toolbar);
         setSupportActionBar(myToolbar);
         getSupportActionBar().setTitle("");
 
@@ -321,7 +328,7 @@ public class Individual_Recipe extends AppCompatActivity {
 
                     if(document.getString("description") == null || document.getString("description") == "")
                     {
-                        mainDescription.setText("No desc");
+                        mainDescription.setText("No description");
                     }
                     else
                     {
@@ -393,7 +400,7 @@ public class Individual_Recipe extends AppCompatActivity {
                         stepText.setText((String) methodList.get(i).get("instruction"));
 
                         if(methodList.get(i).get("storagePath") == null || methodList.get(i).get("storagePath") == "") {
-                            stepPhoto.setVisibility(View.INVISIBLE);
+                            stepPhoto.setVisibility(View.GONE);
                             stepPhoto.getLayoutParams().width = 0;
                             stepPhoto.getLayoutParams().height = 0;
                         }
@@ -422,142 +429,55 @@ public class Individual_Recipe extends AppCompatActivity {
                     }
 
 
+                    // Store and sort reviews
+                    final Map<String, Long> reviewMap = (document.get("reviews") != null) ? (HashMap<String, Long>) document.get("reviews") : new HashMap<String, Long>();
+                    cnt = reviewMap.size();
+                    final List<ReviewCompactObject> reviewCompactObjectList = new ArrayList<>();
 
-                    // DISPLAY REVIEWS
-                    final Map<String, Boolean> reviewMap = (document.get("reviews") != null) ? (HashMap<String, Boolean>) document.get("reviews") : new HashMap<String, Boolean>();
-
-                    final LinearLayout reviewLayout = (LinearLayout) findViewById(R.id.reviews);
                     for (final String key : reviewMap.keySet()) {
 
-
-
                         final DocumentReference docRef3 = db.collection("reviews").document(key);
-                        docRef3.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        docRef3.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                             @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    Log.d(TAG, key);
-                                    final View rev = getLayoutInflater().inflate(R.layout.ir_single_review, null);
+                            public void onSuccess(final DocumentSnapshot reviewSnapshot) {
+                                db.collection("users").document(reviewSnapshot.getString("author")).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot reviewUserSnapshot) {
+                                        String recipeId = reviewSnapshot.getString("recipeID");
+                                        String reviewDate = reviewSnapshot.getString("date");
+                                        String photoOne = reviewSnapshot.getString("photo1");
+                                        String photoTwo = reviewSnapshot.getString("photo2");
+                                        String photoThree = reviewSnapshot.getString("photo3");
+                                        float reviewStars = Float.parseFloat(reviewSnapshot.getString("stars"));
+                                        String reviewText = reviewSnapshot.getString("text");
 
-                                    DocumentSnapshot document3 = task.getResult();
+                                        User user = reviewUserSnapshot.toObject(User.class);
+                                        String reviewPublisher = user.getUsername();
+                                        String reviewPublisherPhotoPath = user.getProfilePhotoPath();
 
-                                    RatingBar revStarsDisp = (RatingBar) rev.findViewById(R.id.rev_stars_disp);
+                                        long comparatorValue = reviewMap.get(key);
+                                        ReviewCompactObject curr = new ReviewCompactObject(recipeId, reviewDate, photoOne, photoTwo, photoThree, reviewStars, reviewText, reviewPublisher, reviewPublisherPhotoPath, comparatorValue);
+                                        reviewCompactObjectList.add(curr);
 
-                                    final ImageView reviewAvatar = (ImageView) rev.findViewById(R.id.review_avatar);
-                                    final TextView reviewName = (TextView) rev.findViewById(R.id.review_name);
-                                    final TextView reviewText = (TextView) rev.findViewById(R.id.review_text);
-                                    final TextView reviewDateText = (TextView) rev.findViewById(R.id.review_date_text);
-                                    final LinearLayout reviewImages = (LinearLayout) rev.findViewById(R.id.review_images);
-                                    final ImageButton imageOne = (ImageButton) rev.findViewById(R.id.image1);
-                                    final ImageButton imageTwo = (ImageButton) rev.findViewById(R.id.image2);
-                                    final ImageButton imageThree = (ImageButton) rev.findViewById(R.id.image3);
-
-                                    //version 2
-                                    final View rev2 = getLayoutInflater().inflate(R.layout.ir_single_review2, null);
-
-                                    RatingBar revStarsDisp2 = (RatingBar) rev2.findViewById(R.id.rev_stars_disp2);
-
-                                    final ImageView reviewAvatar2 = (ImageView) rev2.findViewById(R.id.review_avatar2);
-                                    final TextView reviewName2 = (TextView) rev2.findViewById(R.id.review_name2);
-                                    final TextView reviewText2 = (TextView) rev2.findViewById(R.id.review_text2);
-                                    final TextView reviewDateText2 = (TextView) rev2.findViewById(R.id.review_date_text2);
-
-                                    String revAuthorID = document3.getString("author");
-                                    if(document3.getString("photo1") == null && document3.getString("photo2") == null && document3.getString("photo3") == null) {
-                                        reviewAvatar2.setImageResource(R.drawable.kermit_cooking);
-
-                                        reviewText2.setText(document3.getString("text"));
-                                        reviewDateText2.setText(document3.getString("date"));
-                                        revStarsDisp2.setRating(Float.parseFloat(document3.getString("stars")));
-
-                                        // GET REVIEWER USERNAME AND AVATAR
-
-                                        final DocumentReference docRefUser = db.collection("users").document(revAuthorID.toString());
-                                        docRefUser.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if(task.isSuccessful()) {
-                                                    Log.d(TAG, "Getting reviewer username");
-                                                    DocumentSnapshot documentUser = task.getResult();
-                                                    if(documentUser.exists()) {
-                                                        reviewName2.setText(documentUser.getString("username"));
-
-                                                        if((String) documentUser.get("profilePhotoPath") == null || (String) documentUser.get("profilePhotoPath") == "")
-                                                        {
-                                                            reviewAvatar2.setImageResource(R.drawable.kermit_cooking);
-                                                        }
-                                                        else
-                                                        {
-                                                            final String path = (String) documentUser.get("profilePhotoPath");
-                                                            storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                                                @Override
-                                                                public void onSuccess(Uri uri) {
-                                                                    Glide.with(c)
-                                                                            .load(uri.toString())
-                                                                            .into(reviewAvatar2);
-                                                                }
-                                                            });
-                                                        }
-
-                                                    }
+                                        if(--cnt == 0) {
+                                            Collections.sort(reviewCompactObjectList, new Comparator<ReviewCompactObject>() {
+                                                @Override
+                                                public int compare(ReviewCompactObject a, ReviewCompactObject b) {
+                                                    if (a.comparatorValue > b.comparatorValue) return -1;
+                                                    else if (a.comparatorValue < b.comparatorValue)  return 1;
+                                                    else return 0;
                                                 }
-                                                else {
-                                                    Log.d(TAG, "fail");
-                                                }
-                                            }
-                                        });
-                                        reviewLayout.addView(rev2);
+                                            });
+
+                                            displayReviews(reviewCompactObjectList);
+                                        }
                                     }
-                                    else {
-                                        reviewAvatar.setImageResource(R.drawable.kermit_cooking);
-
-                                        reviewText.setText(document3.getString("text"));
-                                        reviewDateText.setText(document3.getString("date"));
-                                        revStarsDisp.setRating(Float.parseFloat(document3.getString("stars")));
-
-                                        // GET REVIEWER USERNAME AND AVATAR
-                                        final DocumentReference docRefUser = db.collection("users").document(revAuthorID.toString());
-                                        docRefUser.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if(task.isSuccessful()) {
-                                                    Log.d(TAG, "Getting reviewer username");
-                                                    DocumentSnapshot documentUser = task.getResult();
-                                                    if(documentUser.exists()) {
-                                                        reviewName.setText(documentUser.getString("username"));
-
-                                                        if((String) documentUser.get("profilePhotoPath") == null || (String) documentUser.get("profilePhotoPath") == "")
-                                                        {
-                                                            reviewAvatar.setImageResource(R.drawable.kermit_cooking);
-                                                        }
-                                                        else
-                                                        {
-                                                            final String path = (String) documentUser.get("profilePhotoPath");
-                                                            storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                                                @Override
-                                                                public void onSuccess(Uri uri) {
-                                                                    Glide.with(c)
-                                                                            .load(uri.toString())
-                                                                            .into(reviewAvatar);
-                                                                }
-                                                            });
-                                                        }
-                                                    }
-                                                }
-                                                else {
-                                                    Log.d(TAG, "fail");
-                                                }
-                                            }
-                                        });
-                                        displayRevImages(imageOne, imageTwo, imageThree, docRef3);
-                                        reviewLayout.addView(rev);
-                                    }
-
-
-                                }
+                                });
                             }
                         });
+
                     }
+
 
                     // GET RECIPE USERNAME AND AVATAR
                     final String recAuthorID = document.getString("userId");
@@ -583,7 +503,7 @@ public class Individual_Recipe extends AppCompatActivity {
 
                                 if((String) document2.get("profilePhotoPath") == null || (String) document2.get("profilePhotoPath") == "")
                                 {
-                                    mainAvatar.setImageResource(R.drawable.kermit_cooking);
+                                    // default image
                                 }
                                 else
                                 {
@@ -617,98 +537,190 @@ public class Individual_Recipe extends AppCompatActivity {
 
     }
 
-    private void displayRevImages(final ImageButton revImage1, final ImageButton revImage2, final ImageButton revImage3, final DocumentReference documentReference) {
+    private void displayReviews(final List<ReviewCompactObject> reviewList) {
+        final LinearLayout reviewLayout = (LinearLayout) findViewById(R.id.reviews);
 
-        // Check that review images exists and set them
-        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()) {
-                    Log.d(TAG, "Checking review images");
-                    DocumentSnapshot userDocument = task.getResult();
-                    if(userDocument.getString("photo1") != null && userDocument.getString("photo1") != "") {  // set photo1
+        for (int i = 0; i < reviewList.size(); i++) {
+            final View rev = getLayoutInflater().inflate(R.layout.ir_single_review, null);
 
-                        storageReference.child(userDocument.getString("photo1")).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(final Uri uri) {
-                                Glide.with(c)
-                                        .load(uri.toString())
-                                        .into(revImage1);
+            RatingBar revStarsDisp = (RatingBar) rev.findViewById(R.id.rev_stars_disp);
 
+            final ImageView reviewAvatar = (ImageView) rev.findViewById(R.id.review_avatar);
+            final TextView reviewName = (TextView) rev.findViewById(R.id.review_name);
+            final TextView reviewText = (TextView) rev.findViewById(R.id.review_text);
+            final TextView reviewDateText = (TextView) rev.findViewById(R.id.review_date_text);
+            final LinearLayout reviewImages = (LinearLayout) rev.findViewById(R.id.review_images);
+            final ImageButton imageOne = (ImageButton) rev.findViewById(R.id.image1);
+            final ImageButton imageTwo = (ImageButton) rev.findViewById(R.id.image2);
+            final ImageButton imageThree = (ImageButton) rev.findViewById(R.id.image3);
 
-                                revImage1.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        expandPhoto(uri);
-                                    }
-                                });
-                            }
-                        });
+            //version 2
+            final View rev2 = getLayoutInflater().inflate(R.layout.ir_single_review2, null);
 
-                    }
-                    else {
-                        revImage1.setVisibility(View.INVISIBLE);
-                        revImage1.getLayoutParams().width = 0;
-                        revImage1.getLayoutParams().height = 0;
-                    }
+            RatingBar revStarsDisp2 = (RatingBar) rev2.findViewById(R.id.rev_stars_disp2);
 
-                    if(userDocument.getString("photo2") != null && userDocument.getString("photo2") != "") {  // set photo2
+            final ImageView reviewAvatar2 = (ImageView) rev2.findViewById(R.id.review_avatar2);
+            final TextView reviewName2 = (TextView) rev2.findViewById(R.id.review_name2);
+            final TextView reviewText2 = (TextView) rev2.findViewById(R.id.review_text2);
+            final TextView reviewDateText2 = (TextView) rev2.findViewById(R.id.review_date_text2);
 
-                        storageReference.child(userDocument.getString("photo2")).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(final Uri uri) {
-                                Glide.with(c)
-                                        .load(uri.toString())
-                                        .into(revImage2);
+            //
 
+            if(reviewList.get(i).photoOne == null && reviewList.get(i).photoTwo == null && reviewList.get(i).photoThree == null) {
+                if(reviewList.get(i).reviewPublisherPhotoPath == null || reviewList.get(i).reviewPublisherPhotoPath == "")
+                {
 
-                                revImage2.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        expandPhoto(uri);
-                                    }
-                                });
-                            }
-                        });
+                }
+                else
+                {
+                    storageReference.child(reviewList.get(i).reviewPublisherPhotoPath).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            Glide.with(c)
+                                    .load(uri.toString())
+                                    .into(reviewAvatar2);
+                        }
+                    });
+                }
+                revStarsDisp2.setRating(reviewList.get(i).reviewStars);
 
-                    }
-                    else {
-                        revImage2.setVisibility(View.INVISIBLE);
-                        revImage2.getLayoutParams().width = 0;
-                        revImage2.getLayoutParams().height = 0;
-                    }
+                reviewName2.setText(reviewList.get(i).reviewPublisher);
 
-                    if(userDocument.getString("photo3") != null && userDocument.getString("photo3") != "") {  // set photo3
-
-                        storageReference.child(userDocument.getString("photo3")).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(final Uri uri) {
-                                Glide.with(c)
-                                        .load(uri.toString())
-                                        .into(revImage3);
-
-
-                                revImage3.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        expandPhoto(uri);
-                                    }
-                                });
-                            }
-                        });
-
-                    }
-                    else {
-                        revImage3.setVisibility(View.INVISIBLE);
-                        revImage3.getLayoutParams().width = 0;
-                        revImage3.getLayoutParams().height = 0;
-                    }
+                if(reviewList.get(i).reviewText.equals("")) {
+                    reviewText2.setVisibility(View.GONE);
                 }
                 else {
-                    Log.d(TAG, "fail");
+                    reviewText2.setText(reviewList.get(i).reviewText);
+                    reviewText2.setVisibility(View.VISIBLE);
                 }
+
+                reviewDateText2.setText(reviewList.get(i).reviewDate);
+
+
+
+
+                reviewLayout.addView(rev2);
             }
-        });
+            else {
+                if(reviewList.get(i).reviewPublisherPhotoPath == null || reviewList.get(i).reviewPublisherPhotoPath == "")
+                {
+                }
+                else
+                {
+                    storageReference.child(reviewList.get(i).reviewPublisherPhotoPath).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            Glide.with(c)
+                                    .load(uri.toString())
+                                    .into(reviewAvatar);
+                        }
+                    });
+                }
+
+                revStarsDisp.setRating(reviewList.get(i).reviewStars);
+
+                reviewName.setText(reviewList.get(i).reviewPublisher);
+
+                if (reviewList.get(i).reviewText.equals("")){
+                    reviewText.setVisibility(View.GONE);
+                }
+                else {
+                    reviewText.setText(reviewList.get(i).reviewText);
+                    reviewText.setVisibility(View.VISIBLE);
+                }
+
+
+                reviewDateText.setText(reviewList.get(i).reviewDate);
+
+                displayRevImages(imageOne, imageTwo, imageThree, reviewList.get(i).photoOne, reviewList.get(i).photoTwo, reviewList.get(i).photoThree);
+                reviewLayout.addView(rev);
+            }
+
+        }
+    }
+
+    private void displayRevImages(final ImageButton revImage1, final ImageButton revImage2, final ImageButton revImage3, final String path1, final String path2, final String path3) {
+
+        // Check that review images exists and set them
+
+        if(path1 != null && path1 != "") {  // set photo1
+
+            storageReference.child(path1).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(final Uri uri) {
+                    Glide.with(c)
+                            .load(uri.toString())
+                            .into(revImage1);
+
+
+                    revImage1.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            expandPhoto(uri);
+                        }
+                    });
+                }
+            });
+
+        }
+        else {
+            revImage1.setVisibility(View.GONE);
+            revImage1.getLayoutParams().width = 0;
+            revImage1.getLayoutParams().height = 0;
+        }
+
+        if(path2 != null && path2 != "") {  // set photo2
+
+            storageReference.child(path2).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(final Uri uri) {
+                    Glide.with(c)
+                            .load(uri.toString())
+                            .into(revImage2);
+
+
+                    revImage2.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            expandPhoto(uri);
+                        }
+                    });
+                }
+            });
+
+        }
+        else {
+            revImage2.setVisibility(View.GONE);
+            revImage2.getLayoutParams().width = 0;
+            revImage2.getLayoutParams().height = 0;
+        }
+
+        if(path3 != null && path3 != "") {  // set photo3
+
+            storageReference.child(path3).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(final Uri uri) {
+                    Glide.with(c)
+                            .load(uri.toString())
+                            .into(revImage3);
+
+
+                    revImage3.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            expandPhoto(uri);
+                        }
+                    });
+                }
+            });
+
+        }
+        else {
+            revImage3.setVisibility(View.GONE);
+            revImage3.getLayoutParams().width = 0;
+            revImage3.getLayoutParams().height = 0;
+        }
+
     }
 
 
@@ -904,6 +916,9 @@ public class Individual_Recipe extends AppCompatActivity {
                                 });
                                 newReview.put("photo1", firebaseStorageFilePath);
                             }
+                            else {
+                                newReview.put("photo1", null);
+                            }
                             if(photo2Uri != null) {
                                 final String firebaseStorageFilePath = "images/" + UUID.randomUUID().toString();
                                 StorageReference ref = storageReference.child(firebaseStorageFilePath);
@@ -915,6 +930,9 @@ public class Individual_Recipe extends AppCompatActivity {
                                 });
                                 newReview.put("photo2", firebaseStorageFilePath);
                             }
+                            else {
+                                newReview.put("photo2", null);
+                            }
                             if(photo3Uri != null) {
                                 final String firebaseStorageFilePath = "images/" + UUID.randomUUID().toString();
                                 StorageReference ref = storageReference.child(firebaseStorageFilePath);
@@ -925,6 +943,9 @@ public class Individual_Recipe extends AppCompatActivity {
                                     }
                                 });
                                 newReview.put("photo3", firebaseStorageFilePath);
+                            }
+                            else {
+                                newReview.put("photo3", null);
                             }
 
                             db.collection("reviews").document(reviewId.toString())
@@ -942,21 +963,6 @@ public class Individual_Recipe extends AppCompatActivity {
                                         }
                                     });
 
-                            // Add review to user
-                            final OnCompleteListener<DocumentSnapshot> storeReviewIdtoUser = new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful() && task.getResult() != null) {
-                                        final DocumentSnapshot userDocument = task.getResult();
-                                        final Map<String, Object> userData = userDocument.getData();
-                                        final Map<String, Boolean> userRevs = (userData.get("reviewed") != null) ? (HashMap<String, Boolean>) userData.get("reviewed") : new HashMap<String, Boolean>();
-                                        userRevs.put(individualRecipeID.toString(), true);
-                                        userDocRef.update("reviewed", userRevs);
-                                    }
-                                }
-                            };
-                            userDocRef.get().addOnCompleteListener(storeReviewIdtoUser);
-
 
                             //Add review to recipe review set
                             final DocumentReference recipeDoc = db.collection("recipes").document(individualRecipeID.toString());
@@ -966,8 +972,8 @@ public class Individual_Recipe extends AppCompatActivity {
                                     if (task.isSuccessful() && task.getResult() != null) {
                                         final DocumentSnapshot document = task.getResult();
                                         final Map<String, Object> docData = document.getData();
-                                        final Map<String, Boolean> revs = (docData.get("reviews") != null) ? (HashMap<String, Boolean>) docData.get("reviews") : new HashMap<String, Boolean>();
-                                        revs.put(reviewId.toString(), true);
+                                        final Map<String, Long> revs = (docData.get("reviews") != null) ? (HashMap<String, Long>) docData.get("reviews") : new HashMap<String, Long>();
+                                        revs.put(reviewId.toString(), new Date().getTime());
                                         recipeDoc.update("reviews", revs);
 
                                         float tot = 0;
@@ -1035,31 +1041,48 @@ public class Individual_Recipe extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.recipe_menu, menu);
         final MenuItem bookmarkItem = menu.findItem(R.id.bookmark);
 
-        // Check bookmarks
-        final DocumentReference dRef = db.collection("users").document(currentUser.getUid().toString());
-        dRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        // Get id of the recipe author
+        final DocumentReference docRef = db.collection("recipes").document(individualRecipeID.toString());
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()) {
-                    Log.d(TAG, "Checking bookmarks");
-                    DocumentSnapshot userDocument = task.getResult();
-                    User user = userDocument.toObject(User.class);
-                    Map<String, Long> bookmarks = user.getBookmarkedRecipes();
-                    if(bookmarks.containsKey(individualRecipeID))
-                    {
-                        bookmarkItem.setIcon(ContextCompat.getDrawable(Individual_Recipe.this, R.drawable.ic_bookmark_black_24dp));
+                    Log.d(TAG, "Getting id of the recipe author");
+                    DocumentSnapshot document = task.getResult();
+                    final String recipeAuthorID = document.getString("userId");
+
+                    if(currentUser.getUid().toString().equals(recipeAuthorID)) { // if the user is viewing their own recipe
+                        myToolbar.setVisibility(View.GONE);
                     }
-                    else
-                    {
-                        bookmarkItem.setIcon(ContextCompat.getDrawable(Individual_Recipe.this, R.drawable.ic_bookmark_border_black_24dp));
+                    else {
+                        // Check bookmarks
+                        final DocumentReference dRef = db.collection("users").document(currentUser.getUid().toString());
+                        dRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    Log.d(TAG, "Checking bookmarks");
+                                    DocumentSnapshot userDocument = task.getResult();
+                                    User user = userDocument.toObject(User.class);
+                                    Map<String, Long> bookmarks = user.getBookmarkedRecipes();
+                                    if (bookmarks.containsKey(individualRecipeID)) {
+                                        bookmarkItem.setIcon(ContextCompat.getDrawable(Individual_Recipe.this, R.drawable.ic_bookmark_black_24dp));
+                                    } else {
+                                        bookmarkItem.setIcon(ContextCompat.getDrawable(Individual_Recipe.this, R.drawable.ic_bookmark_border_black_24dp));
+                                    }
+                                } else {
+                                    Log.d(TAG, "fail");
+                                }
+                            }
+                        });
                     }
                 }
                 else {
-                    Log.d(TAG, "fail");
+                    Log.d(TAG, "Getting id of the recipe author fail");
                 }
             }
         });
@@ -1151,5 +1174,3 @@ public class Individual_Recipe extends AppCompatActivity {
         }
     }
 }
-
-
