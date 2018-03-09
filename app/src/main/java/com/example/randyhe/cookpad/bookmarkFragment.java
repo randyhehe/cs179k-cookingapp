@@ -146,11 +146,5 @@ public class bookmarkFragment extends Fragment implements SwipeRefreshLayout.OnR
                 android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
-        mSwipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                getData();
-            }
-        });
     }
 }

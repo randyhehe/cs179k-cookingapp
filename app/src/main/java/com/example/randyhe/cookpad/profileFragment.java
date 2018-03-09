@@ -150,7 +150,6 @@ public class profileFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     @Override
     public void onRefresh() {
-
         getData();
     }
 
@@ -213,12 +212,6 @@ public class profileFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
-        mSwipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                getData();
-            }
-        });
     }
 
     private void loadRecipeList(final List<String> rList) {
