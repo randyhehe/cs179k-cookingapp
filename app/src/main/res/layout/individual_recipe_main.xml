@@ -123,7 +123,7 @@
             android:layout_below="@+id/avatar"
             android:layout_toRightOf="@+id/ingredients_title"
             android:layout_alignParentRight="true"
-            android:paddingRight="40dp"
+            android:paddingRight="20dp"
             />
 
         <LinearLayout
@@ -162,7 +162,7 @@
             android:layout_below="@+id/ingredients"
             android:layout_toRightOf="@+id/method_title"
             android:layout_alignParentRight="true"
-            android:paddingRight="40dp"
+            android:paddingRight="20dp"
             />
 
         <LinearLayout
@@ -215,7 +215,7 @@
         <EditText
             android:id="@+id/review_text_input"
             android:layout_width="350dp"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:hint="@string/indiv.reviewhint"
             android:inputType="textMultiLine"
             android:maxLength="240"
