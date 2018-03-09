@@ -14,6 +14,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 
@@ -92,6 +93,20 @@ public class exploreFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     if(task.isSuccessful())
                     {
                         final GridView g = (GridView) getView().findViewById(R.id.grid);
+                        g.setOnScrollListener(new AbsListView.OnScrollListener() {
+                            @Override
+                            public void onScrollStateChanged(AbsListView absListView, int i) {
+
+                            }
+
+                            @Override
+                            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
+                            {
+                                int topRowVerticalPosition = (g == null || g.getChildCount() == 0) ? 0 : g.getChildAt(0).getTop();
+                                mSwipeRefreshLayout.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+                            }
+                        });
+
                         View a = getLayoutInflater().inflate(R.layout.grid_imageview, null);
 
                         tempCounter = task.getResult().size();

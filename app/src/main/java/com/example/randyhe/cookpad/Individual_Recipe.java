@@ -604,7 +604,6 @@ public class Individual_Recipe extends AppCompatActivity {
             else {
                 if(reviewList.get(i).reviewPublisherPhotoPath == null || reviewList.get(i).reviewPublisherPhotoPath == "")
                 {
-                    reviewAvatar.setImageResource(R.drawable.kermit_cooking);
                 }
                 else
                 {

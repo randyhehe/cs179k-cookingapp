@@ -90,7 +90,6 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:scaleType="fitXY"
-            android:src="@drawable/kermit_cooking"
             android:layout_marginRight="10dp"
             android:background="@null"/>
 
@@ -99,7 +98,6 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:scaleType="fitXY"
-            android:src="@drawable/kermit_cooking"
             android:background="@null"/>
 
     </LinearLayout>
