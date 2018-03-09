@@ -87,7 +87,7 @@ public class profileFragment extends Fragment implements SwipeRefreshLayout.OnRe
         // Removes Follow button
         ConstraintLayout profileTop = (ConstraintLayout) view.findViewById(R.id.constraintLayout1);
 
-        Button followBtn = (Button) view.findViewById(R.id.follow);
+        TextView followBtn = (TextView) view.findViewById(R.id.follow);
         followBtn.setVisibility(View.GONE);
         profileTop.removeView(followBtn);
     }

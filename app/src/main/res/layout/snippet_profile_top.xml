@@ -15,6 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
+            android:text="2"
             android:textColor="@android:color/black"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -36,6 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
+            android:text="9"
             android:textColor="@android:color/black"
             android:textSize="18sp"
             app:layout_constraintEnd_toStartOf="@+id/textViewFollowing"
@@ -47,8 +49,8 @@
             android:id="@+id/textFollowers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginEnd="3dp"
+            android:layout_marginStart="3dp"
             android:text="Followers"
             android:textSize="12sp"
             app:layout_constraintEnd_toStartOf="@+id/textFollowing"
@@ -62,6 +64,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="15dp"
             android:clickable="true"
+            android:text="4"
             android:textColor="@android:color/black"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -83,7 +86,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="130dp"
             android:layout_marginStart="131dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/button_grey_background"
             android:text="Edit your profile"
             app:layout_constraintEnd_toEndOf="parent"
@@ -91,16 +94,22 @@
             app:layout_constraintTop_toBottomOf="@+id/textFollowers"
             android:clickable="true"/>
 
-        <Button
+        <TextView
             android:id="@+id/follow"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
+            android:padding="3dp"
+            android:gravity="center"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginEnd="130dp"
+            android:layout_marginStart="131dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/button_grey_background"
             android:text="Follow"
+            android:textColor="@color/colorAccent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textFollowers" />
+            app:layout_constraintTop_toBottomOf="@+id/textFollowers"
+            android:clickable="true"/>
 
 
     </android.support.constraint.ConstraintLayout>
