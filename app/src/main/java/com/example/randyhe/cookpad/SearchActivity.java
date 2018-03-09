@@ -56,7 +56,6 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
         fbAuth = FirebaseAuth.getInstance();
         fbStorage = FirebaseStorage.getInstance();
         storageReference = fbStorage.getReference();
-//        populateData();
 
         mSwipeRefreshLayout = findViewById(R.id.swipe_container);
         mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -65,6 +64,11 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         mSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
@@ -75,7 +79,12 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
 
     @Override
     public void onRefresh() {
-        populateData();
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                populateData();
+            }
+        });
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
