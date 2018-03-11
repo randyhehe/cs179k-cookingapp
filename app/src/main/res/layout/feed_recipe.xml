@@ -104,8 +104,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/recipeTitle"
             android:textSize="12sp"
-            android:paddingLeft="5dp"
-            android:paddingStart="5dp"/>
+            android:paddingLeft="10dp"
+            android:paddingStart="10dp"
+            android:paddingBottom="7dp"/>
 
         <TextView
             android:id="@+id/recipeDesc"
@@ -129,7 +130,8 @@
             android:textColor="#000000"
             android:text="Rating: "
             tools:textSize="15sp"
-            android:paddingStart="10dp"/>
+            android:paddingStart="94dp"
+            android:layout_marginBottom="5dp"/>
 
         <RatingBar
             android:id="@+id/avg_stars_disp"
@@ -140,7 +142,8 @@
             android:layout_toEndOf="@+id/recipeRatingText"
             android:layout_toRightOf="@+id/recipeRatingText"
             android:numStars="5"
-            android:stepSize=".5" />
+            android:stepSize=".5"
+            android:layout_marginBottom="1dp"/>
 
         <ImageButton
             android:id="@+id/bookmarkButton"
@@ -149,11 +152,12 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@+id/recipeRatingText"
-            android:layout_marginEnd="17dp"
-            android:layout_marginRight="17dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginRight="15dp"
             android:background="@color/fui_transparent"
             android:padding="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/bookmark" />
+            android:src="@drawable/bookmark"
+            android:layout_marginBottom="5dp"/>
     </RelativeLayout>
 </RelativeLayout>

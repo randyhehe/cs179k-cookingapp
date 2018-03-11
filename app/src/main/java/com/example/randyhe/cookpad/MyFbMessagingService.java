@@ -52,7 +52,7 @@ public class MyFbMessagingService extends FirebaseMessagingService {
         notificationManager.createNotificationChannel(channel);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
-        builder.setSmallIcon(R.drawable.smolllogo);
+        builder.setSmallIcon(R.drawable.smol);
         builder.setContentTitle(payload.get("title"));
         builder.setContentText(rm.getData().get("message"));
 
