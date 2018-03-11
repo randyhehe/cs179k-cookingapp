@@ -172,16 +172,18 @@ public class feedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                                             @Override
                                             public void onSuccess(DocumentSnapshot recipeSnapshot) {
                                                 // create compactObject with properties from recipeSnapshot
-//                                            if(currUser == )
-                                                if(!entry.getValue().isBookmark)
+                                                if(!currUser.equals(recipeSnapshot.get("userId")))
                                                 {
-                                                    list.add(new FeedIndividualRecipe(entry.getKey(),
-                                                            entry.getValue().user,entry.getValue().isBookmark,entry.getValue().photoPath,(long)recipeSnapshot.get("timeCreated")));
-                                                }
-                                                else
-                                                {
-                                                    list.add(new FeedIndividualRecipe(entry.getKey(),
-                                                            entry.getValue().user,entry.getValue().isBookmark,entry.getValue().photoPath,entry.getValue().compVal));
+                                                    if(!entry.getValue().isBookmark)
+                                                    {
+                                                        list.add(new FeedIndividualRecipe(entry.getKey(),
+                                                                entry.getValue().user,entry.getValue().isBookmark,entry.getValue().photoPath,(long)recipeSnapshot.get("timeCreated")));
+                                                    }
+                                                    else
+                                                    {
+                                                        list.add(new FeedIndividualRecipe(entry.getKey(),
+                                                                entry.getValue().user,entry.getValue().isBookmark,entry.getValue().photoPath,entry.getValue().compVal));
+                                                    }
                                                 }
 
                                                 if (--recipesCounter == 0) {
