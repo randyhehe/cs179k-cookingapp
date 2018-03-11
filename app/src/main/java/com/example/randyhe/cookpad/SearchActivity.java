@@ -56,7 +56,6 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
         fbAuth = FirebaseAuth.getInstance();
         fbStorage = FirebaseStorage.getInstance();
         storageReference = fbStorage.getReference();
-//        populateData();
 
         mSwipeRefreshLayout = findViewById(R.id.swipe_container);
         mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -65,12 +64,12 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
 
-        mSwipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                populateData();
-            }
-        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        populateData();
     }
 
     @Override
@@ -153,8 +152,8 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
                                     Collections.sort(recipeCompactObjectList, new Comparator<RecipeCompactObject>() {
                                         @Override
                                         public int compare(RecipeCompactObject a, RecipeCompactObject b) {
-                                            if (a.comparatorValue < b.comparatorValue) return -1;
-                                            else if (a.comparatorValue > b.comparatorValue)  return 1;
+                                            if (a.comparatorValue > b.comparatorValue) return -1;
+                                            else if (a.comparatorValue < b.comparatorValue)  return 1;
                                             else return 0;
                                         }
                                     });

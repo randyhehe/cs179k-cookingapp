@@ -21,7 +21,7 @@
         <activity android:name=".MainActivity"></activity>
         <activity
             android:name=".LoginActivity"
-            android:theme="@style/Base.Theme.AppCompat.Light"
+            android:theme="@style/AppTheme.NoActionBar">
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

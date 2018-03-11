@@ -17,7 +17,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.Button;
+import android.widget.GridView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -63,6 +66,7 @@ public class profileFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private TextView tvNumRecipes;
     private TextView tvNumFollowers;
     private TextView tvNumFollowing;
+    private TextView tvnoRecipesMsg;
     private List<String> recipeList;
     private String profileImgPath;
     private String username;
@@ -83,11 +87,12 @@ public class profileFragment extends Fragment implements SwipeRefreshLayout.OnRe
         tvNumFollowers = view.findViewById(R.id.textViewFollowers);
         tvNumFollowing = view.findViewById(R.id.textViewFollowing);
         profileImg = view.findViewById(R.id.profileImg);
+        tvnoRecipesMsg = view.findViewById(R.id.noRecipesMsg);
 
         // Removes Follow button
         ConstraintLayout profileTop = (ConstraintLayout) view.findViewById(R.id.constraintLayout1);
 
-        Button followBtn = (Button) view.findViewById(R.id.follow);
+        TextView followBtn = (TextView) view.findViewById(R.id.follow);
         followBtn.setVisibility(View.GONE);
         profileTop.removeView(followBtn);
     }
@@ -147,7 +152,6 @@ public class profileFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     @Override
     public void onRefresh() {
-
         getData();
     }
 
@@ -210,16 +214,13 @@ public class profileFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
-        mSwipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                getData();
-            }
-        });
     }
 
     private void loadRecipeList(final List<String> rList) {
         if (rList.size() < 1) {
+            tvnoRecipesMsg.setVisibility(View.VISIBLE);
+            mRecyclerView = getView().findViewById(R.id.my_recycler_view);
+            mRecyclerView.setVisibility(View.GONE);
             mSwipeRefreshLayout.setRefreshing(false);
             return;
         }

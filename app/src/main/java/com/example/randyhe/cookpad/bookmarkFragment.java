@@ -13,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,6 +41,8 @@ public class bookmarkFragment extends Fragment implements SwipeRefreshLayout.OnR
     private int adapterCounter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
+    private TextView noneMessage;
+
 
     public static bookmarkFragment newInstance() {
         bookmarkFragment fragment = new bookmarkFragment();
@@ -66,7 +69,6 @@ public class bookmarkFragment extends Fragment implements SwipeRefreshLayout.OnR
 
     public void getData() {
         mSwipeRefreshLayout.setRefreshing(true);
-        mRecyclerView = getView().findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getContext()); // maybe change to view
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -80,6 +82,8 @@ public class bookmarkFragment extends Fragment implements SwipeRefreshLayout.OnR
                 final Map<String, Long> bookmarks = user.getBookmarkedRecipes();
                 adapterCounter = bookmarks.size();
                 if (adapterCounter == 0) {
+                    noneMessage.setVisibility(View.VISIBLE);
+                    mRecyclerView.setVisibility(View.GONE);
                     mSwipeRefreshLayout.setRefreshing(false);
                     return;
                 }
@@ -112,14 +116,17 @@ public class bookmarkFragment extends Fragment implements SwipeRefreshLayout.OnR
                                         Collections.sort(recipeCompactObjectList, new Comparator<RecipeCompactObject>() {
                                             @Override
                                             public int compare(RecipeCompactObject a, RecipeCompactObject b) {
-                                                if (a.comparatorValue < b.comparatorValue) return -1;
-                                                else if (a.comparatorValue > b.comparatorValue)  return 1;
+                                                if (a.comparatorValue > b.comparatorValue) return -1;
+                                                else if (a.comparatorValue < b.comparatorValue)  return 1;
                                                 else return 0;
                                             }
                                         });
                                         mAdapter = new RecipeCompactAdapter(recipeCompactObjectList, getContext(), true);
                                         mRecyclerView.setAdapter(mAdapter);
                                         mSwipeRefreshLayout.setRefreshing(false);
+
+                                        noneMessage.setVisibility(View.GONE);
+                                        mRecyclerView.setVisibility(View.VISIBLE);
                                     }
                                 }
                             });
@@ -131,6 +138,13 @@ public class bookmarkFragment extends Fragment implements SwipeRefreshLayout.OnR
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        getData();
+    }
+
+
+    @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState)
     {
         mSwipeRefreshLayout = view.findViewById(R.id.swipe_container);
@@ -139,11 +153,8 @@ public class bookmarkFragment extends Fragment implements SwipeRefreshLayout.OnR
                 android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
-        mSwipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                getData();
-            }
-        });
+        mRecyclerView = view.findViewById(R.id.my_recycler_view);
+        noneMessage = view.findViewById(R.id.none_message);
+
     }
 }

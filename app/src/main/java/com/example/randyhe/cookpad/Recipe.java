@@ -32,7 +32,17 @@ public class Recipe {
     public Long timeCreated;
     public String mainPhotoStoragePath;
 
-    public Recipe() {} // Needed for Firebase
+    public Recipe() {
+    } // Needed for Firebase
+
+    public long getTimeCreated()
+    {
+        return this.timeCreated;
+    }
+    public String getUserId()
+    {
+        return this.userId;
+    }
 
     public Recipe(Uri mainPhotoUri, String userId, String title, String description, String servings, String time,  List<String> ingrs, List<Method> methods, List<String> tags) {
         this.mainPhotoUri = mainPhotoUri;

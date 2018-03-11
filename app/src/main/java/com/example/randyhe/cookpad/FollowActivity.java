@@ -2,13 +2,10 @@ package com.example.randyhe.cookpad;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,7 +13,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -26,11 +22,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Text;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,9 +42,11 @@ public class FollowActivity extends AppCompatActivity {
 
     private CircleImageView profilePic;
     private TextView tvUsername;
-    private TextView tvRecipeNum;
-    private TextView tvFollowersNum;
+    private TextView tvProfileInfo;
+    private TextView tvNoneMsg;
     private Button followBtn;
+    private int recipesNum;
+    private int followersNum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +55,7 @@ public class FollowActivity extends AppCompatActivity {
         final LinearLayout feed = (LinearLayout) findViewById(R.id.followfeed);
 
         final TextView FollowTopBar = (TextView) findViewById(R.id.tvFollowList);
+        tvNoneMsg = (TextView) findViewById(R.id.follow_none_msg);
         String user = getIntent().getExtras().getString("ID");
         if(getIntent().getExtras().getBoolean("Followers")) {
             FollowTopBar.setText("Followers");
@@ -75,8 +69,7 @@ public class FollowActivity extends AppCompatActivity {
 
     private void setupViews(View view) {
         tvUsername = (TextView) view.findViewById(R.id.tvUsername);
-        tvRecipeNum = (TextView) view.findViewById(R.id.recipeNum);
-        tvFollowersNum = (TextView) view.findViewById(R.id.followersNum);
+        tvProfileInfo= (TextView) view.findViewById(R.id.profileInfo);
         profilePic = (CircleImageView) view.findViewById(R.id.profilePic);
         followBtn = (Button) view.findViewById(R.id.followBtn);
     }
@@ -92,8 +85,13 @@ public class FollowActivity extends AppCompatActivity {
                     User user = document.toObject(User.class);
                     List<String> followers = user.getFollowers();
                     if(followers != null ) {
-                        for (int i = 0; i < followers.size(); i++) {
-                            loadItem(followers.get(i), feed);
+                        if(followers.size() < 1) {
+                            tvNoneMsg.setVisibility(View.VISIBLE);
+                        }
+                        else {
+                            for (int i = 0; i < followers.size(); i++) {
+                                loadItem(followers.get(i), feed);
+                            }
                         }
                     }
 
@@ -115,8 +113,14 @@ public class FollowActivity extends AppCompatActivity {
                     User user = document.toObject(User.class);
                     List<String> following = user.getFollowing();
                     if(following != null) {
-                        for (int i = 0; i < following.size(); i++) {
-                            loadItem(following.get(i), feed);
+                        if(following.size() < 1) {
+                            tvNoneMsg.setText("Following No Users");
+                            tvNoneMsg.setVisibility(View.VISIBLE);
+                        }
+                        else {
+                            for (int i = 0; i < following.size(); i++) {
+                                loadItem(following.get(i), feed);
+                            }
                         }
                     }
                 }
@@ -138,8 +142,8 @@ public class FollowActivity extends AppCompatActivity {
                     DocumentSnapshot document = task.getResult();
                     User user = document.toObject(User.class);
 
-                    int recipesNum = user.getNumRecipes();
-                    int followersNum = user.getNumFollowers();
+                    recipesNum = user.getNumRecipes();
+                    followersNum = user.getNumFollowers();
                     View followItem = getLayoutInflater().inflate(R.layout.snippet_follow_listitem, null);
                     setupViews(followItem);
 
@@ -155,8 +159,7 @@ public class FollowActivity extends AppCompatActivity {
                     }
 
                     tvUsername.setText(user.getUsername());
-                    tvRecipeNum.setText(String.valueOf(recipesNum) + " recipes");
-                    tvFollowersNum.setText(String.valueOf(followersNum) + " followers");
+                    tvProfileInfo.setText(String.valueOf(recipesNum) + " recipes | " + String.valueOf(followersNum) + " followers");
 
                     tvUsername.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -280,8 +283,9 @@ public class FollowActivity extends AppCompatActivity {
                     final Map<String, Boolean> followersList = (docData.get("followers") != null) ? (HashMap<String, Boolean>) docData.get("followers") : new HashMap<String, Boolean>();
                     followersList.put(currentUID, true);
                     profileUserDoc.update("followers", followersList);
-                    TextView tvFollowersNum = (TextView) view.findViewById(R.id.followersNum);
-                    tvFollowersNum.setText(Integer.toString(followersList.size()) + " followers");
+                    tvProfileInfo = (TextView) view.findViewById(R.id.profileInfo);
+                    followersNum = followersList.size();
+                    tvProfileInfo.setText(String.valueOf(recipesNum) + " recipes | " + String.valueOf(followersNum) + " followers");
                 } else {
                     /* Else possible errors below
                     // !task.isSucessful(): document failed with exception: task.getException()
@@ -326,8 +330,9 @@ public class FollowActivity extends AppCompatActivity {
                     final Map<String, Boolean> followersList = (docData.get("followers") != null) ? (HashMap<String, Boolean>) docData.get("followers") : new HashMap<String, Boolean>();
                     followersList.remove(currentUID);
                     profileUserDoc.update("followers", followersList);
-                    TextView tvFollowersNum = (TextView) view.findViewById(R.id.followersNum);
-                    tvFollowersNum.setText(Integer.toString(followersList.size()) + " followers");
+                    tvProfileInfo = (TextView) view.findViewById(R.id.profileInfo);
+                    followersNum = followersList.size();
+                    tvProfileInfo.setText(String.valueOf(recipesNum) + " recipes | " + String.valueOf(followersNum) + " followers");
                 } else {
                     /* Else possible errors below
                     // !task.isSucessful(): document failed with exception: task.getException()

@@ -15,6 +15,7 @@
             android:layout_height="55dp"
             android:paddingLeft="20dp"
             android:layout_centerVertical="true"
+            android:src="@drawable/profile_g"
             />
 
         <TextView
@@ -89,7 +90,6 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:scaleType="fitXY"
-            android:src="@drawable/kermit_cooking"
             android:layout_marginRight="10dp"
             android:background="@null"/>
 
@@ -98,7 +98,6 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:scaleType="fitXY"
-            android:src="@drawable/kermit_cooking"
             android:background="@null"/>
 
     </LinearLayout>
@@ -119,6 +118,21 @@
             />
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/delete_rev"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/review_date"
+        android:paddingBottom="20dp">
+
+        <Button
+            android:id="@+id/delete_rev_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="Delete"
+            android:textSize="10dp" />
+    </LinearLayout>
 
 
 </RelativeLayout>

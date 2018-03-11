@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -53,8 +54,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private EditText etName;
     private EditText etUsername;
     private EditText etBio;
-    private EditText etEmail;
-    private TextView confirmBtn;
+    private Button confirmBtn;
     private User user;
     private TextView tvEditProfilePic;
     private CircleImageView civProfile;
