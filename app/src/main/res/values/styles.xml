@@ -39,4 +39,10 @@
         <item name="android:textColorSecondary">#95CDBA</item>
     </style>
 
+    <style name="PrimaryFlatButton" parent="Theme.AppCompat.Light">
+        <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>
+        <item name="colorControlHighlight">@color/colorLightGray</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
 </resources>

@@ -61,7 +61,8 @@
         android:layout_weight="30"
         android:layout_marginTop="10dp"
         android:layout_marginRight="5dp"
-        android:id="@+id/followBtn"/>
+        android:id="@+id/followBtn"
+        android:theme="@style/PrimaryFlatButton"/>
 
 
 </LinearLayout>

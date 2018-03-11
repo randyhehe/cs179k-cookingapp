@@ -17,7 +17,7 @@
             android:layout_centerVertical="true"
             android:gravity="center"
             android:text="Follow"
-            android:textColor="@color/colorAccent"
+            android:textColor="#57D7AC"
             android:textSize="20sp" />
 
         <View
@@ -29,5 +29,15 @@
             android:layout_alignParentBottom="true"/>
 
     </RelativeLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/follow_none_msg"
+        android:text="No followers"
+        android:textSize="18sp"
+        android:padding="10sp"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
 
 </LinearLayout>

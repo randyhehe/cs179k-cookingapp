@@ -68,6 +68,7 @@ public class ProfileActivity extends AppCompatActivity implements SwipeRefreshLa
     private TextView tvNumRecipes;
     private TextView tvNumFollowers;
     private TextView tvNumFollowing;
+    private TextView tvNoRecipesMsg;
     private List<String> recipeList;
     private String profileImgPath;
     private String username;
@@ -201,6 +202,7 @@ public class ProfileActivity extends AppCompatActivity implements SwipeRefreshLa
         tvNumFollowing = (TextView) findViewById(R.id.textViewFollowing);
         profileImg = (CircleImageView) findViewById(R.id.profileImg);
         followButton = (TextView) findViewById(R.id.follow);
+        tvNoRecipesMsg = (TextView) findViewById(R.id.noRecipesMsg);
     }
 
     private void setupTopInfo(final String profileUID) {
@@ -267,6 +269,9 @@ public class ProfileActivity extends AppCompatActivity implements SwipeRefreshLa
 
     private void loadRecipeList(final List<String> rList) {
         if (rList.size() < 1) {
+            tvNoRecipesMsg.setVisibility(View.VISIBLE);
+            mRecyclerView = findViewById(R.id.my_recycler_view);
+            mRecyclerView.setVisibility(View.GONE);
             mSwipeRefreshLayout.setRefreshing(false);
             return;
         }

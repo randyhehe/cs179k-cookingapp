@@ -43,6 +43,7 @@ public class FollowActivity extends AppCompatActivity {
     private CircleImageView profilePic;
     private TextView tvUsername;
     private TextView tvProfileInfo;
+    private TextView tvNoneMsg;
     private Button followBtn;
     private int recipesNum;
     private int followersNum;
@@ -54,6 +55,7 @@ public class FollowActivity extends AppCompatActivity {
         final LinearLayout feed = (LinearLayout) findViewById(R.id.followfeed);
 
         final TextView FollowTopBar = (TextView) findViewById(R.id.tvFollowList);
+        tvNoneMsg = (TextView) findViewById(R.id.follow_none_msg);
         String user = getIntent().getExtras().getString("ID");
         if(getIntent().getExtras().getBoolean("Followers")) {
             FollowTopBar.setText("Followers");
@@ -83,8 +85,13 @@ public class FollowActivity extends AppCompatActivity {
                     User user = document.toObject(User.class);
                     List<String> followers = user.getFollowers();
                     if(followers != null ) {
-                        for (int i = 0; i < followers.size(); i++) {
-                            loadItem(followers.get(i), feed);
+                        if(followers.size() < 1) {
+                            tvNoneMsg.setVisibility(View.VISIBLE);
+                        }
+                        else {
+                            for (int i = 0; i < followers.size(); i++) {
+                                loadItem(followers.get(i), feed);
+                            }
                         }
                     }
 
@@ -106,8 +113,14 @@ public class FollowActivity extends AppCompatActivity {
                     User user = document.toObject(User.class);
                     List<String> following = user.getFollowing();
                     if(following != null) {
-                        for (int i = 0; i < following.size(); i++) {
-                            loadItem(following.get(i), feed);
+                        if(following.size() < 1) {
+                            tvNoneMsg.setText("Following No Users");
+                            tvNoneMsg.setVisibility(View.VISIBLE);
+                        }
+                        else {
+                            for (int i = 0; i < following.size(); i++) {
+                                loadItem(following.get(i), feed);
+                            }
                         }
                     }
                 }
