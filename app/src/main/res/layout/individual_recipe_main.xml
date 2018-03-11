@@ -29,7 +29,8 @@
             android:layout_below="@+id/main_image"
             android:paddingLeft="20dp"
             android:paddingTop="20dp"
-            android:textColor="#006600"
+            android:textStyle="bold"
+            android:textColor="@color/colorAccent"
             android:textSize="25dp" />
 
         <TextView
@@ -40,7 +41,6 @@
             android:paddingLeft="20dp"
             android:paddingTop="20dp"
             android:paddingBottom="20dp"
-            android:textColor="#006600"
             android:textSize="15dp" />
 
         <LinearLayout
@@ -48,13 +48,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/main_description"
+            android:layout_marginBottom="10dp"
             android:paddingLeft="20dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Average: "
-                android:textColor="#000000"/>
+                android:text="Average: " />
 
             <RatingBar
                 android:id="@+id/avg_stars_disp"
@@ -81,13 +81,12 @@
 
         <TextView
             android:id="@+id/main_name"
-            android:layout_width="225dp"
+            android:layout_width="220dp"
             android:layout_height="70dp"
             android:layout_below="@id/avg_stars"
             android:layout_toRightOf="@+id/avatar"
             android:gravity="center_vertical"
             android:paddingLeft="20dp"
-            android:textColor="#006600"
             android:textSize="15dp"
 
             />
@@ -100,6 +99,7 @@
             android:layout_toRightOf="@+id/main_name"
             android:layout_centerVertical="true"
             android:layout_marginTop="15dp"
+            android:theme="@style/PrimaryFlatButton"
             />
 
         <TextView
@@ -220,7 +220,6 @@
             android:inputType="textMultiLine"
             android:maxLength="240"
             android:layout_centerHorizontal="true"
-            android:paddingLeft="20dp"
             android:layout_below="@+id/stars_input"
             />
 
@@ -447,7 +446,9 @@
             android:layout_marginTop="10dp"
             android:layout_below="@+id/review_add_images"
             android:text="Submit"
-            android:layout_centerHorizontal="true"/>
+            android:layout_centerHorizontal="true"
+            android:theme="@style/PrimaryFlatButton"
+            />
 
     </RelativeLayout>
 
