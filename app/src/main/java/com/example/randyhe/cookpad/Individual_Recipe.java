@@ -1,5 +1,6 @@
 package com.example.randyhe.cookpad;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -97,6 +98,7 @@ public class Individual_Recipe extends AppCompatActivity {
     private TextView cookTime;
     private TextView addRevText;
     private TextView reviewTitle;
+    private TextView noReviewMessage;
 
     private  RatingBar avgStarsDisp;
 
@@ -120,6 +122,7 @@ public class Individual_Recipe extends AppCompatActivity {
 
     private int cnt;
 
+    private ProgressDialog progressDialog;
 
     private void setupBtn(final String profileUID, final String currentUID) {
         // Sets up follow button
@@ -292,8 +295,9 @@ public class Individual_Recipe extends AppCompatActivity {
         reviewTitle.setText("Reviews");
         addRevText.setText("Add Review");
 
+        displayNoReviewsMessage();
 
-        //
+
         final DocumentReference docRef = db.collection("recipes").document(individualRecipeID.toString());
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -304,7 +308,6 @@ public class Individual_Recipe extends AppCompatActivity {
 
 
                     // DISPLAY MAIN INFO
-
                     if((String) document.get("mainPhotoStoragePath") == null || (String) document.get("mainPhotoStoragePath") == "")
                     {
                         mainImage.setImageResource(R.drawable.eggs);
@@ -314,10 +317,16 @@ public class Individual_Recipe extends AppCompatActivity {
                         final String path = (String) document.get("mainPhotoStoragePath");
                         storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
-                            public void onSuccess(Uri uri) {
+                            public void onSuccess(final Uri uri) {
                                 Glide.with(c)
                                         .load(uri.toString())
                                         .into(mainImage);
+                                mainImage.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        expandPhoto(uri);
+                                    }
+                                });
                             }
                         });
                     }
@@ -430,53 +439,7 @@ public class Individual_Recipe extends AppCompatActivity {
 
 
                     // Store and sort reviews
-                    final Map<String, Long> reviewMap = (document.get("reviews") != null) ? (HashMap<String, Long>) document.get("reviews") : new HashMap<String, Long>();
-                    cnt = reviewMap.size();
-                    final List<ReviewCompactObject> reviewCompactObjectList = new ArrayList<>();
-
-                    for (final String key : reviewMap.keySet()) {
-
-                        final DocumentReference docRef3 = db.collection("reviews").document(key);
-                        docRef3.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                            @Override
-                            public void onSuccess(final DocumentSnapshot reviewSnapshot) {
-                                db.collection("users").document(reviewSnapshot.getString("author")).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onSuccess(DocumentSnapshot reviewUserSnapshot) {
-                                        String recipeId = reviewSnapshot.getString("recipeID");
-                                        String reviewDate = reviewSnapshot.getString("date");
-                                        String photoOne = reviewSnapshot.getString("photo1");
-                                        String photoTwo = reviewSnapshot.getString("photo2");
-                                        String photoThree = reviewSnapshot.getString("photo3");
-                                        float reviewStars = Float.parseFloat(reviewSnapshot.getString("stars"));
-                                        String reviewText = reviewSnapshot.getString("text");
-
-                                        User user = reviewUserSnapshot.toObject(User.class);
-                                        String reviewPublisher = user.getUsername();
-                                        String reviewPublisherPhotoPath = user.getProfilePhotoPath();
-
-                                        long comparatorValue = reviewMap.get(key);
-                                        ReviewCompactObject curr = new ReviewCompactObject(recipeId, reviewDate, photoOne, photoTwo, photoThree, reviewStars, reviewText, reviewPublisher, reviewPublisherPhotoPath, comparatorValue);
-                                        reviewCompactObjectList.add(curr);
-
-                                        if(--cnt == 0) {
-                                            Collections.sort(reviewCompactObjectList, new Comparator<ReviewCompactObject>() {
-                                                @Override
-                                                public int compare(ReviewCompactObject a, ReviewCompactObject b) {
-                                                    if (a.comparatorValue > b.comparatorValue) return -1;
-                                                    else if (a.comparatorValue < b.comparatorValue)  return 1;
-                                                    else return 0;
-                                                }
-                                            });
-
-                                            displayReviews(reviewCompactObjectList);
-                                        }
-                                    }
-                                });
-                            }
-                        });
-
-                    }
+                    storeAndSortReviews();
 
 
                     // GET RECIPE USERNAME AND AVATAR
@@ -537,6 +500,93 @@ public class Individual_Recipe extends AppCompatActivity {
 
     }
 
+    private void displayNoReviewsMessage() {
+
+        final DocumentReference docRef = db.collection("recipes").document(individualRecipeID.toString());
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()) {
+                    final DocumentSnapshot document = task.getResult();
+
+                    Map<String, Long> reviewMap = (document.get("reviews") != null) ? (HashMap<String, Long>) document.get("reviews") : new HashMap<String, Long>();
+                    if(reviewMap.size() == 0) {
+                        noReviewMessage.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        noReviewMessage.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
+    }
+
+    private void storeAndSortReviews() {
+
+        final DocumentReference docRef = db.collection("recipes").document(individualRecipeID.toString());
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()) {
+                    final DocumentSnapshot document = task.getResult();
+
+                    final Map<String, Long> reviewMap = (document.get("reviews") != null) ? (HashMap<String, Long>) document.get("reviews") : new HashMap<String, Long>();
+                    cnt = reviewMap.size();
+                    final List<ReviewCompactObject> reviewCompactObjectList = new ArrayList<>();
+
+                    for (final String key : reviewMap.keySet()) {
+
+                        final DocumentReference docRef3 = db.collection("reviews").document(key);
+                        docRef3.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(final DocumentSnapshot reviewSnapshot) {
+                                if (reviewSnapshot.exists()) {
+                                    db.collection("users").document(reviewSnapshot.getString("author")).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot reviewUserSnapshot) {
+                                            String recipeId = reviewSnapshot.getString("recipeID");
+                                            String reviewDate = reviewSnapshot.getString("date");
+                                            String photoOne = reviewSnapshot.getString("photo1");
+                                            String photoTwo = reviewSnapshot.getString("photo2");
+                                            String photoThree = reviewSnapshot.getString("photo3");
+                                            float reviewStars = Float.parseFloat(reviewSnapshot.getString("stars"));
+                                            String reviewText = reviewSnapshot.getString("text");
+
+                                            String reviewPublisherId = reviewSnapshot.getString("author");
+                                            User user = reviewUserSnapshot.toObject(User.class);
+                                            String reviewPublisher = user.getUsername();
+                                            String reviewPublisherPhotoPath = user.getProfilePhotoPath();
+
+                                            long comparatorValue = reviewMap.get(key);
+                                            ReviewCompactObject curr = new ReviewCompactObject(key, recipeId, reviewDate, photoOne, photoTwo, photoThree, reviewStars, reviewText, reviewPublisher, reviewPublisherId, reviewPublisherPhotoPath, comparatorValue);
+                                            reviewCompactObjectList.add(curr);
+
+                                            if (--cnt == 0) {
+                                                Collections.sort(reviewCompactObjectList, new Comparator<ReviewCompactObject>() {
+                                                    @Override
+                                                    public int compare(ReviewCompactObject a, ReviewCompactObject b) {
+                                                        if (a.comparatorValue > b.comparatorValue)
+                                                            return -1;
+                                                        else if (a.comparatorValue < b.comparatorValue)
+                                                            return 1;
+                                                        else return 0;
+                                                    }
+                                                });
+
+                                                displayReviews(reviewCompactObjectList);
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+
+                    }
+                }
+            }
+        });
+    }
+
     private void displayReviews(final List<ReviewCompactObject> reviewList) {
         final LinearLayout reviewLayout = (LinearLayout) findViewById(R.id.reviews);
 
@@ -564,7 +614,6 @@ public class Individual_Recipe extends AppCompatActivity {
             final TextView reviewText2 = (TextView) rev2.findViewById(R.id.review_text2);
             final TextView reviewDateText2 = (TextView) rev2.findViewById(R.id.review_date_text2);
 
-            //
 
             if(reviewList.get(i).photoOne == null && reviewList.get(i).photoTwo == null && reviewList.get(i).photoThree == null) {
                 if(reviewList.get(i).reviewPublisherPhotoPath == null || reviewList.get(i).reviewPublisherPhotoPath == "")
@@ -597,9 +646,25 @@ public class Individual_Recipe extends AppCompatActivity {
                 reviewDateText2.setText(reviewList.get(i).reviewDate);
 
 
-
-
                 reviewLayout.addView(rev2);
+
+                final Button deleteRevBtn2 = (Button) rev2.findViewById(R.id.delete_rev_btn2);
+                // Don't show the delete button if it's not the user's review
+                if (reviewList.get(i).reviewPublisherId.equals(currentUser.getUid().toString())) {
+
+                    final int iTemp = i;
+                    deleteRevBtn2.setVisibility(View.VISIBLE);
+                    deleteRevBtn2.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            deleteReview(reviewList.get(iTemp));
+                            forceReload();
+                        }
+                    });
+                }
+                else {
+                    deleteRevBtn2.setVisibility(View.GONE);
+                }
             }
             else {
                 if(reviewList.get(i).reviewPublisherPhotoPath == null || reviewList.get(i).reviewPublisherPhotoPath == "")
@@ -634,9 +699,110 @@ public class Individual_Recipe extends AppCompatActivity {
 
                 displayRevImages(imageOne, imageTwo, imageThree, reviewList.get(i).photoOne, reviewList.get(i).photoTwo, reviewList.get(i).photoThree);
                 reviewLayout.addView(rev);
+
+                final Button deleteRevBtn = (Button) rev.findViewById(R.id.delete_rev_btn);
+                // Don't show the delete button if it's not the user's review
+                if (reviewList.get(i).reviewPublisherId.equals(currentUser.getUid().toString())) {
+
+                    final int iTemp = i;
+                    deleteRevBtn.setVisibility(View.VISIBLE);
+                    deleteRevBtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            deleteReview(reviewList.get(iTemp));
+                            forceReload();
+                        }
+                    });
+                }
+                else {
+                    deleteRevBtn.setVisibility(View.GONE);
+                }
             }
 
         }
+    }
+
+    private void deleteReview(ReviewCompactObject review) {
+        final String revID = review.reviewId;
+        String recID = review.recipeId;
+        final float currRevStars = review.reviewStars;
+        progressDialog = ProgressDialog.show(Individual_Recipe.this, null, "Deleting review...");
+
+        // Remove review from recipe document and update total and number
+        final DocumentReference recDocR = db.collection("recipes").document(recID);
+
+        final OnCompleteListener<DocumentSnapshot> removeReview = new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final DocumentSnapshot recipeDocument = task.getResult();
+
+                    final Map<String, Object> recData = recipeDocument.getData();
+                    final Map<String, Long> revs = (recData.get("reviews") != null) ? (HashMap<String, Long>) recData.get("reviews") : new HashMap<String, Long>();
+                    revs.remove(revID);
+
+                    float tot = 0;
+                    if(recipeDocument.getString("total") != null && recipeDocument.getString("total") != "" && !recipeDocument.getString("total").equals("0")) {
+                        tot = Float.parseFloat(recipeDocument.getString("total")) - currRevStars;
+                    }
+
+                    int num = 0;
+                    if(recipeDocument.getString("number") != null && recipeDocument.getString("number") != "" && !recipeDocument.getString("number").equals("0")) {
+                        num = Integer.parseInt(recipeDocument.getString("number")) - 1;
+                    }
+                    recDocR.update("total", Float.toString(tot)).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                        }
+                    });
+                    recDocR.update("number", Integer.toString(num)).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                        }
+                    });
+                    recDocR.update("reviews", revs).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                        }
+                    });
+                }
+            }
+        };
+        recDocR.get().addOnCompleteListener(removeReview);
+
+
+        // Delete images from storage
+        if (review.photoOne != null) {
+            deleteImageFromStorage(review.photoOne);
+        }
+        if (review.photoTwo != null) {
+            deleteImageFromStorage(review.photoTwo);
+        }
+        if (review.photoThree != null) {
+            deleteImageFromStorage(review.photoThree);
+        }
+
+
+        // Remove review document
+        db.collection("reviews").document(revID).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), "Successfully deleted review!", Toast.LENGTH_LONG).show();
+                forceReload();
+            }
+        });
+
+    }
+
+    private void deleteImageFromStorage(String path) {
+        StorageReference ref = storageReference.child(path);
+        ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                // do nothing
+            }
+        });
     }
 
     private void displayRevImages(final ImageButton revImage1, final ImageButton revImage2, final ImageButton revImage3, final String path1, final String path2, final String path3) {
@@ -726,7 +892,6 @@ public class Individual_Recipe extends AppCompatActivity {
 
     private void setupReviewAddPhotos() {
 
-        // ADD PHOTOS STUFF
         //Review Image Upload
         final ImageButton firstPhotoBtn;
         final LinearLayout firstPhotoOptions;
@@ -792,7 +957,6 @@ public class Individual_Recipe extends AppCompatActivity {
             @Override
             public void onPickResult(PickResult pickResult) {
                 if (pickResult.getError() == null) {
-                    //
                     setImage(photoButton, photoOptions, photoEdit, photoDelete, pickResult.getUri(), null);
                 } else {
                     Toast.makeText(getApplicationContext(), pickResult.getError().getMessage(), Toast.LENGTH_SHORT).show();
@@ -876,136 +1040,119 @@ public class Individual_Recipe extends AppCompatActivity {
         reviewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Store the date
+                Date d = Calendar.getInstance().getTime();
 
-                final DocumentReference userDocRef = db.collection("users").document(currentUser.getUid().toString());
+                SimpleDateFormat f = new SimpleDateFormat("MM-dd-yyyy");
+                String formattedDate = f.format(d);
 
-                userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+
+                final Float stars = starsInput.getRating();
+
+                final UUID reviewId = UUID.randomUUID();
+
+                //ADD REVIEW
+                Map<String, Object> newReview = new HashMap<>();
+                newReview.put("author", currentUser.getUid().toString());
+                newReview.put("stars", Float.toString(stars));
+                newReview.put("text", etReview.getText().toString());
+                newReview.put("recipeID", individualRecipeID);
+                newReview.put("date", formattedDate);
+
+                if(photo1Uri != null) {
+                    final String firebaseStorageFilePath = "images/" + UUID.randomUUID().toString();
+                    StorageReference ref = storageReference.child(firebaseStorageFilePath);
+                    ref.putFile(photo1Uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                        }
+                    });
+                    newReview.put("photo1", firebaseStorageFilePath);
+                }
+                else {
+                    newReview.put("photo1", null);
+                }
+                if(photo2Uri != null) {
+                    final String firebaseStorageFilePath = "images/" + UUID.randomUUID().toString();
+                    StorageReference ref = storageReference.child(firebaseStorageFilePath);
+                    ref.putFile(photo2Uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                        }
+                    });
+                    newReview.put("photo2", firebaseStorageFilePath);
+                }
+                else {
+                    newReview.put("photo2", null);
+                }
+                if(photo3Uri != null) {
+                    final String firebaseStorageFilePath = "images/" + UUID.randomUUID().toString();
+                    StorageReference ref = storageReference.child(firebaseStorageFilePath);
+                    ref.putFile(photo3Uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                        }
+                    });
+                    newReview.put("photo3", firebaseStorageFilePath);
+                }
+                else {
+                    newReview.put("photo3", null);
+                }
+
+                db.collection("reviews").document(reviewId.toString())
+                        .set(newReview)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "Success in review addition");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Failure in review addition");
+                            }
+                        });
+
+
+                //Add review to recipe review set
+                final DocumentReference recipeDoc = db.collection("recipes").document(individualRecipeID.toString());
+                final OnCompleteListener<DocumentSnapshot> storeReviewId = new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()) {
-                            Log.d(TAG, "Adding review");
-                            DocumentSnapshot userDocumentMain = task.getResult();
-                            //Store the date
-                            Date d = Calendar.getInstance().getTime();
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            final DocumentSnapshot document = task.getResult();
+                            final Map<String, Object> docData = document.getData();
+                            final Map<String, Long> revs = (docData.get("reviews") != null) ? (HashMap<String, Long>) docData.get("reviews") : new HashMap<String, Long>();
+                            revs.put(reviewId.toString(), new Date().getTime());
+                            recipeDoc.update("reviews", revs);
 
-                            SimpleDateFormat f = new SimpleDateFormat("MM-dd-yyyy");
-                            String formattedDate = f.format(d);
-
-
-                            final Float stars = starsInput.getRating();
-
-                            final UUID reviewId = UUID.randomUUID();
-
-
-                            //ADD REVIEW
-                            Map<String, Object> newReview = new HashMap<>();
-                            newReview.put("author", currentUser.getUid().toString());
-                            newReview.put("stars", Float.toString(stars));
-                            newReview.put("text", etReview.getText().toString());
-                            newReview.put("recipeID", individualRecipeID);
-                            newReview.put("date", formattedDate);
-
-                            if(photo1Uri != null) {
-                                final String firebaseStorageFilePath = "images/" + UUID.randomUUID().toString();
-                                StorageReference ref = storageReference.child(firebaseStorageFilePath);
-                                ref.putFile(photo1Uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                                    }
-                                });
-                                newReview.put("photo1", firebaseStorageFilePath);
+                            float tot = 0;
+                            if(document.getString("total") == null || document.getString("total") == "") {
+                                tot = 0 + stars;
                             }
                             else {
-                                newReview.put("photo1", null);
+                                tot = Float.parseFloat(document.getString("total")) + stars;
                             }
-                            if(photo2Uri != null) {
-                                final String firebaseStorageFilePath = "images/" + UUID.randomUUID().toString();
-                                StorageReference ref = storageReference.child(firebaseStorageFilePath);
-                                ref.putFile(photo2Uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                                    }
-                                });
-                                newReview.put("photo2", firebaseStorageFilePath);
+                            int num = 0;
+                            if(document.getString("number") == null || document.getString("number") == "") {
+                                num = 0;
                             }
                             else {
-                                newReview.put("photo2", null);
+                                num = Integer.parseInt(document.getString("number"));
                             }
-                            if(photo3Uri != null) {
-                                final String firebaseStorageFilePath = "images/" + UUID.randomUUID().toString();
-                                StorageReference ref = storageReference.child(firebaseStorageFilePath);
-                                ref.putFile(photo3Uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                                    }
-                                });
-                                newReview.put("photo3", firebaseStorageFilePath);
-                            }
-                            else {
-                                newReview.put("photo3", null);
-                            }
-
-                            db.collection("reviews").document(reviewId.toString())
-                                    .set(newReview)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.d(TAG, "Success in review addition");
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.w(TAG, "Failure in review addition");
-                                        }
-                                    });
-
-
-                            //Add review to recipe review set
-                            final DocumentReference recipeDoc = db.collection("recipes").document(individualRecipeID.toString());
-                            final OnCompleteListener<DocumentSnapshot> storeReviewId = new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful() && task.getResult() != null) {
-                                        final DocumentSnapshot document = task.getResult();
-                                        final Map<String, Object> docData = document.getData();
-                                        final Map<String, Long> revs = (docData.get("reviews") != null) ? (HashMap<String, Long>) docData.get("reviews") : new HashMap<String, Long>();
-                                        revs.put(reviewId.toString(), new Date().getTime());
-                                        recipeDoc.update("reviews", revs);
-
-                                        float tot = 0;
-                                        if(document.getString("total") == null || document.getString("total") == "") {
-                                            tot = 0 + stars;
-                                        }
-                                        else {
-                                            tot = Float.parseFloat(document.getString("total")) + stars;
-                                        }
-                                        int num = 0;
-                                        if(document.getString("number") == null || document.getString("number") == "") {
-                                            num = 0;
-                                        }
-                                        else {
-                                            num = Integer.parseInt(document.getString("number"));
-                                        }
-                                        recipeDoc.update("total", Float.toString(tot));
-                                        recipeDoc.update("number", Integer.toString(num + 1));
-                                    }
-                                }
-                            };
-                            recipeDoc.get().addOnCompleteListener(storeReviewId);
-
-                            Toast.makeText(c,"Review Added!",Toast.LENGTH_SHORT).show();
-                            forceReload();
-
-                        }
-                        else {
-                            Log.d(TAG, "fail");
+                            recipeDoc.update("total", Float.toString(tot));
+                            recipeDoc.update("number", Integer.toString(num + 1));
                         }
                     }
-                });
+                };
+                recipeDoc.get().addOnCompleteListener(storeReviewId);
+
+                Toast.makeText(c,"Review Added!",Toast.LENGTH_SHORT).show();
+                forceReload();
 
             }
         });
@@ -1031,6 +1178,7 @@ public class Individual_Recipe extends AppCompatActivity {
         cookTime = (TextView) indiv_rec.findViewById(R.id.cook_time);
         addRevText = (TextView) indiv_rec.findViewById(R.id.add_rev_text);
         reviewTitle = (TextView) indiv_rec.findViewById(R.id.review_title);
+        noReviewMessage = (TextView) indiv_rec.findViewById(R.id.no_review_message);
 
         avgStarsDisp = (RatingBar) indiv_rec.findViewById(R.id.avg_stars_disp);
 

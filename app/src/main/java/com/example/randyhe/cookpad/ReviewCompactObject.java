@@ -5,6 +5,7 @@ package com.example.randyhe.cookpad;
  */
 
 public class ReviewCompactObject {
+    public String reviewId;
     public String recipeId;
     public String reviewDate;
     public String photoOne;
@@ -13,10 +14,12 @@ public class ReviewCompactObject {
     public float reviewStars;
     public String reviewText;
     public String reviewPublisher;
+    public String reviewPublisherId;
     public String reviewPublisherPhotoPath;
     public long comparatorValue;
 
-    public ReviewCompactObject(String recipeId, String reviewDate, String photoOne, String photoTwo, String photoThree, float reviewStars, String reviewText, String reviewPublisher, String reviewPublisherPhotoPath, long comparatorValue) {
+    public ReviewCompactObject(String reviewId, String recipeId, String reviewDate, String photoOne, String photoTwo, String photoThree, float reviewStars, String reviewText, String reviewPublisher, String reviewPublisherId, String reviewPublisherPhotoPath, long comparatorValue) {
+        this.reviewId = reviewId;
         this.recipeId = recipeId;
         this.reviewDate = reviewDate;
         this.photoOne = photoOne;
@@ -25,6 +28,7 @@ public class ReviewCompactObject {
         this.reviewStars = reviewStars;
         this.reviewText = reviewText;
         this.reviewPublisher = reviewPublisher;
+        this.reviewPublisherId = reviewPublisherId;
         this.reviewPublisherPhotoPath = reviewPublisherPhotoPath;
         this.comparatorValue = comparatorValue;
     }
