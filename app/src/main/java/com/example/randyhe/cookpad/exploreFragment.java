@@ -118,20 +118,24 @@ public class exploreFragment extends Fragment implements SwipeRefreshLayout.OnRe
                         }
 
                         for (final DocumentSnapshot document : task.getResult()) {
-                            String path = document.getString("mainPhotoStoragePath");
-                            storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    imgUrls.add(uri.toString());
-                                    recipeId.add(document.getId());
+                            if(document.exists()) {
+                                String path = document.getString("mainPhotoStoragePath");
+                                if(path != null && !path.equals("")) {
+                                    storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            imgUrls.add(uri.toString());
+                                            recipeId.add(document.getId());
 
-                                    if (--tempCounter == 0) {
-                                        final GridImageAdapter gia = new GridImageAdapter(c,R.layout.grid_imageview,"",imgUrls,recipeId);
-                                        g.setAdapter(gia);
-                                        mSwipeRefreshLayout.setRefreshing(false);
-                                    }
+                                            if (--tempCounter == 0) {
+                                                final GridImageAdapter gia = new GridImageAdapter(c, R.layout.grid_imageview, "", imgUrls, recipeId);
+                                                g.setAdapter(gia);
+                                                mSwipeRefreshLayout.setRefreshing(false);
+                                            }
+                                        }
+                                    });
                                 }
-                            });
+                            }
                         }
 
                     }
