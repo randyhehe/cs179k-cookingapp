@@ -26,8 +26,10 @@ import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Asus on 1/28/2018.
@@ -117,7 +119,7 @@ public class HomeActivity extends AppCompatActivity
                 fbFirestore.collection("recipes").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot documentSnapshots) {
-                        ArrayList<String> queryResults = new ArrayList<>();
+                        Set<String> queryResults = new HashSet<>();
 
                         List<DocumentSnapshot> recipes = documentSnapshots.getDocuments();
                         for (DocumentSnapshot document : recipes) {
@@ -148,9 +150,12 @@ public class HomeActivity extends AppCompatActivity
                             }
                         }
 
+                        ArrayList<String> res = new ArrayList<>();
+                        res.addAll(queryResults);
+
                         Intent intent = new  Intent(HomeActivity.this, SearchActivity.class);
                         intent.putExtra("searchString", s);
-                        intent.putStringArrayListExtra("ids", queryResults);
+                        intent.putStringArrayListExtra("ids", res);
                         startActivity(intent);
                     }
                 });
