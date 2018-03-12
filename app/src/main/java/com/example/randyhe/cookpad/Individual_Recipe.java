@@ -1011,8 +1011,7 @@ public class Individual_Recipe extends AppCompatActivity {
         }).show(getSupportFragmentManager());
     }
 
-
-    private void setImage(final ImageButton photoBtn, final LinearLayout photoOptions, final LinearLayout photoEdit, final ImageButton photoDelete, final Uri uri, String url) {
+        private void setImage(final ImageButton photoBtn, final LinearLayout photoOptions, final LinearLayout photoEdit, final ImageButton photoDelete, final Uri uri, String url) {
         if (uri == null && url == null || uri != null && url != null) {
             Log.d(TAG, "Either uri or url should be null.");
             return;

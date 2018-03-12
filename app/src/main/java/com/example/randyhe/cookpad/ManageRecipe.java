@@ -746,16 +746,16 @@ public class ManageRecipe extends AppCompatActivity {
                         if (currImg.getTag() != null && currImg.getTag() instanceof String) {
                             deletedRecipeImages.remove(currImg.getTag());
                         }
+                    }
 
-                        for (String s : deletedRecipeImages) {
-                            StorageReference ref = storageReference.child(s);
-                            ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    // do nothing
-                                }
-                            });
-                        }
+                    for (String s : deletedRecipeImages) {
+                        StorageReference ref = storageReference.child(s);
+                        ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                // do nothing
+                            }
+                        });
                     }
 
                     final String mainPhotoPath = (String) oldRecipeData.get("mainPhotoStoragePath");
