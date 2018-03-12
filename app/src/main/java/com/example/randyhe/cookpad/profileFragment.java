@@ -225,7 +225,9 @@ public class profileFragment extends Fragment implements SwipeRefreshLayout.OnRe
             return;
         }
 
+        tvnoRecipesMsg.setVisibility(View.GONE);
         mRecyclerView = getView().findViewById(R.id.my_recycler_view);
+        mRecyclerView.setVisibility(View.VISIBLE);
         mRecyclerView.setHasFixedSize(true);
 
         mLayoutManager = new LinearLayoutManager(getContext()); // maybe change to view

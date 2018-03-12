@@ -59,7 +59,7 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private void signin() {
-        startActivity(new Intent(SignupActivity.this, MainActivity.class));
+        startActivity(new Intent(SignupActivity.this, HomeActivity.class));
     }
 
     private void setupViews() {

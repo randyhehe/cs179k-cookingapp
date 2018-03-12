@@ -276,7 +276,9 @@ public class ProfileActivity extends AppCompatActivity implements SwipeRefreshLa
             return;
         }
 
+        tvNoRecipesMsg.setVisibility(View.GONE);
         mRecyclerView = findViewById(R.id.my_recycler_view);
+        mRecyclerView.setVisibility(View.VISIBLE);
         mRecyclerView.setHasFixedSize(true);
 
         mLayoutManager = new LinearLayoutManager(ProfileActivity.this); // maybe change to view
