@@ -511,16 +511,18 @@ public class ManageRecipe extends AppCompatActivity {
             Log.d(TAG, "Either uri or url should be null.");
             return;
         } else if (uri != null) {
-            imageButton.setScaleType(ImageButton.ScaleType.FIT_XY);
+            imageButton.setImageDrawable(null);
             imageButton.setImageURI(uri);
             imageButton.setTag(uri); // only set the uri tag if uploaded/took image from phone
-        } else { // use url instead
             imageButton.setScaleType(ImageButton.ScaleType.FIT_XY);
+        } else { // use url instead
+            imageButton.setImageDrawable(null);
             Glide.with(ManageRecipe.this)
                     .using(new FirebaseImageLoader())
                     .load(storageReference.child(url))
                     .into(imageButton);
             imageButton.setTag(url);
+            imageButton.setScaleType(ImageButton.ScaleType.FIT_XY);
         }
 
         photoOptions.setVisibility(View.VISIBLE);
