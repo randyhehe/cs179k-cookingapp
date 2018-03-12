@@ -650,6 +650,16 @@ public class Individual_Recipe extends AppCompatActivity {
 
                 reviewName2.setText(reviewList.get(i).reviewPublisher);
 
+                final String tempID2 = reviewList.get(i).reviewPublisherId;
+                reviewName2.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(Individual_Recipe.this, ProfileActivity.class);
+                        intent.putExtra("ID", tempID2);
+                        startActivity(intent);
+                    }
+                });
+
                 if(reviewList.get(i).reviewText.equals("")) {
                     reviewText2.setVisibility(View.GONE);
                 }
@@ -705,6 +715,16 @@ public class Individual_Recipe extends AppCompatActivity {
                 revStarsDisp.setRating(reviewList.get(i).reviewStars);
 
                 reviewName.setText(reviewList.get(i).reviewPublisher);
+
+                final String tempID = reviewList.get(i).reviewPublisherId;
+                reviewName.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(Individual_Recipe.this, ProfileActivity.class);
+                        intent.putExtra("ID", tempID);
+                        startActivity(intent);
+                    }
+                });
 
                 if (reviewList.get(i).reviewText.equals("")){
                     reviewText.setVisibility(View.GONE);
