@@ -55,6 +55,7 @@ public class MyFbMessagingService extends FirebaseMessagingService {
         builder.setSmallIcon(R.drawable.smol);
         builder.setContentTitle(payload.get("title"));
         builder.setContentText(rm.getData().get("message"));
+        builder.setAutoCancel(true);
 
         String type = payload.get("type"); //get type of notif
 
