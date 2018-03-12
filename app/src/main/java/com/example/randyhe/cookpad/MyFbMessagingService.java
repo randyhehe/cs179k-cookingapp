@@ -52,7 +52,7 @@ public class MyFbMessagingService extends FirebaseMessagingService {
         notificationManager.createNotificationChannel(channel);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
-        builder.setSmallIcon(R.drawable.cooklogo);
+        builder.setSmallIcon(R.drawable.smol);
         builder.setContentTitle(payload.get("title"));
         builder.setContentText(rm.getData().get("message"));
 
@@ -72,6 +72,18 @@ public class MyFbMessagingService extends FirebaseMessagingService {
 
         if (type.equals("book")) {
             Intent resultIntent = new Intent(this, HomeActivity.class);
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+
+            stackBuilder.addNextIntent(resultIntent);
+
+            PendingIntent resultPI = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.setContentIntent(resultPI);
+        }
+
+        if (type.equals("rev")) {
+            String recipe = payload.get("recipe");
+            Intent resultIntent = new Intent(this, Individual_Recipe.class);
+            resultIntent.putExtra("ID", recipe);
             TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 
             stackBuilder.addNextIntent(resultIntent);

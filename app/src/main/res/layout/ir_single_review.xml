@@ -3,136 +3,119 @@
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
-        android:id="@+id/review"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        >
-
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/review_avatar"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:paddingLeft="20dp"
-            android:layout_centerVertical="true"
-            android:src="@drawable/profile_g"
-            />
-
-        <TextView
-            android:id="@+id/review_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/review_avatar"
-            android:layout_centerInParent="true"
-            android:paddingLeft="20dp"
-            android:textSize="15dp"
-            android:gravity="center_vertical"
-            />
 
 
-    </RelativeLayout>
-
-    <LinearLayout
-        android:id="@+id/stars"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/review"
-        android:paddingLeft="20dp">
-
-        <RatingBar
-            android:id="@+id/rev_stars_disp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize=".5"
-            style="?android:attr/ratingBarStyleSmall" />
-
-    </LinearLayout>
-
-    <RelativeLayout
-        android:id="@+id/review_desc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/stars">
-
-        <TextView
-            android:id="@+id/review_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="15dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:paddingTop="10dp"
-            />
-
-    </RelativeLayout>
-
-    <LinearLayout
-        android:id="@+id/review_images"
-        android:layout_below="@+id/review_desc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingTop="10dp"
+    <de.hdodenhof.circleimageview.CircleImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        app:civ_border_width="0.5dp"
+        app:civ_border_color="@color/colorLightGray"
+        android:id="@+id/review_avatar"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:paddingLeft="20dp"
-        >
+        android:src="@drawable/profile_g"
+        />
 
-        <ImageButton
-            android:id="@+id/image1"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/eggs"
-            android:layout_marginRight="10dp"
-            android:background="@null"/>
+    <TextView
+        android:id="@+id/review_name"
+        android:layout_width="300dp"
+        android:layout_height="60dp"
+        android:layout_toRightOf="@id/review_avatar"
+        android:paddingLeft="20dp"
+        android:textSize="15dp"
+        android:gravity="center_vertical"
+        />
 
-        <ImageButton
-            android:id="@+id/image2"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:scaleType="fitXY"
-            android:layout_marginRight="10dp"
-            android:background="@null"/>
 
-        <ImageButton
-            android:id="@+id/image3"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:scaleType="fitXY"
-            android:background="@null"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/review_date"
+    <RatingBar
+        android:id="@+id/rev_stars_disp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/review_images"
+        android:layout_below="@+id/review_avatar"
+        android:numStars="5"
+        android:stepSize=".5"
+        android:layout_marginLeft="20dp"
+        style="?android:attr/ratingBarStyleSmall" />
+
+
+
+    <TextView
+        android:id="@+id/review_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:paddingTop="10dp"
-        android:paddingBottom="20dp">
-        <TextView
-            android:id="@+id/review_date_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="20dp"
-            android:textSize="10dp"
-            />
-    </LinearLayout>
+        android:layout_below="@id/rev_stars_disp"
+        />
 
     <LinearLayout
-        android:id="@+id/delete_rev"
+        android:id="@+id/images"
+        android:layout_below="@+id/review_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/review_date"
-        android:paddingBottom="20dp">
+        android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/delete_rev_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:text="Delete"
-            android:textSize="10dp" />
+    <ImageButton
+        android:id="@+id/image1"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="fitXY"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="20dp"
+        android:background="@null"
+        />
+
+    <ImageButton
+        android:id="@+id/image2"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="fitXY"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="20dp"
+        android:background="@null"
+        />
+
+    <ImageButton
+        android:id="@+id/image3"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="fitXY"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="20dp"
+        android:background="@null"
+        />
+
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/review_date_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:textSize="10dp"
+        android:paddingTop="10dp"
+        android:layout_below="@id/images"
+        />
+
+
+    <ImageButton
+        android:id="@+id/delete_rev_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_delete"
+        android:background="@null"
+        android:layout_marginTop="15dp"
+        android:layout_toRightOf="@+id/review_name"
+        />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@+id/review_date_text"/>
 
 </RelativeLayout>

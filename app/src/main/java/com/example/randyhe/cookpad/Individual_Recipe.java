@@ -142,7 +142,7 @@ public class Individual_Recipe extends AppCompatActivity {
                         final Map<String, Boolean> followersList = (HashMap<String, Boolean>) docData.get("following");
 
                         if (followersList.containsKey(profileUID)) {
-                            followButton.setText("Following");
+                            followButton.setText("Unfollow");
                             setupUnfollowBtn(profileUID, currentUID);
                         } else {
                             followButton.setText("Follow");
@@ -165,7 +165,7 @@ public class Individual_Recipe extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 followAction(profileUID, currentUID);
-                followButton.setText("Following");
+                followButton.setText("Unfollow");
                 setupUnfollowBtn(profileUID, currentUID);
             }
         });
@@ -297,7 +297,6 @@ public class Individual_Recipe extends AppCompatActivity {
 
         displayNoReviewsMessage();
 
-
         final DocumentReference docRef = db.collection("recipes").document(individualRecipeID.toString());
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -331,8 +330,6 @@ public class Individual_Recipe extends AppCompatActivity {
                         });
                     }
 
-
-
                     mainTitle.setText(document.getString("title"));
 
                     if(document.getString("description") == null || document.getString("description") == "")
@@ -347,12 +344,7 @@ public class Individual_Recipe extends AppCompatActivity {
                     numFeeds.setText(document.getString("servings"));
                     cookTime.setText(document.getString("time"));
 
-
-                    float avgS = 0;
-                    if(document.getString("total") != null && document.getString("total") != "") {
-                        avgS = Float.parseFloat(document.getString("total")) / Integer.parseInt(document.getString("number"));
-                    }
-                    avgStarsDisp.setRating(avgS);
+                    setAverage();
 
                     setupReviewAddPhotos();
                     setupSubmitReview();
@@ -371,10 +363,10 @@ public class Individual_Recipe extends AppCompatActivity {
                     StringBuilder sb = new StringBuilder();
 
                     if(ingredsList.size() == 0) {
-                        sb.append("No ingredients\n");
+                        sb.append("No ingredients");
                     }
                     else if (ingredsList.size() == 1 && ingredsList.get(0).equals("")) {
-                        sb.append("No ingredients\n");
+                        sb.append("No ingredients");
                     }
                     else {
                         for (int i = 0; i < ingredsList.size(); i++) {
@@ -444,6 +436,11 @@ public class Individual_Recipe extends AppCompatActivity {
 
                     // GET RECIPE USERNAME AND AVATAR
                     final String recAuthorID = document.getString("userId");
+
+                    if (currentUser.getUid().toString().equals(recAuthorID)) {
+                        followButton.setVisibility(View.GONE);
+                    }
+
                     final DocumentReference docRef2 = db.collection("users").document(recAuthorID.toString());
                     docRef2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
@@ -520,6 +517,25 @@ public class Individual_Recipe extends AppCompatActivity {
             }
         });
     }
+
+    private void setAverage() {
+        final DocumentReference docRef = db.collection("recipes").document(individualRecipeID.toString());
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+
+                    float avgS = 0;
+                    if(document.getString("total") != null && document.getString("total") != "") {
+                        avgS = Float.parseFloat(document.getString("total")) / Integer.parseInt(document.getString("number"));
+                    }
+                    avgStarsDisp.setRating(avgS);
+                }
+            }
+        });
+    }
+
 
     private void storeAndSortReviews() {
 
@@ -599,7 +615,6 @@ public class Individual_Recipe extends AppCompatActivity {
             final TextView reviewName = (TextView) rev.findViewById(R.id.review_name);
             final TextView reviewText = (TextView) rev.findViewById(R.id.review_text);
             final TextView reviewDateText = (TextView) rev.findViewById(R.id.review_date_text);
-            final LinearLayout reviewImages = (LinearLayout) rev.findViewById(R.id.review_images);
             final ImageButton imageOne = (ImageButton) rev.findViewById(R.id.image1);
             final ImageButton imageTwo = (ImageButton) rev.findViewById(R.id.image2);
             final ImageButton imageThree = (ImageButton) rev.findViewById(R.id.image3);
@@ -648,17 +663,22 @@ public class Individual_Recipe extends AppCompatActivity {
 
                 reviewLayout.addView(rev2);
 
-                final Button deleteRevBtn2 = (Button) rev2.findViewById(R.id.delete_rev_btn2);
+                final ImageButton deleteRevBtn2 = (ImageButton) rev2.findViewById(R.id.delete_rev_btn2);
                 // Don't show the delete button if it's not the user's review
                 if (reviewList.get(i).reviewPublisherId.equals(currentUser.getUid().toString())) {
-
                     final int iTemp = i;
                     deleteRevBtn2.setVisibility(View.VISIBLE);
                     deleteRevBtn2.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            deleteReview(reviewList.get(iTemp));
-                            forceReload();
+                            new AlertDialog.Builder(view.getContext())
+                                    .setMessage("Are you sure you want to delete this review?")
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int button) {
+                                            deleteReview(reviewList.get(iTemp));
+                                        }
+                                    }).setNegativeButton(android.R.string.no, null).show();
                         }
                     });
                 }
@@ -700,17 +720,22 @@ public class Individual_Recipe extends AppCompatActivity {
                 displayRevImages(imageOne, imageTwo, imageThree, reviewList.get(i).photoOne, reviewList.get(i).photoTwo, reviewList.get(i).photoThree);
                 reviewLayout.addView(rev);
 
-                final Button deleteRevBtn = (Button) rev.findViewById(R.id.delete_rev_btn);
+                final ImageButton deleteRevBtn = (ImageButton) rev.findViewById(R.id.delete_rev_btn);
                 // Don't show the delete button if it's not the user's review
                 if (reviewList.get(i).reviewPublisherId.equals(currentUser.getUid().toString())) {
-
                     final int iTemp = i;
                     deleteRevBtn.setVisibility(View.VISIBLE);
                     deleteRevBtn.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            deleteReview(reviewList.get(iTemp));
-                            forceReload();
+                            new AlertDialog.Builder(view.getContext())
+                                    .setMessage("Are you sure you want to delete this review?")
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int button) {
+                                            deleteReview(reviewList.get(iTemp));
+                                        }
+                                    }).setNegativeButton(android.R.string.no, null).show();
                         }
                     });
                 }
@@ -789,6 +814,7 @@ public class Individual_Recipe extends AppCompatActivity {
             public void onSuccess(Void aVoid) {
                 progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), "Successfully deleted review!", Toast.LENGTH_LONG).show();
+                setAverage();
                 forceReload();
             }
         });
@@ -1151,7 +1177,10 @@ public class Individual_Recipe extends AppCompatActivity {
                 };
                 recipeDoc.get().addOnCompleteListener(storeReviewId);
 
-                Toast.makeText(c,"Review Added!",Toast.LENGTH_SHORT).show();
+                Toast.makeText(c,"Review Added!",Toast.LENGTH_LONG).show();
+
+                setAverage();
+
                 forceReload();
 
             }

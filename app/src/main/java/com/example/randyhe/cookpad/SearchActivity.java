@@ -15,6 +15,8 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
@@ -42,6 +44,8 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
     private RecyclerView.LayoutManager mLayoutManager;
     private int adapterCounter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private TextView noneMessage;
+
 
 
     @Override
@@ -63,6 +67,8 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
                 android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
+
+        noneMessage = findViewById(R.id.none_message);
 
     }
 
@@ -119,6 +125,8 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
         final List<String> ids = getIntent().getExtras().getStringArrayList("ids");
         if (ids.size() < 1) {
             // show that none could be found
+            noneMessage.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.GONE);
             mSwipeRefreshLayout.setRefreshing(false);
         } else {
             adapterCounter = ids.size();
@@ -160,6 +168,9 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
                                     mAdapter = new RecipeCompactAdapter(recipeCompactObjectList, SearchActivity.this, true);
                                     mRecyclerView.setAdapter(mAdapter);
                                     mSwipeRefreshLayout.setRefreshing(false);
+
+                                    noneMessage.setVisibility(View.GONE);
+                                    mRecyclerView.setVisibility(View.VISIBLE);
                                 }
                             }
                         });
