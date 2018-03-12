@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -70,6 +71,7 @@ public class ManageRecipe extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         rootView = LayoutInflater.from(this).inflate(R.layout.activity_cr, null);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(rootView);
 
         // both editing and creating recipe share this code

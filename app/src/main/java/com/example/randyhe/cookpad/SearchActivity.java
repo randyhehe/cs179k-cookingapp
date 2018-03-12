@@ -1,6 +1,7 @@
 package com.example.randyhe.cookpad;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
@@ -54,6 +55,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         FirebaseApp.initializeApp(this);
         fbFirestore = FirebaseFirestore.getInstance();

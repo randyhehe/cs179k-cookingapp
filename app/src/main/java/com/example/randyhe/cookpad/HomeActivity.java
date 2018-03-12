@@ -2,6 +2,7 @@ package com.example.randyhe.cookpad;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
@@ -45,6 +46,7 @@ public class HomeActivity extends AppCompatActivity
         final Context c = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         final ImageButton topOptionsButton = (ImageButton) findViewById(R.id.options);
 
