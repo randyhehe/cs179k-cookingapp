@@ -1,5 +1,6 @@
 package com.example.randyhe.cookpad;
 
+import android.content.pm.ActivityInfo;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -83,6 +84,7 @@ public class ProfileActivity extends AppCompatActivity implements SwipeRefreshLa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_center_profile);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         user = getIntent().getExtras().getString("ID");
         setupViews();
